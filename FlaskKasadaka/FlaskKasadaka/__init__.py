@@ -16,6 +16,33 @@ def index():
 	"""
     return 'This is the Kasadaka Vxml generator'
 
+@app.route('/admin/user.html')
+def user():
+    if 'user' in request.args:
+        #list information of a user
+        userInfoQuery = """ """
+    else:
+        return listusers()
+
+
+@app.route('/admin/listusers.html')
+def listusers():
+    #list all users in the system
+    getUsersQuery = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
+                PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
+                    PREFIX lexvo: <http://lexvo.org/ontology#>
+                        PREFIX cv: <http://example.org/chickenvaccinationsapp/>
+                        
+                            SELECT DISTINCT  ?user ?fname  ?lname ?tel WHERE {
+                                              ?user rdf:type cv:user .
+                                                 ?user cv:contact_fname ?fname .                                                           ?user cv:contact_lname ?lname .
+                                                           ?user cv:contact_tel ?tel .
+                                                                             }"""
+    outputGetUsersQuery = executeSparqlQuery(getUsersQuery)
+    return render_template('admin/listusers.html',users=outputGetUsersQuery)
+
 
 @app.route('/main.vxml')
 def main():

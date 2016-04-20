@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Users</title>
+</head>
+<body>
+<h1>Kasadaka User management</h1>
+
+<p>Current users in the system:</p>
+
+<table>
+    <tr>
+        <td>Name</td>
+        <td>Tel. no</td>
+    </tr>
+
+
+  {% for user in users %}    
+<tr>
+    <td><a href="user.html?user={{ user[0] }}">{{ user[1] ~ " " ~ user[2] }}</a></td>
+  <td>{{ user[3] }}</td>
+</tr>
+  {% endfor %}
+</table>
+
+</body>
+</html>
