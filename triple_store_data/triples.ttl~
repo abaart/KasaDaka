@@ -1,0 +1,84 @@
+@prefix    rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix     rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix   speakle: <http://purl.org/collections/w4ra/speakle/> .
+@prefix      cv: <http://example.org/chickenvaccinationsapp/> .
+@prefix      audio: <http://localhost/audio/>.
+@prefix   lvont: <http://lexvo.org/ontology#>.
+@prefix   lexvoid: <http://lexvo.org/id/iso639-3/>.
+
+
+# Setup data for chicken vaccination use-case
+
+
+# Users
+
+cv:andre_baart
+	a cv:user ;
+	rdfs:label "Andre Baart"@en;
+	speakle:voicelabel_nl audio:andre_baart_nl.wav;
+	speakle:voicelabel_en audio:andre_baart_en.wav;
+	cv:contact_fname "Andre" ;
+	cv:contact_lname "Baart" ;
+	cv:contact_tel "+31653105713" ;
+	cv:preferred_language speakle:voicelabel_nl ;
+	cv:owns_chicken_batch cv:chicken_batch1 .
+
+
+
+	
+# Diseases
+	
+cv:newcastle
+	a cv:disease ;
+	rdfs:label "Newcastle's disease"@en ;
+	speakle:voicelabel_nl audio:newcastle_nl.wav ;
+	speakle:voicelabel_en audio:newcastle_en.wav .
+	
+
+
+# Chicken batches
+
+cv:chicken_batch1
+	a cv:chicken_batch ;
+	cv:birth_date "2012-08-11" ;
+	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
+	speakle:voicelabel_en audio:chicken_batch1_en.wav .	
+	
+	
+# Vaccinations
+
+cv:newcastle_vac1
+	a cv:vaccination ;
+	cv:treats cv:newcastle ;
+	cv:days_after_birth "1" ;
+	cv:description "description goes here" ;
+	speakle:voicelabel_nl audio:newcastle_vac1_nl.wav ;
+	speakle:voicelabel_en audio:newcastle_vac1_en.wav .	
+	
+
+
+# Languages
+
+speakle:voicelabel_en
+	a rdf:Property ;
+	lvont:language lexvoid:eng; 
+	rdfs:label "has English voicelabel"@en;
+	rdfs:subPropertyOf speakle:voicelabel .
+	
+speakle:voicelabel_fr
+	a rdf:Property ;
+	lvont:language lexvoid:fra;
+	rdfs:label "has French voicelabel"@en;
+	rdfs:subPropertyOf speakle:voicelabel .
+	
+speakle:voicelabel_nl
+	a rdf:Property ;
+	lvont:language lexvoid:nld;
+	rdfs:label "has Dutch voicelabel"@en;
+	rdfs:subPropertyOf speakle:voicelabel .
+	
+speakle:voicelabel
+	a rdf:Property ;
+	rdfs:label "has voicelabel".
+
+
