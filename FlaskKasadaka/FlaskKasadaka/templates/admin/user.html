@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>User information</title>
+</head>
+<body>
+<h1>Kasadaka User management</h1>
+
+
+
+<p>User information: {{ uri }} </p>
+<form method="post">
+<table>
+    {% for field in fieldNames %}    
+    <tr>
+        <td>{{ field }}</td>
+        <td>{{ user[1][loop.index-1] }}</td>
+        <td><input type="text" name="{{ user[0][loop.index-1] }}" value="{{ user[1][loop.index-1] }}"></td>
+
+    </tr>
+    {% endfor %}
+
+
+
+</table>
+
+<input type="hidden" name="user" value="{{uri}}">
+<input type="hidden" name="update" value="yes">
+<input type="submit" value="Update information!">
+</form>
+</body>
+</html>

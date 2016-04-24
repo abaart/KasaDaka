@@ -16,13 +16,36 @@ def index():
 	"""
     return 'This is the Kasadaka Vxml generator'
 
-@app.route('/admin/user.html')
+@app.route('/admin/user.html', methods=['GET','POST'])
 def user():
-    if 'user' in request.args:
+   # if request.args['update'] == 'yes':
+    if 'update' in request.form:
+        if request.form['update'] == 'yes':
+             return 'yes!!'
+    elif 'user' in request.args:
         #list information of a user
-        userInfoQuery = """ """
+        userInfoQuery = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
+        PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
+        PREFIX lexvo: <http://lexvo.org/ontology#>
+        PREFIX cv: <http://example.org/chickenvaccinationsapp/>
+        SELECT DISTINCT   ?fname  ?lname ?tel  ?pl ?vl_en WHERE {
+                  <"""+request.args['user']+"""> rdf:type cv:user .
+                    ?user cv:contact_fname ?fname .
+                    ?user cv:contact_lname ?lname .
+                    ?user cv:contact_tel ?tel .
+                    ?user cv:preferred_language ?pl .
+                    ?user speakle:voicelabel_en ?vl_en .
+                    }"""
+        #TODO add support for voicelabels of all installed languages
+        
+        fieldNames=['First name','Last name','Tel. no.','Preferred language','English Voicelabel']
+
+        result = executeSparqlQuery(userInfoQuery,giveColumns=True)
+        return render_template('admin/user.html',user = result, fieldNames = fieldNames, uri = request.args['user'])
     else:
-        return listusers()
+        return "Error: no user defined."
 
 
 @app.route('/admin/listusers.html')

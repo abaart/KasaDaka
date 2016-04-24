@@ -10,7 +10,7 @@ defaultLanguage = "en"
 audioURLbase = "http://127.0.0.1/audio/"
 
 #debug mode
-debug=False
+debug=True
 
 #python files location
 pythonFilesDir = "/home/pi/KasaDaka/FlaskKasadaka/FlaskKasadaka/"
