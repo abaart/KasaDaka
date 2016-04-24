@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import config
 
-def executeSparqlQuery(query, url = config.sparqlURL):
+def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False):
     ET.register_namespace("","http://www.w3.org/2005/sparql-results#")
 
     queryHtmlFormat = urllib.quote(query)
@@ -25,6 +25,8 @@ def executeSparqlQuery(query, url = config.sparqlURL):
     iteratorResults = root.iter(tag="{http://www.w3.org/2005/sparql-results#}result")
 
     results = []
+    if giveColumns:
+        results.append(columns)
     for result in iteratorResults:
         results.append([])
         for item in result:
