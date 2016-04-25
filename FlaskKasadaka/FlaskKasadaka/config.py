@@ -4,6 +4,16 @@
 #Sparql endpoint
 sparqlURL = "http://127.0.0.1:3020/sparql/"
 
+#TODO implement automatic insertion of prefixes
+sparqlPrefixes = """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
+PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
+PREFIX lexvo: <http://lexvo.org/ontology#>
+PREFIX cv: <http://example.org/chickenvaccinationsapp/>
+"""
+
 #default language
 defaultLanguage = "en"
 #audio files location
