@@ -7,13 +7,16 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import config
 
-def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False):
+def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpEncode = True):
     ET.register_namespace("","http://www.w3.org/2005/sparql-results#")
 
-    queryHtmlFormat = urllib.quote(query)
-    requestURL = url + "?query=" + queryHtmlFormat
+    #queryHtmlFormat = urllib.quote(query)
+    requestArgs = { "query":query }
+    requestArgs = urllib.urlencode(requestArgs)
+    #requestURL = url + "?query="
     #print "requesting: "+requestURL
-    resultXML = urllib2.urlopen(requestURL).read()
+    #print requestArgs
+    resultXML = urllib2.urlopen(url,requestArgs).read()
     root = ET.fromstring(resultXML)
 
     head = root.find("{http://www.w3.org/2005/sparql-results#}head")
@@ -33,16 +36,19 @@ def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False):
             for content in item:
                 #toAppend = urllib.quote(content.text)
                 toAppend = content.text
-                toAppend = toAppend.replace("-","%2D")
+                if httpEncode: toAppend = toAppend.replace("-","%2D")
                 results[len(results)-1].append(toAppend)
 
     return results
 
 def executeSparqlUpdate(query, url = config.sparqlURL):
 
-    queryHtmlFormat = urllib.quote(query)
-    requestURL = url + "update?update=" + queryHtmlFormat
-    requestReturned = urllib2.urlopen(requestURL).read()
+    #queryHtmlFormat = urllib.quote(query)
+    requestArgs = { "update":query }
+    requestArgs = urllib.urlencode(requestArgs)
+    #requestURL = url + "update?update=" + queryHtmlFormat
+    requestURL = url + "update"
+    requestReturned = urllib2.urlopen(requestURL,requestArgs).read()
     sucessResult = "<boolean>true</boolean>"
     if sucessResult in requestReturned:
         return True
