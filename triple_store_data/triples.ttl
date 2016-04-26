@@ -20,10 +20,17 @@ cv:andre_baart
 	cv:contact_fname "Andre" ;
 	cv:contact_lname "Baart" ;
 	cv:contact_tel "+31653105713" ;
-	cv:preferred_language speakle:voicelabel_nl ;
-	cv:owns_chicken_batch cv:chicken_batch1 ;
-	cv:owns_chicken_batch cv:chicken_batch2 .
+	cv:preferred_language speakle:voicelabel_nl .
 
+cv:victor_de_boer
+	a cv:user ;
+	rdfs:label "Victor de Boer"@en;
+	speakle:voicelabel_nl audio:victor_de_boer_nl.wav;
+	speakle:voicelabel_en audio:victor_de_boer_en.wav;
+	cv:contact_fname "Victor" ;
+	cv:contact_lname "de Boer" ;
+	cv:contact_tel "+31612345678" ;
+	cv:preferred_language speakle:voicelabel_nl .
 
 
 	
@@ -42,9 +49,16 @@ cv:newcastle
 cv:chicken_batch1
 	a cv:chicken_batch ;
 	cv:birth_date "2012-08-11" ;
+	cv:owned_by cv:andre_baart ;
 	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
 	speakle:voicelabel_en audio:chicken_batch1_en.wav .	
 	
+cv:chicken_batch2
+	a cv:chicken_batch ;
+	cv:birth_date "2010-08-11" ;
+	cv:owned_by cv:andre_baart ;
+	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
+	speakle:voicelabel_en audio:chicken_batch1_en.wav .
 	
 # Vaccinations
 
@@ -56,6 +70,13 @@ cv:newcastle_vac1
 	speakle:voicelabel_nl audio:newcastle_vac1_nl.wav ;
 	speakle:voicelabel_en audio:newcastle_vac1_en.wav .	
 	
+cv:newcastle_vac2
+	a cv:vaccination ;
+	cv:treats cv:newcastle ;
+	cv:days_after_birth "5" ;
+	cv:description "vaccination 2" ;
+	speakle:voicelabel_nl audio:newcastle_vac1_nl.wav ;
+	speakle:voicelabel_en audio:newcastle_vac1_en.wav .
 
 
 # Languages

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+{% block head %}
+<head>
+{% block title %}
+    <title>KasaDaka admin</title>
+{% endblock %}
+</head>
+{% endblock %}
+<body>
+<h1>KasaDaka Admin</h1>
+<table>
+<tr>
+<td><a href="/admin">Home</a></td>
+<td><a href="/admin/listusers.html">Users</td>
+<td><a href="/admin/listchickens.html">Chickens</td>
+<td><a href="/admin/listdiseases.html">Diseases/Vaccinations</td>
+</tr>
+</table>
+<br/>
+{% block body %}
+This is the KasaDaka administrator interface.
+{% endblock %}
+</body>
+</html>
+{% macro voiceLabels(voiceLabelResults) %}
+<h4>Voice Labels</h4>
+<table>
+<tr>
+<td>Voicelabel</td>
+<td>Audio url<td>
+<td></td>
+</tr>
+{% for voicelabel in voiceLabelResults %}
+<tr>
+<td>{{voicelabel[0]}}</td>
+<td>{{voicelabel[1]}}</td>
+<td><audio controls><source src="{{voicelabel[1]}}" type="audio/wav"></audio></td>
+</tr>
+{% endfor %}
+</table>
+
+{% endmacro %}

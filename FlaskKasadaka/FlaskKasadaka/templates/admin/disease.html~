@@ -1,0 +1,56 @@
+{% extends "admin/index.html" %}
+{% block body %}
+<h2>Disease</h2>
+
+
+
+<p>Disease information: {{ uri }} </p>
+<form method="post">
+<table>
+    {% for field in fieldNames %}    
+    <tr>
+        <td>{{ field }}</td>
+        <td>{{ user[1][loop.index-1] }}</td>
+        <td><input type="text" name="{{ user[0][loop.index-1] }}" value="{{ user[1][loop.index-1] }}"></td>
+
+    </tr>
+    {% endfor %}
+
+
+
+</table>
+
+<input type="hidden" name="uri" value="{{uri}}">
+<input type="hidden" name="action" value="update">
+<input type="submit" value="Update information!">
+</form>
+<br/>
+
+
+<h2>Vaccination scheme</h2>
+
+<p>Vaccinations for {{ vaccinations[0][0]}}</p>
+
+<table>
+    <tr>
+        <td>URI</td>
+        <td>Days after birth</td>
+	<td>Description</td>
+	<td>Treats</td>
+    </tr>
+
+
+  {% for vaccination in vaccinations %}    
+<tr>
+    <td><a href="vaccination.html?uri={{ vaccination[1] }}">{{ vaccination[1] }}</a></td>
+<td>{{ vaccination[2] }}</td>
+<td>{{ vaccination[3] }}</td>
+<td>{{ vaccination[0] }}</td>
+
+
+</tr>
+  {% endfor %}
+</table>
+
+<a href="vaccination.html?action=new&uri=
+{% endblock %}

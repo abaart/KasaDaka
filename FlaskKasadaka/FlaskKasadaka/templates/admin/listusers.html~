@@ -1,6 +1,6 @@
 {% extends "admin/index.html" %}
 {% block body %}
-<h2>User management</h2>
+<h1>User management</h1>
 
 <p>Current users in the system:</p>
 
