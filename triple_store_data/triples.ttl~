@@ -48,12 +48,17 @@ cv:newcastle
 
 cv:chicken_batch1
 	a cv:chicken_batch ;
-	cv:batch_owner cv:andre_baart;
 	cv:birth_date "2012-08-11" ;
 	cv:owned_by cv:andre_baart ;
 	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
 	speakle:voicelabel_en audio:chicken_batch1_en.wav .	
 	
+cv:chicken_batch2
+	a cv:chicken_batch ;
+	cv:birth_date "2010-08-11" ;
+	cv:owned_by cv:andre_baart ;
+	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
+	speakle:voicelabel_en audio:chicken_batch1_en.wav .
 	
 # Vaccinations
 

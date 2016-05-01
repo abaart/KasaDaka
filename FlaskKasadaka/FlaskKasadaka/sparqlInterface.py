@@ -8,7 +8,8 @@ from xml.dom import minidom
 import config
 
 def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpEncode = True):
-    query = prefix(query)
+    query = addGraph(query)
+    query = addPrefix(query)
     ET.register_namespace("","http://www.w3.org/2005/sparql-results#")
 
     #queryHtmlFormat = urllib.quote(query)
@@ -39,11 +40,11 @@ def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpE
                 toAppend = content.text
                 if httpEncode: toAppend = toAppend.replace("-","%2D")
                 results[len(results)-1].append(toAppend)
-
     return results
 
 def executeSparqlUpdate(query, url = config.sparqlURL):
-    query = prefix(query)
+    query = addGraph(query)
+    query = addPrefix(query)
     #queryHtmlFormat = urllib.quote(query)
     requestArgs = { "update":query }
     requestArgs = urllib.urlencode(requestArgs)
@@ -57,7 +58,7 @@ def executeSparqlUpdate(query, url = config.sparqlURL):
         print "ERROR: SPARQL UPDATE FAILED! Check your query!"
         return False
 
-def prefix(query,prefix = config.sparqlPrefixes):
+def addPrefix(query,prefix = config.sparqlPrefixes):
 	#adds a prefix to a query when they are not yet defined
 	startsWithPrefix = re.search("^\s*PREFIX\s",query)
 	if startsWithPrefix:
@@ -65,5 +66,13 @@ def prefix(query,prefix = config.sparqlPrefixes):
 	else:
 		return prefix + " " + query
 
+def addGraph(query,graph = config.sparqlGraph):
+    #adds the graph from the config to the query, when not defined 
+
+    #regex that searches for DATA or WHERE without GRAPH defined, adds it in.
+    result = re.sub(r"(\s(DATA|WHERE)\s*\{\s*(?!\s*GRAPH\s*\<[^\>]*\>\s*))([^\;]*)(\;?)",
+    r"\1GRAPH <"+ graph + r"> {\3}\4",
+    query)
+    return result
 
 		

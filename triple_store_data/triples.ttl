@@ -2,7 +2,7 @@
 @prefix     rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix   speakle: <http://purl.org/collections/w4ra/speakle/> .
 @prefix      cv: <http://example.org/chickenvaccinationsapp/> .
-@prefix      audio: <http://localhost/audio/>.
+@prefix      audio: <http://127.0.0.1/audio/>.
 @prefix   lvont: <http://lexvo.org/ontology#>.
 @prefix   lexvoid: <http://lexvo.org/id/iso639-3/>.
 
@@ -14,7 +14,6 @@
 
 cv:andre_baart
 	a cv:user ;
-	rdfs:label "Andre Baart"@en;
 	speakle:voicelabel_nl audio:andre_baart_nl.wav;
 	speakle:voicelabel_en audio:andre_baart_en.wav;
 	cv:contact_fname "Andre" ;
@@ -24,7 +23,6 @@ cv:andre_baart
 
 cv:victor_de_boer
 	a cv:user ;
-	rdfs:label "Victor de Boer"@en;
 	speakle:voicelabel_nl audio:victor_de_boer_nl.wav;
 	speakle:voicelabel_en audio:victor_de_boer_en.wav;
 	cv:contact_fname "Victor" ;

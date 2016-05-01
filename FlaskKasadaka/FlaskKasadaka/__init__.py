@@ -1,19 +1,103 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
 from datetime import datetime
+from werkzeug import secure_filename
 import config
 import glob
 import re
 import urllib
 import copy
+import os.path
+import os
 
 app = Flask(__name__)
+app.secret_key = 'asdfbjarbja;kfbejkfbasjkfbslhjvbhcxgxui328'
+app.config['UPLOAD_FOLDER'] = config.audioPath
+
+
 @app.route('/')
 def index():
     """ Index page
 	Only used to confirm hosting is working correctly
 	"""
     return 'This is the Kasadaka Vxml generator'
+
+@app.route('/admin/audio', methods=['GET','POST'])
+def adminAudio():
+    if 'lang' in request.args:
+        return recordAudio(request.args['lang'])
+    elif request.method == 'POST':
+        return processAudio(request)
+    else:
+        return adminAudioHome()
+
+
+def adminAudioHome():
+    getLanguagesQuery = """SELECT DISTINCT  ?voicelabel  WHERE {
+          ?voicelabel   rdfs:subPropertyOf speakle:voicelabel.}"""
+    languages = executeSparqlQuery(getLanguagesQuery)
+    for language in languages:
+        getNumberMissingVoicelabelsQuery = """SELECT DISTINCT ?subject    WHERE {
+       ?subject rdf:type   ?type .
+        FILTER(NOT EXISTS {?subject <"""+language[0]+"""> ?voicelabel_en .})
+        }"""
+        missingVoicelabels=executeSparqlQuery(getNumberMissingVoicelabelsQuery)
+        language.append(len(missingVoicelabels))
+    getAllResourcesQuery = """SELECT DISTINCT ?subject  WHERE {
+    ?subject rdf:type   ?type .}"""
+    resources = executeSparqlQuery(getAllResourcesQuery)
+    sparqlNonExistingWaveFiles = []
+    for resource in resources:
+        voiceLabels = getVoiceLabels(resource[0],returnEmptyVoiceLabels=False)
+        for audioFile in voiceLabels:
+            url = audioFile[1]
+            if not urllib.urlopen(url).getcode() == 200:
+                sparqlNonExistingWaveFiles.append(audioFile[1])
+                sparqlNonExistingWaveFiles = sorted(sparqlNonExistingWaveFiles)
+
+    return render_template('admin/audio.html',
+        languages = languages,
+        notAvailableWaveFiles = sparqlNonExistingWaveFiles)
+
+def recordAudio(language):
+    getResourcesMissingVoicelabelQuery = """SELECT DISTINCT ?subject    WHERE {
+       ?subject rdf:type   ?type .
+        FILTER(NOT EXISTS {?subject <"""+language+"""> ?voicelabel_en .})
+        }"""
+    resourcesMissingVoicelabels = executeSparqlQuery(getResourcesMissingVoicelabelQuery)
+    resource = resourcesMissingVoicelabels[0][0]
+    resourceDataQuery = """SELECT DISTINCT  ?1 ?2  WHERE {
+          ?uri   ?1 ?2.
+         FILTER(?uri=<"""+resource+""">)}"""
+    proposedWavURL = config.audioPath + resource.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
+
+    resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
+
+
+    return render_template('admin/record.html',uri=resource,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language)
+
+def processAudio(request):
+    fileExists = os.path.isfile(request.form['filename'])
+    file = request.files['file']
+    #if file and allowed_file(file.filename):
+        #filename = secure_filename(file.filename)
+        #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    file.save(request.form['filename'])
+    size = os.stat(request.form['filename']).st_size
+    if size > 0: flash('File saved successfully! bytes:'+str(size))
+    else:
+        flash("Error: file "+str(size)+" bytes.")
+        return recordAudio(request.form['lang'])
+
+    URL = config.audioURLbase + request.form['filename'].rsplit('/', 1)[-1]
+    insertVoicelabelQuery = """INSERT DATA {
+    <"""+ request.form['uri'] + """> <"""+ request.form['lang'] +"""> <""" + URL + """>.
+    }"""
+    insertSuccess = executeSparqlUpdate(insertVoicelabelQuery)
+    if insertSuccess: flash("Voicelabel sucessfully inserted in to triple store!")
+    else: flash("Error in inserting triples")
+    return recordAudio(request.form['lang'])
+
 
 @app.route('/admin/vaccination.html', methods=['GET','POST'])
 def vaccinationScheme():
@@ -57,8 +141,7 @@ def disease():
   				?vac_uri cv:days_after_birth ?dab .
   				?vac_uri cv:description ?description .
 				?uri rdfs:label ?disease_label
-  FILTER(?uri=<INSERTURI>)
-                }"""
+                FILTER(?uri=<INSERTURI>)}"""
 	getVaccinationsQuery = getVaccinationsQuery.replace("<INSERTURI>","<"+request.args['uri']+">")
 	vaccinations = executeSparqlQuery(getVaccinationsQuery,httpEncode=False)
 
@@ -124,39 +207,33 @@ def adminIndex():
 @app.route('/admin/user.html', methods=['GET','POST'])
 def user():
     userInfoQuery = """
-    SELECT DISTINCT   ?fname  ?lname ?tel  ?pl ?vl_en WHERE {
-                <INSERTUSER> rdf:type cv:user .
+    SELECT DISTINCT   ?fname  ?lname ?tel  ?pl  WHERE {
                 ?user cv:contact_fname ?fname .
                 ?user cv:contact_lname ?lname .
                 ?user cv:contact_tel ?tel .
                 ?user cv:preferred_language ?pl .
-                ?user speakle:voicelabel_en ?vl_en .
-                FILTER(?user=<INSERTUSER>) } """
-    fieldNames=['First name','Last name','Tel. no.','Preferred language','English Voicelabel']
+                FILTER(?user=<INSERTUSER>)  }"""
+    fieldNames=['First name','Last name','Tel. no.','Preferred language']
     
     updateUserInfoQuery = """
-    DELETE WHERE
-    {
+    DELETE DATA{ 
     <INSERTUSER> cv:contact_fname <fname>.
     <INSERTUSER> cv:contact_lname <lname>.
     <INSERTUSER> cv:contact_tel <tel>.
     <INSERTUSER> cv:preferred_language <pl>.
-    <INSERTUSER> speakle:voicelabel_en <vl_en>.
     };
 
-    INSERT DATA 
-    { 
+    INSERT DATA {
     <INSERTUSER> cv:contact_fname <FNAME>.
     <INSERTUSER> cv:contact_lname <LNAME>.
     <INSERTUSER> cv:contact_tel <TEL>.
     <INSERTUSER> cv:preferred_language <PL>.
-    <INSERTUSER> speakle:voicelabel_en <VL_EN>.
     }
     """
     #if insert request is received, insert triples
     if 'action' in request.args and request.args['action'] == 'new' :
 	result = []        
-	result.append(['FNAME','LNAME','TEL','PL','VL_EN'])
+	result.append(['FNAME','LNAME','TEL','PL'])
         return render_template(
                     'admin/user.html',
                     user = result, 
@@ -185,11 +262,10 @@ def user():
                     updateUserInfoQuery = updateUserInfoQuery.replace("<"+column.upper()+">","'"+request.form[column]+"'")
                     updateUserInfoQuery = updateUserInfoQuery.replace("<"+column+">","'"+result[1][index]+"'")
 
-            #TODO removing triples does not work in ClioPatria? Mail Jan!
             success = executeSparqlUpdate(updateUserInfoQuery)
             if success:
-                #TODO use Flask Flashing here
-                return 'success!!'
+                flash('User data successfully updated!')
+                return redirect(url_for('listusers'))
         else:
             return "error: provided data in HTTP request does not match requirements."
     
@@ -198,7 +274,6 @@ def user():
 	voiceLabels = getVoiceLabels(request.args['user'])
         #list information of a user
         userInfoQuery = userInfoQuery.replace("<INSERTUSER>","<"+request.args['user']+">")
-        #TODO add support for voicelabels of all installed languages
         result = executeSparqlQuery(userInfoQuery,giveColumns=True)
         if len(fieldNames) == len(result[0]):
             return render_template(
@@ -490,7 +565,7 @@ def audioReferences():
         #also add the language itself to choose language
         resultsInterface.append(string[0].rsplit('/', 1)[-1]+".wav")
         #add the langauges
-        languages.append(string[0].rsplit('_', 1)[-1])
+        languages.append(string[0].rsplit('/', 1)[-1])
 
     usedWaveFiles = set(resultsInterface)
     for lang in languages:
@@ -508,10 +583,7 @@ def audioReferences():
         finalResultsInterface.append([lang,existingWaveFiles,nonExistingWaveFiles])
 
     #check the DB for subjects without a voicelabel
-    noVoicelabelQuery = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
-    PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    noVoicelabelQuery = """
     SELECT DISTINCT ?subject   WHERE {
     ?subject rdf:type	rdfs:Resource .
     FILTER(NOT EXISTS {?subject speakle:voicelabel_en ?voicelabel_en .})
@@ -522,10 +594,7 @@ def audioReferences():
 
 
     #check the DB for subjects with a voicelabel, to check whether it exists or not
-    voicelabelQuery = """PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
-    PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
-	PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    voicelabelQuery = """
     SELECT DISTINCT ?subject ?voicelabel_en  WHERE {
     ?subject rdf:type	rdfs:Resource .
     ?subject speakle:voicelabel_en ?voicelabel_en .
@@ -561,26 +630,28 @@ def audioReferences():
     subjectsWithoutVoicelabel = subjectsWithoutVoicelabel,
     sparqlResults = finalResultsSparql)
 
-def getVoiceLabels(uri):
-	print "hai"
-	languagesQuery =""" SELECT DISTINCT  ?voicelabel  WHERE {
-          ?voicelabel   rdfs:subPropertyOf speakle:voicelabel.    }"""
-	outputLanguagesQuery = executeSparqlQuery(languagesQuery)
-	queryBuilder1 = """ SELECT DISTINCT """
-	queryBuilder2 = """ """
-	queryBuilder3 = """  WHERE {"""
-	queryBuilder4 = """ """
-	queryBuilder5 = """ FILTER(?uri=<""" + uri +""">) }"""
-	voiceLabels = []
-	for language in outputLanguagesQuery:
-		queryBuilder2 =  " ?" + language[0].rsplit('/', 1)[-1]
-		queryBuilder4 = " " + "OPTIONAL{?uri <"+language[0]+"> ?" + language[0].rsplit('/', 1)[-1] + " } "
-		voiceLabelQuery = queryBuilder1 + queryBuilder2 + queryBuilder3 + queryBuilder4 + queryBuilder5
-		voiceLabelResult = executeSparqlQuery(voiceLabelQuery,giveColumns=True,httpEncode=False)
-		if len(voiceLabelResult[1]) is not 0: audio = voiceLabelResult[1][0]
-		else: audio = ""
-		voiceLabels.append([voiceLabelResult[0][0],audio])
-	return voiceLabels
+def getVoiceLabels(uri,giveColumns = True,returnEmptyVoiceLabels = True):
+    languagesQuery =""" SELECT DISTINCT  ?voicelabel  WHERE {
+        ?voicelabel   rdfs:subPropertyOf speakle:voicelabel.    }"""
+    outputLanguagesQuery = executeSparqlQuery(languagesQuery)
+    queryBuilder1 = """ SELECT DISTINCT """
+    queryBuilder2 = """ """
+    queryBuilder3 = """  WHERE {"""
+    queryBuilder4 = """ """
+    queryBuilder5 = """ FILTER(?uri=<""" + uri +""">) }"""
+    voiceLabels = []
+    for language in outputLanguagesQuery:
+        queryBuilder2 =  " ?" + language[0].rsplit('/', 1)[-1]
+        queryBuilder4 = " " + "OPTIONAL{?uri <"+language[0]+"> ?" + language[0].rsplit('/', 1)[-1] + " } "
+        voiceLabelQuery = queryBuilder1 + queryBuilder2 + queryBuilder3 + queryBuilder4 + queryBuilder5
+        voiceLabelResult = executeSparqlQuery(voiceLabelQuery,giveColumns=giveColumns,httpEncode=False)
+        if len(voiceLabelResult[1]) is not 0:
+            audio = voiceLabelResult[1][0]
+            voiceLabels.append([voiceLabelResult[0][0],audio])
+        elif returnEmptyVoiceLabels == True:
+            audio = ""
+            voiceLabels.append([voiceLabelResult[0][0],audio])
+    return voiceLabels
 	
 
 

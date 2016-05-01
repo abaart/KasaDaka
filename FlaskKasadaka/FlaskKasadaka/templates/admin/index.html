@@ -15,9 +15,22 @@
 <td><a href="/admin/listusers.html">Users</td>
 <td><a href="/admin/listchickens.html">Chickens</td>
 <td><a href="/admin/listdiseases.html">Diseases/Vaccinations</td>
+<td><a href="/admin/audio">Audio files</td>
+<td>
 </tr>
 </table>
 <br/>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 {% block body %}
 This is the KasaDaka administrator interface.
 {% endblock %}

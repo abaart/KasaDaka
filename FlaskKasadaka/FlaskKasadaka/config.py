@@ -4,6 +4,9 @@
 #Sparql endpoint
 sparqlURL = "http://127.0.0.1:3020/sparql/"
 
+#URI of graph to use
+sparqlGraph = "http://localhost/chickenvaccination"
+
 #TODO implement automatic insertion of prefixes
 sparqlPrefixes = """
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -16,8 +19,11 @@ PREFIX cv: <http://example.org/chickenvaccinationsapp/>
 
 #default language
 defaultLanguage = "en"
-#audio files location
+#audio files locations: THESE PATHS MUST POINT TO THE SAME LOCATION
 audioURLbase = "http://127.0.0.1/audio/"
+audioPath = "/tmp/"
+allowedUploadExtensions = set(['wav'])
+
 
 #debug mode
 debug=True
