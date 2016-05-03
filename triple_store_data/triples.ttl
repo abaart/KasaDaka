@@ -2,7 +2,7 @@
 @prefix     rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix   speakle: <http://purl.org/collections/w4ra/speakle/> .
 @prefix      cv: <http://example.org/chickenvaccinationsapp/> .
-@prefix      audio: <http://127.0.0.1/audio/>.
+@prefix      audio: <http://heidrunn.nl/audio/>.
 @prefix   lvont: <http://lexvo.org/ontology#>.
 @prefix   lexvoid: <http://lexvo.org/id/iso639-3/>.
 
@@ -81,24 +81,80 @@ cv:newcastle_vac2
 
 speakle:voicelabel_en
 	a rdf:Property ;
+	cv:admin_interface_label "Voicelabel English";
 	lvont:language lexvoid:eng; 
 	rdfs:label "has English voicelabel"@en;
 	rdfs:subPropertyOf speakle:voicelabel .
 	
 speakle:voicelabel_fr
 	a rdf:Property ;
+	cv:admin_interface_label "Voicelabel French";
 	lvont:language lexvoid:fra;
 	rdfs:label "has French voicelabel"@en;
 	rdfs:subPropertyOf speakle:voicelabel .
 	
 speakle:voicelabel_nl
 	a rdf:Property ;
+	cv:admin_interface_label "Voicelabel Dutch";
 	lvont:language lexvoid:nld;
 	rdfs:label "has Dutch voicelabel"@en;
 	rdfs:subPropertyOf speakle:voicelabel .
 	
 speakle:voicelabel
 	a rdf:Property ;
+	cv:admin_interface_label "Voicelabel";
 	rdfs:label "has voicelabel".
 
+# Properties
 
+cv:contact_fname
+	a rdf:Property;
+	cv:admin_interface_label "Contact First Name".
+
+cv:contact_lname
+	a rdf:Property;
+	cv:admin_interface_label "Contact Last Name".
+
+cv:contact_tel
+	a rdf:Property;
+	cv:admin_interface_label "Contact Telephone Number".
+
+cv:preferred_language
+	a rdf:Property;
+	cv:admin_interface_label "Preferred Language".
+
+cv:user
+	a rdf:Property;
+	cv:admin_interface_label "User".
+
+cv:disease
+	a rdf:Property;
+	cv:admin_interface_label "Disease".
+
+cv:chicken_batch
+	a rdf:Property;
+	cv:admin_interface_label "Chicken Batch".
+
+cv:birth_date
+	a rdf:Property;
+	cv:admin_interface_label "Birth Date".
+
+cv:owned_by
+	a rdf:Property;
+	cv:admin_interface_label "Owned By".
+
+cv:vaccination
+	a rdf:Property;
+	cv:admin_interface_label "Vaccination".
+
+cv:treats
+	a rdf:Property;
+	cv:admin_interface_label "Treats".
+
+cv:days_after_birth
+	a rdf:Property;
+	cv:admin_interface_label "Days after birth".
+
+cv:description
+	a rdf:Property;
+	cv:admin_interface_label "Description".

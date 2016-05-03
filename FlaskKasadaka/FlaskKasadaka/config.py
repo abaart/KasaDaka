@@ -20,7 +20,7 @@ PREFIX cv: <http://example.org/chickenvaccinationsapp/>
 #default language
 defaultLanguage = "en"
 #audio files locations: THESE PATHS MUST POINT TO THE SAME LOCATION
-audioURLbase = "http://127.0.0.1/audio/"
+audioURLbase = "http://heidrunn.nl/audio/"
 audioPath = "/tmp/"
 allowedUploadExtensions = set(['wav'])
 
@@ -35,26 +35,5 @@ pythonFilesDir = "/home/pi/KasaDaka/FlaskKasadaka/FlaskKasadaka/"
 
 
 
-class LanguageVars(object):
-    audioURL = audioURLbase + defaultLanguage + "/"
-    audioInterfaceURL = audioURLbase + defaultLanguage + "/interface/"
-    language = defaultLanguage
 
-    def replaceVoicelabels(self,inputQuery,
-    voicelabelToReplace = "speakle:voicelabel_en",
-    voicelabelReplacement = "speakle:voicelabel_"):
-        return inputQuery.replace(voicelabelToReplace,voicelabelReplacement+self.language)
-
-    def __init__(self,languageInit):
-        if type(languageInit) is not str and 'lang' in languageInit:
-             self.audioURL = audioURLbase + languageInit['lang'] + "/"
-             self.audioInterfaceURL = audioURLbase + languageInit['lang'] + "/interface/"
-             self.language = languageInit['lang']
-        elif type(languageInit) is str:
-            self.audioURL = audioURLbase + languageInit + "/"
-            self.audioInterfaceURL = audioURLbase + languageInit + "/interface/"
-            self.language = languageInit
-
-    def __str__(self):
-        return language
 		

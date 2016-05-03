@@ -8,7 +8,7 @@
 
 
 <p>User information: {{ uri }} </p>
-<form method="post">
+<form method="post" action="user">
 <table>
     {% for field in fieldNames %}    
     <tr>
@@ -28,9 +28,11 @@
 <input type="submit" value="Update information!">
 {% else %}
 
-<input type="hidden" name="action" value="new">
+<input type="hidden" name="action" value="insert">
 <input type="submit" value="Insert new user">
 {% endif %}
 </form>
+{% if not new %}
 {{ voiceLabelsHtml.voiceLabels(voiceLabelResults) }}
+{% endif %}
 {% endblock %}

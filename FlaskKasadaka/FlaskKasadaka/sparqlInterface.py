@@ -1,5 +1,3 @@
-
-
 import re
 import urllib2
 import urllib
@@ -75,4 +73,149 @@ def addGraph(query,graph = config.sparqlGraph):
     query)
     return result
 
+def updateQueryReplace(URI,updateQuery,replacables,insertables):
+    """
+    Replaces pieces in an update query.
+    Input: 
+        URI = The URI to be inserted over "<INSERTURI>"
+        updateQuery = the query to replace things in
+        replacables = matrix of 2 arrays, first array contains the labels (columns) to be replaced in the query. This array is best generated from a SPARQL query (with headers turned on).
+        insertables = request dictionary a.k.a. 'request.form', with the 'keys' the same as the labels in replacables, the values will be inserted in to the query
+    Output:
+        Query with all stuff replaced
+
+    Example query to be processed:
+    DELETE DATA{ 
+    <INSERTURI> cv:contact_fname ?fname.
+    <INSERTURI> cv:contact_lname ?lname.
+    <INSERTURI> cv:contact_tel ?tel.
+    <INSERTURI> cv:preferred_language ?pl.
+    };
+    INSERT DATA {
+    <INSERTURI> cv:contact_fname <fname>.
+    <INSERTURI> cv:contact_lname <lname>.
+    <INSERTURI> cv:contact_tel <tel>.
+    <INSERTURI> cv:preferred_language <pl>.
+    };
+    """
+    updateQuery = updateQuery.replace("<INSERTURI>","<"+URI+">")
+    for replacable in replacables:
+        #insert URI's and strings in their own way
+        if validURI(insertables[replacable]):
+            updateQuery = updateQuery.replace("<"+replacable+">","<"+insertables[replacable]+">")
+        else:
+            updateQuery = updateQuery.replace("<"+replacable+">","'"+insertables[replacable]+"'")
+    return updateQuery
+
+def selectTriples(fields,triples,filter = "",distinct = True):
+    """
+    Inserts given matrix of triples into triple store.
+    """
+    if distinct: 
+        queryBuilder1 = """ SELECT DISTINCT """
+    else:
+        queryBuilder1 = """ SELECT """
+    queryBuilder2 = """ """
+    queryBuilder3 = """  WHERE {"""
+    queryBuilder4 = """ """
+    queryBuilder5 = """ """
+    queryBuilder6 = """}"""
+    if len(triples) == 0: raise ValueError('No triples for selection!')
+    if len(fields) == 0: raise ValueError("No fields for selection!")
+    for field in fields:
+        queryBuilder2 = queryBuilder2 + " ?" + field + " " 
+    for triple in triples:
+        refinedTriple = preProcessTriple(triple)
+        queryBuilder4 = queryBuilder4 + " " + refinedTriple[0] + " " + refinedTriple[1] + " " + refinedTriple[2] + " . "
+    if len(filter) != 0:
+        queryBuilder5 = " FILTER(?" + filter[0] + "=" + preProcessElement(filter[1]) + " ) "
+    query = queryBuilder1 + queryBuilder2 + queryBuilder3 + queryBuilder4 + queryBuilder5 + queryBuilder6
+    print query
+    return executeSparqlQuery(query)
+
+
+def deleteTriples(tuples):
+    """
+    Deletes triples that match the two first elements given in the tuples.
+    """
+    queryBuilder1 = """DELETE DATA {"""
+    queryBuilder2 = """ """
+    queryBuilder3 = """};"""
+    if len(triples) == 0: raise ValueError('No tuples to delete!')
+    for index, triple in enumerate(triples):
+        refinedTriple = preProcessTriple(triple)
+        queryBuilder2 = queryBuilder2 + " " + refinedTriple[0] + " " + refinedTriple[1] + " ?" + index + " . "
+    return executeSparqlUpdate(queryBuilder1+queryBuilder2+queryBuilder3)
+
+def insertTriples(triples):
+    """
+    Inserts given matrix of triples into triple store.
+    """
+    queryBuilder1 = """INSERT DATA {"""
+    queryBuilder2 = """ """
+    queryBuilder3 = """};"""
+    if len(triples) == 0: raise ValueError('No triples to insert!')
+    for triple in triples:
+        refinedTriple = preProcessTriple(triple)
+        queryBuilder2 = queryBuilder2 + " " + refinedTriple[0] + " " + refinedTriple[1] + " " + refinedTriple[2] + " . "
+    return executeSparqlUpdate(queryBuilder1+queryBuilder2+queryBuilder3)
+
+
+def preProcessTriple(triple):
+    """
+    Preprocesses a triple for use in a SPARQL query.
+    DOES NOT check for valid use of prefixes.
+    """
+    result=[]
+    for element in triple:
+        result.append(preProcessElement(element))
+    return result
+
+def preProcessElement(element):
+    """
+    Adds < > when element is a URI.
+    Adds " " when element is likely a string.
+    Does not add anything when element is likely a short URI. (uses prefix)
+    """
+    result = ""
+    if validURI(element):
+       result = ("<"+element+">")
+    #check whether element could be a prefix thingy
+    elif re.search("^\w{2,}:\w{2,100}$",element):
+        result = element
+    else:
+        result = '"'+ element +'"'
+    return result
+
+
+
+def findFreshURI(preferredURI):
+    """
+    Returns a URI that does not exist, taking in to account the preferred URI.
+    """
+    addition = 1
+    URI = preferredURI + "_" + str(addition)
+    while existsURI(URI):
+        addition = addition + 1
+        URI = preferredURI + "_" + str(addition)
+    return URI
+
 		
+def existsURI(URI):
+    """
+    Checks whether a URI exists.
+    """
+    if not validURI: raise ValueError('URI to check for existance not valid!')
+    existenceQuery = """
+    SELECT * WHERE {
+    ?sub ?pred ?obj .
+    FILTER(?sub = <"""+ URI + """>)} """
+    result = executeSparqlQuery(existenceQuery)
+    if len(result) == 0: return False
+    else: return True
+
+def validURI(URI):
+    """
+    Checks whether a given URI is valid.
+    """
+    return re.search("(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})",URI)

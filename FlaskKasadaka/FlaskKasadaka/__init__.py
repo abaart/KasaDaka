@@ -1,8 +1,11 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+from sparqlInterface import executeSparqlQuery, executeSparqlUpdate, updateQueryReplace, findFreshURI, insertTriples, deleteTriples
 from datetime import datetime
 from werkzeug import secure_filename
 import config
+from languageVars import LanguageVars, getVoiceLabels
+import chickenvaccination
+
 import glob
 import re
 import urllib
@@ -26,7 +29,7 @@ def index():
 def adminAudio():
     if 'lang' in request.args:
         return recordAudio(request.args['lang'])
-    elif request.method == 'POST':
+    elif request.method == 'POST' and request.form['action'] == 'upload':
         return processAudio(request)
     else:
         return adminAudioHome()
@@ -204,91 +207,77 @@ def listchickens():
 def adminIndex():
 	return render_template('admin/index.html')
 
-@app.route('/admin/user.html', methods=['GET','POST'])
+@app.route('/admin/user', methods=['GET','POST'])
 def user():
+    deleteUserInfoQuery = """
+    DELETE DATA{ 
+    <INSERTURI> cv:contact_fname ?fname.
+    <INSERTURI> cv:contact_lname ?lname.
+    <INSERTURI> cv:contact_tel ?tel.
+    <INSERTURI> cv:preferred_language ?pl.
+    };"""
+    insertUserInfoQuery = """
+    INSERT DATA {
+    <INSERTURI> cv:contact_fname <fname>.
+    <INSERTURI> cv:contact_lname <lname>.
+    <INSERTURI> cv:contact_tel <tel>.
+    <INSERTURI> cv:preferred_language <pl>.
+    };
+    """
+    fieldIDs = [['cv:contact_fname','cv:contact_lname','cv:contact_tel','cv:preferred_language']]
+    updateUserInfoQuery = deleteUserInfoQuery + insertUserInfoQuery
     userInfoQuery = """
     SELECT DISTINCT   ?fname  ?lname ?tel  ?pl  WHERE {
                 ?user cv:contact_fname ?fname .
                 ?user cv:contact_lname ?lname .
                 ?user cv:contact_tel ?tel .
                 ?user cv:preferred_language ?pl .
-                FILTER(?user=<INSERTUSER>)  }"""
+                FILTER(?user=<INSERTURI>)  }"""
     fieldNames=['First name','Last name','Tel. no.','Preferred language']
-    
-    updateUserInfoQuery = """
-    DELETE DATA{ 
-    <INSERTUSER> cv:contact_fname <fname>.
-    <INSERTUSER> cv:contact_lname <lname>.
-    <INSERTUSER> cv:contact_tel <tel>.
-    <INSERTUSER> cv:preferred_language <pl>.
-    };
-
-    INSERT DATA {
-    <INSERTUSER> cv:contact_fname <FNAME>.
-    <INSERTUSER> cv:contact_lname <LNAME>.
-    <INSERTUSER> cv:contact_tel <TEL>.
-    <INSERTUSER> cv:preferred_language <PL>.
-    }
-    """
-    #if insert request is received, insert triples
     if 'action' in request.args and request.args['action'] == 'new' :
-	result = []        
-	result.append(['FNAME','LNAME','TEL','PL'])
+        return userNew(request,fieldNames,fieldIDs)
+    elif 'action' in request.form and request.form['action'] == 'insert':
+        chickenvaccination.objectInsert(request,'user')
+        return userList()
+    elif 'action' in request.form and request.form['action'] == 'update':
+        chickenvaccination.objectUpdate(request,userInfoQuery,updateUserInfoQuery,'user')
+        return userList()
+    elif 'user' in request.args:
+        return userInfo(request,userInfoQuery,fieldNames)
+    else:
+        return userList()
+
+def userInfo(request,userInfoQuery,fieldNames):
+    voiceLabels = getVoiceLabels(request.args['user'])
+    #list information of a user
+    userInfoQuery = userInfoQuery.replace("<INSERTURI>","<"+request.args['user']+">")
+    result = executeSparqlQuery(userInfoQuery,giveColumns=True)
+    if len(fieldNames) == len(result[0]):
         return render_template(
+                'admin/user.html',
+                user = result, 
+                fieldNames = fieldNames, 
+                uri = request.args['user'],
+        voiceLabelResults = voiceLabels)
+    else:
+        return "Error: number of triples returned is not correct."
+
+
+
+
+
+def userNew(request,fieldNames,fieldIDs):
+    return render_template(
                     'admin/user.html',
-                    user = result, 
+                    user = fieldIDs, 
                     fieldNames = fieldNames, 
                     uri = 'new user',
-		    new=True)
- 
-    #if update request is received, update triples
-    elif 'action' in request.form and request.form['action'] == 'update' :
-        #check whether all nessecary fields are sent with the request
-        #fetch the columns to check
-        userInfoQuery = userInfoQuery.replace("<INSERTUSER>","<"+request.form['user']+">")    
-        result = executeSparqlQuery(userInfoQuery,giveColumns=True)
-        columns = copy.deepcopy(result[0])
-        columns.append('action')
-        columns.append('user')
-        #only proceed if all nessecary fields are present in the POST request
-        if set(columns) == set(request.form):
-            updateUserInfoQuery = updateUserInfoQuery.replace("<INSERTUSER>","<"+request.form['user']+">")
-            for index, column in enumerate(result[0]):
-                if re.search("(https?:\/\/(?:www\.|(?!www))[^\s\.]+\.[^\s]{2,}|www\.[^\s]+\.[^\s]{2,})",request.form[column]):
-                    updateUserInfoQuery = updateUserInfoQuery.replace("<"+column.upper()+">","<"+request.form[column]+">")
-                    updateUserInfoQuery = updateUserInfoQuery.replace("<"+column+">","<"+result[1][index]+">")
-
-                else:
-                    updateUserInfoQuery = updateUserInfoQuery.replace("<"+column.upper()+">","'"+request.form[column]+"'")
-                    updateUserInfoQuery = updateUserInfoQuery.replace("<"+column+">","'"+result[1][index]+"'")
-
-            success = executeSparqlUpdate(updateUserInfoQuery)
-            if success:
-                flash('User data successfully updated!')
-                return redirect(url_for('listusers'))
-        else:
-            return "error: provided data in HTTP request does not match requirements."
-    
-    #if user received, look up user information
-    elif 'user' in request.args:
-	voiceLabels = getVoiceLabels(request.args['user'])
-        #list information of a user
-        userInfoQuery = userInfoQuery.replace("<INSERTUSER>","<"+request.args['user']+">")
-        result = executeSparqlQuery(userInfoQuery,giveColumns=True)
-        if len(fieldNames) == len(result[0]):
-            return render_template(
-                    'admin/user.html',
-                    user = result, 
-                    fieldNames = fieldNames, 
-                    uri = request.args['user'],
-		    voiceLabelResults = voiceLabels)
-        else:
-            return "Error: number of triples returned is not correct."
-    return "Error: no user defined."
+                    new=True)
 
 
-@app.route('/admin/listusers.html')
-def listusers():
+
+
+def userList():
     #list all users in the system
     getUsersQuery = """SELECT DISTINCT  ?user ?fname  ?lname ?tel WHERE {
                                      ?user rdf:type cv:user .
@@ -296,14 +285,15 @@ def listusers():
                                       ?user cv:contact_lname ?lname .
                                        ?user cv:contact_tel ?tel .
                                         }"""
-    outputGetUsersQuery = executeSparqlQuery(getUsersQuery)
+    #outputGetUsersQuery = executeSparqlQuery(getUsersQuery)
+    outputGetUsersQuery = chickenvaccination.objectList('user')
     return render_template('admin/listusers.html',users=outputGetUsersQuery)
 
 
 @app.route('/main.vxml')
 def main():
     if 'lang' in request.args:
-        lang = config.LanguageVars(request.args)
+        lang = LanguageVars(request.args)
         #list of options in initial menu: link to file, and audio description of the choice
         options = [
                 ['requestProductOfferings.vxml?lang='+lang.language,    lang.audioInterfaceURL+'requestProductOfferings.wav'],
@@ -348,7 +338,7 @@ def main():
 @app.route('/requestProductOfferings.vxml')
 def requestProductOfferings():
     #process the language
-    lang = config.LanguageVars(request.args)
+    lang = LanguageVars(request.args)
 
     #if the chosen product has been entered, show results
     if 'product' in request.args:
@@ -416,7 +406,7 @@ def placeProductOffer():
 #for this function, a lot of things are defined in the template 'placeProductOffer.vxml'. You will need to edit this file as well.
     #process the language
 
-    lang = config.LanguageVars(request.args)
+    lang = LanguageVars(request.args)
 
     #if all the nessecary variables are set, update data in store
     if 'user' in request.args and 'product' in request.args and 'location' in request.args and 'price' in request.args and 'currency' in request.args and 'quantity' in request.args:
@@ -630,28 +620,7 @@ def audioReferences():
     subjectsWithoutVoicelabel = subjectsWithoutVoicelabel,
     sparqlResults = finalResultsSparql)
 
-def getVoiceLabels(uri,giveColumns = True,returnEmptyVoiceLabels = True):
-    languagesQuery =""" SELECT DISTINCT  ?voicelabel  WHERE {
-        ?voicelabel   rdfs:subPropertyOf speakle:voicelabel.    }"""
-    outputLanguagesQuery = executeSparqlQuery(languagesQuery)
-    queryBuilder1 = """ SELECT DISTINCT """
-    queryBuilder2 = """ """
-    queryBuilder3 = """  WHERE {"""
-    queryBuilder4 = """ """
-    queryBuilder5 = """ FILTER(?uri=<""" + uri +""">) }"""
-    voiceLabels = []
-    for language in outputLanguagesQuery:
-        queryBuilder2 =  " ?" + language[0].rsplit('/', 1)[-1]
-        queryBuilder4 = " " + "OPTIONAL{?uri <"+language[0]+"> ?" + language[0].rsplit('/', 1)[-1] + " } "
-        voiceLabelQuery = queryBuilder1 + queryBuilder2 + queryBuilder3 + queryBuilder4 + queryBuilder5
-        voiceLabelResult = executeSparqlQuery(voiceLabelQuery,giveColumns=giveColumns,httpEncode=False)
-        if len(voiceLabelResult[1]) is not 0:
-            audio = voiceLabelResult[1][0]
-            voiceLabels.append([voiceLabelResult[0][0],audio])
-        elif returnEmptyVoiceLabels == True:
-            audio = ""
-            voiceLabels.append([voiceLabelResult[0][0],audio])
-    return voiceLabels
+
 	
 
 

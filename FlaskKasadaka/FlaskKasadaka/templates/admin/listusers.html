@@ -4,6 +4,8 @@
 
 <p>Current users in the system:</p>
 
+<a href="user?action=new">Create new user</a>
+</br></br>
 <table>
     <tr>
         <td>Name</td>
@@ -13,7 +15,7 @@
 
   {% for user in users %}    
 <tr>
-    <td><a href="user.html?user={{ user[0] }}">{{ user[1] ~ " " ~ user[2] }}</a></td>
+    <td><a href="user?user={{ user[0] }}">{{ user[1] ~ " " ~ user[2] }}</a></td>
   <td>{{ user[3] }}</td>
 </tr>
   {% endfor %}
