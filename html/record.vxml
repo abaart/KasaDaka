@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<vxml version="2.0" xmlns="http://www.w3.org/2001/vxml">
+<form>
+ <record name="awaymessage" beep="true" maxtime="10s"
+  finalsilence="4s" dtmfterm="true">
+  <prompt count="1">
+   <audio src="helloworld.wav"/>
+  </prompt>
+ </record>
+ <field name="confirm">
+  <prompt>
+<audio src="audio/1.wav"/>
+  </prompt>
+  <prompt>
+   To keep it, please say 1. To discard it, say no
+  </prompt>
+
+<grammar xml:lang="en-US" root = "MYRULE" mode="dtmf">
+      <rule id="MYRULE" scope = "public">
+        <one-of>
+          
+            <item>1</item>
+          
+            <item>2</item>
+          
+            <item>3</item>
+          
+        </one-of>
+       </rule>
+     </grammar>
+
+  <filled>
+
+      <if cond="confirm == '1'">
+    <submit next="send.php" method="post" 
+     namelist="awaymessage" />
+   </if>
+  </filled>
+ </field>
+</form>
+</vxml>
