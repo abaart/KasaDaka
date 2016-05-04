@@ -1,0 +1,47 @@
+{% extends "admin/index.html" %}
+{% import "admin/voiceLabels.html" as voiceLabelsHtml %}
+
+
+{% block body %}
+<h2>{{objectTypeLabel}}</h2>
+
+
+
+<p>{{objectTypeLabel}} object: {{ uri }} </p>
+
+{% if new %}
+<form method="post" action="insert">
+Preferred URI for new {{objectTypeLabel}}:<br/>
+<input type="text" name="uri" value="{{objectType}}"><br/><br/>
+{% else %}
+<form method="post" action="update">
+{% endif %}
+
+<table>
+    {% for field in fieldNames %}    
+    <tr>
+        <td>{{ field }}</td>
+        <td>{% if not new %}{{ data[1][loop.index-1] }}{%endif%}</td>
+        <td><input type="text" name="{{ data[0][loop.index-1] }}" value="{% if not new %}{{ data[1][loop.index-1] }}{%endif%}"></td>
+
+    </tr>
+    {% endfor %}
+
+
+
+</table>
+
+{% if new %}
+<input type="hidden" name="objectType" value="{{objectType}}">
+<input type="submit" value="Insert new {{objectTypeLabel}}">
+
+{% else %}
+<input type="hidden" name="uri" value="{{uri}}">
+<input type="submit" value="Update {{objectTypeLabel}}!">
+{% endif %}
+
+</form>
+{% if not new %}
+{{ voiceLabelsHtml.voiceLabels(voiceLabelResults) }}
+{% endif %}
+{% endblock %}

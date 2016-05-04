@@ -1,10 +1,10 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from sparqlInterface import executeSparqlQuery, executeSparqlUpdate, updateQueryReplace, findFreshURI, insertTriples, deleteTriples
+from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
 from datetime import datetime
 from werkzeug import secure_filename
 import config
 from languageVars import LanguageVars, getVoiceLabels
-import chickenvaccination
+import sparqlHelper
 
 import glob
 import re
@@ -12,10 +12,12 @@ import urllib
 import copy
 import os.path
 import os
+from base64 import b16encode , b16decode
 
 app = Flask(__name__)
 app.secret_key = 'asdfbjarbja;kfbejkfbasjkfbslhjvbhcxgxui328'
 app.config['UPLOAD_FOLDER'] = config.audioPath
+
 
 
 @app.route('/')
@@ -102,192 +104,111 @@ def processAudio(request):
     return recordAudio(request.form['lang'])
 
 
-@app.route('/admin/vaccination.html', methods=['GET','POST'])
-def vaccinationScheme():
-	if 'uri' not in request.args: return "Error, no uri specified"
-
-	getVaccinationInfoQuery = """
-	SELECT DISTINCT  ?uri  ?dab ?description ?disease ?vl_en WHERE {
-                ?uri rdf:type cv:vaccination .
-  				?uri cv:days_after_birth ?dab .
-  				?uri cv:description ?description .
-  				?uri cv:treats ?disease .
-  				?uri speakle:voicelabel_en ?vl_en .
-  FILTER(?uri=<INSERTURI>)
-                }
-	"""
-	fieldNames=['URI','Days after birth','Description','Treats disease','Voicelabel_en']
-	getVaccinationInfoQuery = getVaccinationInfoQuery.replace("<INSERTURI>","<"+request.args['uri']+">")
-        result = executeSparqlQuery(getVaccinationInfoQuery,giveColumns=True, httpEncode=False)
-
-	
-	return render_template('admin/vaccination.html',user=result,fieldNames = fieldNames,
-		uri = request.args['uri'],voiceLabelResults = getVoiceLabels(request.args['uri']))
-
-@app.route('/admin/disease.html', methods=['GET','POST'])
-def disease():
-	if 'uri' not in request.args: return "Error, no uri specified"
-	getDiseaseInfoQuery = """
-		SELECT DISTINCT    ?label ?vl_en WHERE {
-                ?uri rdf:type cv:disease .
-                ?uri rdfs:label ?label .
-		?uri speakle:voicelabel_en ?vl_en .
-		FILTER(?uri = <INSERTURI>)
-                }
-	"""
-	fieldNames=['Disease label','Voicelabel_en']
-	getDiseaseInfoQuery = getDiseaseInfoQuery.replace("<INSERTURI>","<"+request.args['uri']+">")
-        result = executeSparqlQuery(getDiseaseInfoQuery,giveColumns=True, httpEncode=False)
-
-	getVaccinationsQuery = """SELECT DISTINCT  ?disease_label ?vac_uri ?dab ?description  WHERE {
-                ?vac_uri cv:treats ?uri .
-  				?vac_uri cv:days_after_birth ?dab .
-  				?vac_uri cv:description ?description .
-				?uri rdfs:label ?disease_label
-                FILTER(?uri=<INSERTURI>)}"""
-	getVaccinationsQuery = getVaccinationsQuery.replace("<INSERTURI>","<"+request.args['uri']+">")
-	vaccinations = executeSparqlQuery(getVaccinationsQuery,httpEncode=False)
-
-
-	return render_template('admin/disease.html',
-		user = result,
-		vaccinations = vaccinations,
-		fieldNames = fieldNames,
-		uri = request.args['uri'],
-		voiceLabelResults = getVoiceLabels(request.args['uri']))
-
-@app.route('/admin/listdiseases.html')
-def listDiseases():
-	getDiseasesQuery = """SELECT DISTINCT   ?uri  ?label  WHERE {
-                ?uri rdf:type cv:disease .
-                ?uri rdfs:label ?label .
-                }"""
-
-	result = executeSparqlQuery(getDiseasesQuery,httpEncode=False)
-	
-	return render_template('admin/listdiseases.html',diseases=result)
-
-
-@app.route('/admin/chicken.html',methods=['GET','POST'])
-def chicken():
-	if 'uri' not in request.args: return "Error, no uri specified"
-
-	getBatchInfoQuery = """
-	 SELECT DISTINCT   ?uri  ?bdate ?owner ?vl_en WHERE {
-                <INSERTURI> rdf:type cv:chicken_batch .
-                ?uri cv:birth_date ?bdate .
-                ?uri cv:owned_by ?owner .
-                ?uri speakle:voicelabel_en ?vl_en .
-                }
-	"""
-	getBatchInfoQuery = getBatchInfoQuery.replace("<INSERTURI>","<"+request.args['uri']+">")
-        result = executeSparqlQuery(getBatchInfoQuery,giveColumns=True, httpEncode=False)
-	fieldNames=['Batch URI','Birth date','Owner','English Voicelabel']
-	return render_template('admin/chicken.html',
-		user = result,
-		fieldNames = fieldNames,
-		uri = request.args['uri'],
-		voiceLabelResults = getVoiceLabels(request.args['uri']))
-	
-
-@app.route('/admin/listchickens.html', methods=['GET','POST'])
-def listchickens():
-	getBatchesQuery = """SELECT DISTINCT  ?cbatch ?date ?owner_label  WHERE {
-              ?cbatch rdf:type cv:chicken_batch .
-             ?cbatch cv:birth_date ?date .
-		?cbatch cv:owned_by ?owner .
-		?owner rdfs:label ?owner_label .
-                 }"""
-
-	result = executeSparqlQuery(getBatchesQuery,httpEncode=False)
-	
-	return render_template('admin/listchickens.html',chickens=result)
-
 @app.route('/admin')
 def adminIndex():
 	return render_template('admin/index.html')
 
-@app.route('/admin/user', methods=['GET','POST'])
-def user():
-    deleteUserInfoQuery = """
-    DELETE DATA{ 
-    <INSERTURI> cv:contact_fname ?fname.
-    <INSERTURI> cv:contact_lname ?lname.
-    <INSERTURI> cv:contact_tel ?tel.
-    <INSERTURI> cv:preferred_language ?pl.
-    };"""
-    insertUserInfoQuery = """
-    INSERT DATA {
-    <INSERTURI> cv:contact_fname <fname>.
-    <INSERTURI> cv:contact_lname <lname>.
-    <INSERTURI> cv:contact_tel <tel>.
-    <INSERTURI> cv:preferred_language <pl>.
-    };
+@app.route('/admin/object')
+def objectInfo():
     """
-    fieldIDs = [['cv:contact_fname','cv:contact_lname','cv:contact_tel','cv:preferred_language']]
-    updateUserInfoQuery = deleteUserInfoQuery + insertUserInfoQuery
-    userInfoQuery = """
-    SELECT DISTINCT   ?fname  ?lname ?tel  ?pl  WHERE {
-                ?user cv:contact_fname ?fname .
-                ?user cv:contact_lname ?lname .
-                ?user cv:contact_tel ?tel .
-                ?user cv:preferred_language ?pl .
-                FILTER(?user=<INSERTURI>)  }"""
-    fieldNames=['First name','Last name','Tel. no.','Preferred language']
-    if 'action' in request.args and request.args['action'] == 'new' :
-        return userNew(request,fieldNames,fieldIDs)
-    elif 'action' in request.form and request.form['action'] == 'insert':
-        chickenvaccination.objectInsert(request,'user')
-        return userList()
-    elif 'action' in request.form and request.form['action'] == 'update':
-        chickenvaccination.objectUpdate(request,userInfoQuery,updateUserInfoQuery,'user')
-        return userList()
-    elif 'user' in request.args:
-        return userInfo(request,userInfoQuery,fieldNames)
-    else:
-        return userList()
-
-def userInfo(request,userInfoQuery,fieldNames):
-    voiceLabels = getVoiceLabels(request.args['user'])
-    #list information of a user
-    userInfoQuery = userInfoQuery.replace("<INSERTURI>","<"+request.args['user']+">")
-    result = executeSparqlQuery(userInfoQuery,giveColumns=True)
-    if len(fieldNames) == len(result[0]):
-        return render_template(
-                'admin/user.html',
-                user = result, 
-                fieldNames = fieldNames, 
-                uri = request.args['user'],
-        voiceLabelResults = voiceLabels)
-    else:
-        return "Error: number of triples returned is not correct."
-
-
-
-
-
-def userNew(request,fieldNames,fieldIDs):
+    Presents a page with all information about an object from the HTTP GET (base16 encoded).
+    """
+    if 'uri' not in request.args: return "Error, no uri specified"
+    URI = b16decode(request.args['uri'])
+    voiceLabels = getVoiceLabels(URI)
+    objectType = sparqlHelper.determineObjectType(URI)
+    fieldNames = sparqlHelper.propertyLabels(objectType)
+    result = sparqlHelper.objectInfo(URI)
+    objectTypeLabel = sparqlHelper.retrieveLabel(objectType)
     return render_template(
-                    'admin/user.html',
-                    user = fieldIDs, 
+        'admin/object.html',
+        data = result, 
+        fieldNames = fieldNames, 
+        uri = URI,
+        voiceLabelResults = voiceLabels,
+        objectTypeLabel=objectTypeLabel)
+
+@app.route('/admin/list')
+def objectList(objectType = ""):
+    """
+    Presents a page with a list of all objects of a given type from the HTTP GET (base16 encoded)
+    """
+    if 'uri' not in request.args and len(objectType) == 0: return "Error, no uri specified"
+    if len(objectType) == 0:
+        objectTypeBaseEncoded = request.args['uri']
+        objectType = b16decode(objectTypeBaseEncoded)
+    else:
+        objectTypeBaseEncoded = b16encode(objectType)
+    output = sparqlHelper.objectList(objectType)
+    fieldNames = sparqlHelper.propertyLabels(objectType,firstColumnIsURI=True)
+    recordURIs = sparqlHelper.createURIarray(output)
+    objectTypeLabel = sparqlHelper.retrieveLabel(objectType)
+    return render_template('admin/list.html',
+        data=output,
+        fieldNames = fieldNames,
+        objectTypeLabel = objectTypeLabel,
+        objectTypeBaseEncoded = objectTypeBaseEncoded,
+        recordURIs = recordURIs
+        )
+
+@app.route('/admin/new')
+def showNewObjectPage():
+    if 'uri' not in request.args: return "Error, no uri specified"
+    objectTypeBaseEncoded = request.args['uri']
+    objectType = b16decode(objectTypeBaseEncoded)
+    fieldNames = sparqlHelper.propertyLabels(objectType)
+    properties = [[]]
+    for prop in sparqlHelper.getDataStructure(objectType):
+        properties[0].append(b16encode(prop))
+    objectTypeLabel = sparqlHelper.retrieveLabel(objectType)
+    return render_template(
+                    'admin/object.html',
+                    data = properties, 
                     fieldNames = fieldNames, 
-                    uri = 'new user',
-                    new=True)
+                    uri = 'NEW ' + objectTypeLabel,
+                    new=True,
+                    objectTypeLabel = objectTypeLabel,
+                    objectType = objectType)
+
+@app.route('/admin/insert', methods=['POST'])
+def insertNewObject():
+    if 'objectType' not in request.form: return "Error, no objectType specified"
+    if 'uri' not in request.form: return "Error, no uri for new object specified"
+    URI = request.form['uri']
+    objectType = request.form['objectType']
+    properties = sparqlHelper.getDataStructure(objectType)
+    dataTuples = createDataTuples(properties,request)
+    success = sparqlHelper.insertObjectTriples(URI,objectType,dataTuples)
+    if success: 
+        flash(objectType+" successfully inserted! Please record audio for new "+objectType+" on audio page!")
+    else: 
+        flash("Error inserting "+objectType)
+    return objectList(objectType)
 
 
+@app.route('/admin/update', methods=['POST'])
+def updateObject():
+    if 'uri' not in request.form: return "Error, no uri specified"    
+    URI = request.form['uri']
+    objectType = sparqlHelper.determineObjectType(URI)
+    properties = sparqlHelper.getDataStructure(objectType)
+    insertTuples = createDataTuples(properties,request)
+    deleteProperties = properties
+    success = sparqlHelper.objectUpdate(URI,deleteProperties,insertTuples)
+    if success:
+        flash(objectType+' data successfully updated!')
+    else:
+        flash('Error in updating '+objectType)
+    return objectList(objectType)
 
-
-def userList():
-    #list all users in the system
-    getUsersQuery = """SELECT DISTINCT  ?user ?fname  ?lname ?tel WHERE {
-                                     ?user rdf:type cv:user .
-                                     ?user cv:contact_fname ?fname .
-                                      ?user cv:contact_lname ?lname .
-                                       ?user cv:contact_tel ?tel .
-                                        }"""
-    #outputGetUsersQuery = executeSparqlQuery(getUsersQuery)
-    outputGetUsersQuery = chickenvaccination.objectList('user')
-    return render_template('admin/listusers.html',users=outputGetUsersQuery)
+def createDataTuples(properties, request):
+    dataTuples = []
+    for prop in properties:
+        encodedProp = b16encode(prop)
+        if encodedProp not in request.form: raise ValueError("Not all nessecary properties given! Missing: " + prop)
+        if len(prop) == 0 or len(request.form[encodedProp]) == 0: raise ValueError('Empty tuple!')
+        dataTuples.append([prop,request.form[encodedProp]])
+    return dataTuples
 
 
 @app.route('/main.vxml')

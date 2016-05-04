@@ -1,0 +1,28 @@
+{% extends "admin/index.html" %}
+{% block body %}
+<h2>{{objectTypeLabel}} management</h2>
+
+<p>Current {{objectTypeLabel}}'s in the system:</p>
+
+<a href="new?uri={{objectTypeBaseEncoded}}">Create new {{objectTypeLabel}}</a>
+</br></br>
+<table>
+    <tr>
+    {% for label in fieldNames %}
+        <td>{{label}}</td>
+    {% endfor %}
+    </tr>
+
+
+  {% for record in data %}    
+<tr>
+    <td><a href="object?uri={{ recordURIs[loop.index-1][0] }}">{{ recordURIs[loop.index-1][1]  }}</a></td>
+    {% for field in record%}
+    {% if not loop.index is equalto 1 %}
+    <td>{{field}}</td>
+    {% endif %}
+    {% endfor %}
+</tr>
+  {% endfor %}
+</table>
+{% endblock %}

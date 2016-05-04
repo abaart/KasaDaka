@@ -37,6 +37,7 @@ cv:victor_de_boer
 cv:newcastle
 	a cv:disease ;
 	rdfs:label "Newcastle's disease"@en ;
+	cv:occurs_in cv:chicken_batch ;
 	speakle:voicelabel_nl audio:newcastle_nl.wav ;
 	speakle:voicelabel_en audio:newcastle_en.wav .
 	
@@ -81,80 +82,80 @@ cv:newcastle_vac2
 
 speakle:voicelabel_en
 	a rdf:Property ;
-	cv:admin_interface_label "Voicelabel English";
 	lvont:language lexvoid:eng; 
-	rdfs:label "has English voicelabel"@en;
+	rdfs:label "English voicelabel"@en;
 	rdfs:subPropertyOf speakle:voicelabel .
 	
 speakle:voicelabel_fr
 	a rdf:Property ;
-	cv:admin_interface_label "Voicelabel French";
 	lvont:language lexvoid:fra;
-	rdfs:label "has French voicelabel"@en;
+	rdfs:label "French voicelabel"@en;
 	rdfs:subPropertyOf speakle:voicelabel .
 	
 speakle:voicelabel_nl
 	a rdf:Property ;
-	cv:admin_interface_label "Voicelabel Dutch";
 	lvont:language lexvoid:nld;
-	rdfs:label "has Dutch voicelabel"@en;
+	rdfs:label "Dutch voicelabel"@en;
 	rdfs:subPropertyOf speakle:voicelabel .
 	
 speakle:voicelabel
 	a rdf:Property ;
-	cv:admin_interface_label "Voicelabel";
-	rdfs:label "has voicelabel".
+	rdfs:label "voicelabel".
 
 # Properties
 
 cv:contact_fname
 	a rdf:Property;
-	cv:admin_interface_label "Contact First Name".
+	rdfs:label "Contact First Name".
 
 cv:contact_lname
 	a rdf:Property;
-	cv:admin_interface_label "Contact Last Name".
+	rdfs:label "Contact Last Name".
 
 cv:contact_tel
 	a rdf:Property;
-	cv:admin_interface_label "Contact Telephone Number".
+	rdfs:label "Contact Telephone Number".
 
 cv:preferred_language
 	a rdf:Property;
-	cv:admin_interface_label "Preferred Language".
+	rdfs:label "Preferred Language".
 
 cv:user
 	a rdf:Property;
-	cv:admin_interface_label "User".
+	rdfs:label "User".
 
 cv:disease
 	a rdf:Property;
-	cv:admin_interface_label "Disease".
+	rdfs:label "Disease".
 
 cv:chicken_batch
 	a rdf:Property;
-	cv:admin_interface_label "Chicken Batch".
+	rdfs:label "Chicken Batch".
 
 cv:birth_date
 	a rdf:Property;
-	cv:admin_interface_label "Birth Date".
+	rdfs:label "Birth Date".
 
 cv:owned_by
 	a rdf:Property;
-	cv:admin_interface_label "Owned By".
+	rdfs:label "Owned By".
 
 cv:vaccination
 	a rdf:Property;
-	cv:admin_interface_label "Vaccination".
+	rdfs:label "Vaccination".
 
 cv:treats
 	a rdf:Property;
-	cv:admin_interface_label "Treats".
+	rdfs:label "Treats".
 
 cv:days_after_birth
 	a rdf:Property;
-	cv:admin_interface_label "Days after birth".
+	rdfs:label "Days after birth".
 
 cv:description
 	a rdf:Property;
-	cv:admin_interface_label "Description".
+	rdfs:label "Description".
+
+cv:occurs_in
+	a rdf:Property;
+	rdfs:label "Occurs in".
