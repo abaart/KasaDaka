@@ -1,0 +1,19 @@
+{% extends "vxmlLayout.vxml" %}
+{#
+redirects and sends the caller id
+#}
+
+{% block content %}
+
+
+
+<form>
+<block>
+<prompt>
+<assign name="callerid" expr="session.connection.remote.uri"/>
+</prompt>
+<submit next="{{redirect}}" method="post" namelist="callerid"/>
+</block>
+</form>
+
+{% endblock %}

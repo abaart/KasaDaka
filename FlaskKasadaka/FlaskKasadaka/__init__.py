@@ -210,6 +210,22 @@ def createDataTuples(properties, request):
         dataTuples.append([prop,request.form[encodedProp]])
     return dataTuples
 
+@app.route('/callerid.vxml',methods=['GET','POST'])
+def callerID():
+    if 'callerid' in request.form:
+        f = open('/home/pi/callerid.txt','w')
+        f.write(request.form['callerid'])
+        f.close()
+        return " "
+        user = callerIDLookup(request.form['callerid'])
+        if len(user) != 0:
+            return main(user)
+        else:
+            return newUser()
+    else:
+        return render_template('callerid.vxml',
+            redirect = 'callerid.vxml')
+
 
 @app.route('/main.vxml')
 def main():
@@ -254,6 +270,7 @@ def main():
         questionAudio = config.audioURLbase+config.defaultLanguage+"/interface/chooseLanguage.wav"
 
         )
+
 
 
 @app.route('/requestProductOfferings.vxml')

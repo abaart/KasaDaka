@@ -48,24 +48,6 @@ def objectList(objectType):
 		fields.append(b16encode(prop))
 	return sparqlInterface.selectTriples(fields,triples)
 
-#TODO DIT REWRITEN
-def objectUpdatepodl(request,objectInfoQuery,updateObjectInfoQuery,objectType):
-    #check whether all nessecary fields are sent with the request
-    #fetch the columns to check
-    objectInfoQuery = objectInfoQuery.replace("<INSERTURI>","<"+request.form[objectType]+">")
-    objectInfo = sparqlInterface.executeSparqlQuery(objectInfoQuery,giveColumns=True)
-    
-    #TODO update to not use replace function
-
-    updateObjectInfoQuery = sparqlInterface.updateQueryReplace(request.form[objectType],updateObjectInfoQuery,objectInfo[0],request.form)
-    success = sparqlInterface.executeSparqlUpdate(updateObjectInfoQuery)
-    if success:
-    	#FLASH UIT DEZE CLASS
-        flash(objectType+' data successfully updated!')
-    else:
-        flash('Error in updating '+objectType)
-    return success
-
 def objectUpdate(URI,deleteProperties,insertTuples):
 	if len(deleteProperties) == 0 or len(insertTuples) == 0: raise ValueError("Nothing to delete/update!")
 	if len(deleteProperties) != len(insertTuples): raise ValueError('Number of fields in deleting not equal to inserting!')
