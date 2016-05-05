@@ -184,7 +184,7 @@ def insertNewObject():
     objectType = request.form['objectType']
     properties = sparqlHelper.getDataStructure(objectType)
     dataTuples = createDataTuples(properties,request)
-    success = sparqlHelper.insertObjectTriples(URI,objectType,dataTuples)
+    success = len(sparqlHelper.insertObjectTriples(URI,objectType,dataTuples))
     if success: 
         flash(objectType+" successfully inserted! Please record audio for new "+objectType+" on audio page!")
     else: 
@@ -256,7 +256,7 @@ def insertNewChickenBatch(recordingLocation,user):
     tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
         ["http://example.org/chickenvaccinationsapp/owned_by",user],
         [voicelabelLanguage,recordingLocation]]
-    return sparqlHelper.insertObjectTriples(preferredURI,objectType,tuples)
+    return len(sparqlHelper.insertObjectTriples(preferredURI,objectType,tuples)) != 0
 
 
 def saveRecording(path):
@@ -365,10 +365,10 @@ def recordUserName():
 def insertNewUserVXML():
     if 'callerid' not in request.args or 'lang' not in request.args or 'recording' not in request.args: return errorVXML()
     lang = LanguageVars(b16decode(request.args['lang']))
-    callerID = b16decode(request.args['callerID'])
+    callerID = b16decode(request.args['callerid'])
     recordingLocation = request.args['recording']
     recordingLocation = saveRecording(recordingLocation)
-    newUserURI = insertNewUser(recordingLocation,callerID,lang)
+    newUserURI = insertNewUser(recordingLocation,callerID,str(lang))
     if len(newUserURI) != 0:
         messages = [lang.getInterfaceAudioURL('registerUserSuccess.wav')]
         return render_template('message.vxml',
@@ -378,6 +378,7 @@ def insertNewUserVXML():
 
 def insertNewUser(recordingLocation,callerID,lang):
     objectType = "http://example.org/chickenvaccinationsapp/user"
+    preferredURI = objectType
     recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
     tuples = [["http://example.org/chickenvaccinationsapp/contact_fname","unknown"],
         ["http://example.org/chickenvaccinationsapp/contact_lname","unknown"],

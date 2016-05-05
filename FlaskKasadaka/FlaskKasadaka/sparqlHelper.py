@@ -69,7 +69,8 @@ def insertObjectTriples(URI,objectType,tuples):
     triples = [[URI,'rdf:type',objectType]]
     for tupl in tuples:
         triples.append([URI,tupl[0],tupl[1]])
-    return sparqlInterface.insertTriples(triples) 
+    if sparqlInterface.insertTriples(triples): return URI
+    else: raise ValueError("error in inserting triples")
 
 def checkIfNecessaryPropertiesAreSet(objectType,tuples):
     properties = getDataStructure(objectType)

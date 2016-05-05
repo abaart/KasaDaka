@@ -44,7 +44,7 @@ class LanguageVars(object):
 
 
     def __str__(self):
-        return languageURI
+        return self.languageURI
 
 def getVoiceLabelPossibilities():
     languagesQuery =""" SELECT DISTINCT  ?voicelabel  WHERE {
