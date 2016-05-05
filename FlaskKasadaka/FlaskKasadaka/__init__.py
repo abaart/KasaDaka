@@ -235,7 +235,7 @@ def cvInsertNewChickenBatchVXML():
     user = b16decode(request.args['user'])
     lang = LanguageVars(preferredLanguageLookup(user))
     recordingLocation = request.args['recording']
-    recordingLocation = processRecording(recordingLocation)
+    recordingLocation = saveRecording(recordingLocation)
     success = insertNewChickenBatch(recordingLocation,user)
     if success:
         messages = [lang.getInterfaceAudioURL('insertChickenBatchSuccess.wav')]
