@@ -320,7 +320,7 @@ def askLanguageVXML(callerID,redirect):
     for language in languages:
         language.append(config.audioURLbase + language[0].rsplit('_', 1)[-1] + "/interface/" + language[0].rsplit('/', 1)[-1] + ".wav")
         language.append(language[0].rsplit('_', 1)[-1])
-        language[0] = redirect +"?callerid="+b16encode(callerID) +"&lang=" + b16encode(language[0])
+        language[0] = redirect +"?callerid="+b16encode(callerID) +"&amp;lang=" + b16encode(language[0])
     return render_template(
     'language.vxml',
     options = languages,
