@@ -5,14 +5,18 @@
 sparqlURL = "http://127.0.0.1:3020/sparql/"
 
 #URI of graph to use
-sparqlGraph = "http://localhost/chickenvaccination"
+sparqlGraph = "http://localhost/seedmarket"
 
 #key is rdf:type, values is array of properties to use
 dataStructure = {
-    'http://example.org/chickenvaccinationsapp/user' : ['http://example.org/chickenvaccinationsapp/contact_fname','http://example.org/chickenvaccinationsapp/contact_lname','http://example.org/chickenvaccinationsapp/contact_tel','http://example.org/chickenvaccinationsapp/preferred_language'],
-    'http://example.org/chickenvaccinationsapp/chicken_batch' : ['http://example.org/chickenvaccinationsapp/birth_date','http://example.org/chickenvaccinationsapp/owned_by'],
-    'http://example.org/chickenvaccinationsapp/disease' : ['http://example.org/chickenvaccinationsapp/occurs_in'],
-    'http://example.org/chickenvaccinationsapp/vaccination' : ['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats']
+    'http://example.org/seedmarketapp/user' : ['http://example.org/seedmarketapp/contact_fname','http://example.org/seedmarketapp/contact_lname','http://example.org/seedmarketapp/contact_tel','http://example.org/seedmarketapp/preferred_language'],
+    'http://example.org/seedmarketapp/location' : ['http://example.org/seedmarketapp/country'],
+    'http://example.org/seedmarketapp/seed' : ['http://example.org/seedmarketapp/country'],
+    'http://example.org/seedmarketapp/seed_quality' : ['http://example.org/seedmarketapp/description'],
+    'http://example.org/seedmarketapp/offering' : ['http://example.org/seedmarketapp/user','http://example.org/seedmarketapp/location','http://example.org/seedmarketapp/seed','http://example.org/seedmarketapp/seed_quality','http://example.org/seedmarketapp/quantity','http://example.org/seedmarketapp/currency','http://example.org/seedmarketapp/price'],
+    'http://example.org/seedmarketapp/quantity' : ['http://example.org/seedmarketapp/description'],
+    'http://example.org/seedmarketapp/currency' : ['http://example.org/seedmarketapp/description'],
+    'http://example.org/seedmarketapp/price' : ['http://example.org/seedmarketapp/description']
 }
 
 #TODO implement automatic insertion of prefixes
@@ -23,6 +27,7 @@ PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
 PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
 PREFIX lexvo: <http://lexvo.org/ontology#>
 PREFIX cv: <http://example.org/chickenvaccinationsapp/>
+PREFIX      sm: <http://example.org/seedmarketapp/> 
 """
 sparqlPrefixDict = {
     'http://www.w3.org/1999/02/22-rdf-syntax-ns#' : 'rdf',
@@ -30,7 +35,8 @@ sparqlPrefixDict = {
     'http://purl.org/collections/w4ra/speakle/' : 'speakle',
     'http://purl.org/collections/w4ra/radiomarche/' : 'radiomarche',
     'http://lexvo.org/ontology#' : 'lexvo',
-    'http://example.org/chickenvaccinationsapp/' : 'cv'
+    'http://example.org/chickenvaccinationsapp/' : 'cv',
+    'http://example.org/seedmarketapp/' : 'sm'
 }
 #default language
 defaultLanguage = "en"

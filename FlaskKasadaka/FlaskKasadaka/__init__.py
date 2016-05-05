@@ -31,10 +31,6 @@ def index():
 	"""
     return 'This is the Kasadaka Vxml generator'
 
-@app.route('/admin/reminders')
-def showReminders():
-    return render_template('admin/reminder.html')
-
 @app.route('/admin/audio', methods=['GET','POST'])
 def adminAudio():
     if 'lang' in request.args and 'uri' in request.args:
@@ -282,12 +278,12 @@ def cvInsertNewChickenBatchVXML():
 
 def insertNewChickenBatch(recordingLocation,user):
     voicelabelLanguage = preferredLanguageLookup(user)
-    objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
+    objectType =  "http://example.org/seedmarketapp/chicken_batch"
     preferredURI = objectType
     currentDate = date.today().strftime("%Y-%m-%d")
     recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
-    tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
-        ["http://example.org/chickenvaccinationsapp/owned_by",user],
+    tuples = [["http://example.org/seedmarketapp/birth_date",currentDate],
+        ["http://example.org/seedmarketapp/owned_by",user],
         [voicelabelLanguage,recordingLocation]]
     return len(sparqlHelper.insertObjectTriples(preferredURI,objectType,tuples)) != 0
 
@@ -313,14 +309,15 @@ def findFreshFilePath(preferredPath):
 
 
 
-@app.route('/chickenvaccination_main.vxml',methods=['GET'])
-def cvMainMenuVXML():
+@app.route('/seedmarket_main.vxml',methods=['GET'])
+def smMainMenuVXML():
     if 'user' not in request.args: return errorVXML()
     user = b16decode(request.args['user'])
     lang = LanguageVars(preferredLanguageLookup(user))
     #list of options in initial menu: link to file, and audio description of the choice
     options = [
-            ['declareBornChickenBatch.vxml?user='+request.args['user'],lang.getInterfaceAudioURL('declareBornChickenBatch.wav')]
+            ['lookupOfferings.vxml?user='+request.args['user'],lang.getInterfaceAudioURL('requestProductOfferings.wav')],
+            ['postOffering.vxml?user='+request.args['user'],lang.getInterfaceAudioURL('placeProductOffer.wav')]
             ]
     return render_template(
         'main.vxml',
@@ -330,7 +327,33 @@ def cvMainMenuVXML():
         options = options)
 
 
-@app.route('/chickenvaccination.vxml',methods=['GET'])
+@app.route('/lookupOfferings.vxml')
+def lookupOfferingsVXML():
+    user = b16decode(request.args['user'])
+    if 'seed' not in request.args:
+        seed = 'http://example.org/seedmarketapp/rice'
+        #return chooseSeedVXML()
+    #seed = request.args['seed']
+    lang = LanguageVars(preferredLanguageLookup(user))
+    results = getVoicelabelOfferingsWithSeed(seedURI,lang)
+    results = [['a','b']]
+    return render_template('result.vxml',
+        interfaceAudioDir = lang.audioInterfaceURL,
+        message = 'presentProductOfferings.wav',
+        results = results,
+        redirect = "seedmarket_main.vxml?user=" + request.args['user'])
+
+def getVoicelabelOfferingsWithProduct():
+
+    return " "
+
+
+def chooseSeedVXML():
+
+    return " "
+
+
+@app.route('/seedmarket.vxml',methods=['GET'])
 def callerID():
     if 'callerid' in request.args:
         callerID = preProcessCallerID(request.args['callerid'])
@@ -339,10 +362,10 @@ def callerID():
             preferredLanguage = preferredLanguageLookup(user)
             lang = LanguageVars(preferredLanguage.rsplit('_', 1)[-1])
             userVoiceLabel = lang.getVoiceLabel(user) 
-            welcomeMessage = lang.getInterfaceAudioURL('welcome_cv.wav')
+            welcomeMessage = lang.getInterfaceAudioURL('welcome_sm.wav')
             return render_template('message.vxml',
                 messages = [welcomeMessage,userVoiceLabel],
-                redirect = "chickenvaccination_main.vxml?user=" + b16encode(user))
+                redirect = "seedmarket_main.vxml?user=" + b16encode(user))
         else:
             return newUserVXML(callerID)
     else:
@@ -418,13 +441,13 @@ def insertNewUserVXML():
     else: return errorVXML()
 
 def insertNewUser(recordingLocation,callerID,lang):
-    objectType = "http://example.org/chickenvaccinationsapp/user"
+    objectType = "http://example.org/seedmarketapp/user"
     preferredURI = objectType
     recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
-    tuples = [["http://example.org/chickenvaccinationsapp/contact_fname","unknown"],
-        ["http://example.org/chickenvaccinationsapp/contact_lname","unknown"],
-        ["http://example.org/chickenvaccinationsapp/contact_tel",callerID],
-        ["http://example.org/chickenvaccinationsapp/preferred_language",lang],
+    tuples = [["http://example.org/seedmarketapp/contact_fname","unknown"],
+        ["http://example.org/seedmarketapp/contact_lname","unknown"],
+        ["http://example.org/seedmarketapp/contact_tel",callerID],
+        ["http://example.org/seedmarketapp/preferred_language",lang],
         [lang,recordingLocation]]
     return sparqlHelper.insertObjectTriples(preferredURI,objectType,tuples)
 
@@ -433,8 +456,8 @@ def preferredLanguageLookup(userURI):
     Returns the URI of the preferred voicelabel (language) for an user.
     """
     field = ['preferred_language']
-    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
-    ['?userURI','http://example.org/chickenvaccinationsapp/preferred_language','?preferred_language']]
+    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/seedmarketapp/user'],
+    ['?userURI','http://example.org/seedmarketapp/preferred_language','?preferred_language']]
     result = sparqlInterface.selectTriples(field,triples)
     if len(result) == 0: return config.defaultLanguageURI
     else: return result[0][0]
@@ -445,8 +468,8 @@ def callerIDLookup(callerID):
     """
     callerID = callerID.replace(" ","+")
     field = ['userURI']
-    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
-    ['?userURI','http://example.org/chickenvaccinationsapp/contact_tel',callerID]]
+    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/seedmarketapp/user'],
+    ['?userURI','http://example.org/seedmarketapp/contact_tel',callerID]]
     result = sparqlInterface.selectTriples(field,triples)
     if len(result) == 0: return ""
     else: return result[0][0]
