@@ -60,19 +60,44 @@ def adminAudioHome():
         language.append(len(missingVoicelabels))
     getAllResourcesQuery = """SELECT DISTINCT ?subject  WHERE {
     ?subject rdf:type   ?type .}"""
-    resources = executeSparqlQuery(getAllResourcesQuery)
+    sparqlResources = executeSparqlQuery(getAllResourcesQuery)
     sparqlNonExistingWaveFiles = []
-    for resource in resources:
+    for resource in sparqlResources:
         voiceLabels = getVoiceLabels(resource[0],returnEmptyVoiceLabels=False)
         for audioFile in voiceLabels:
             url = audioFile[1]
             if not urllib.urlopen(url).getcode() == 200:
                 sparqlNonExistingWaveFiles.append(audioFile[1])
-                sparqlNonExistingWaveFiles = sorted(sparqlNonExistingWaveFiles)
+    sparqlNonExistingWaveFiles = sorted(set(sparqlNonExistingWaveFiles))
+
+    finalResultsInterface = []
+    pythonFiles = glob.glob(config.pythonFilesDir+'*.py')
+    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*'))
+    waveFilesInterface = []
+    wavFilePattern = re.compile("""([^\s\\/+"']+\.wav)""",re.I)
+    for pythonFile in pythonFiles:
+        text = open(pythonFile).read()
+        for match in wavFilePattern.findall(text):
+            #ignore match on regex above
+            if match != "\.wav":
+                waveFilesInterface.append(match)
+    #remove duplicates
+    waveFilesInterface.extend(['1.wav','2.wav','3.wav','4.wav','5.wav','6.wav','7.wav','8.wav','9.wav','0.wav','hash.wav','star.wav'])
+    waveFilesInterface = sorted(set(waveFilesInterface))
+    nonExistingInterfaceWaveFiles = []
+    for language in languages:
+        lang = LanguageVars(language[0])
+        for waveFile in waveFilesInterface:
+            waveFileURL = lang.getInterfaceAudioURL(waveFile)
+            if not urllib.urlopen(waveFileURL).getcode() == 200:
+                nonExistingInterfaceWaveFiles.append(waveFileURL)
+    nonExistingInterfaceWaveFiles = sorted(set(nonExistingInterfaceWaveFiles))
+
 
     return render_template('admin/audio.html',
         languages = languages,
-        notAvailableWaveFiles = sparqlNonExistingWaveFiles)
+        notAvailableWaveFiles = sparqlNonExistingWaveFiles,
+        waveFilesInterface=nonExistingInterfaceWaveFiles)
 
 def recordAudio(language,URI = ""):
     getResourcesMissingVoicelabelQuery = """SELECT DISTINCT ?subject    WHERE {
