@@ -5,8 +5,16 @@
 {% block body %}
 <h2>Record and upload missing audio voicelabels</h2>
 
-
-
+URI's without a {{ languageLabel }}:<br/>
+<form enctype="multipart/form-data" method="get" action='audio'>
+<input type="hidden" name="lang" value="{{langURI}}">
+<select name="uri">
+{% for resource in resourcesMissingVoicelabels %}
+<option{% if uri == resource[0] %} selected="selected"{% endif %}>{{resource[0]}}</option>
+{% endfor %}
+</select>
+<input type="submit" value="Select URI">
+</form>
 <p>{{ uri }}</p>
 
 
@@ -19,7 +27,11 @@
 </tr>
 {% endfor %}
 </table></br>
+{{ voiceLabelsHtml.voiceLabels(voiceLabelResults) }}
+
+<br/>
 Audio file language to upload: {{language}}
+
 <form enctype="multipart/form-data" method="post" action='audio'>
 Audio file destination:<input type="text" name="filename" value="{{proposedWavURL}}"></br>
 Audio file:<input type="file" name="file"></br>
@@ -29,4 +41,6 @@ Audio file:<input type="file" name="file"></br>
 <input type="submit" value="Upload and insert voicelabel">
 
 </form>
+<br/>
+Recording tool: https://kasadaka-ip/wavrecord.html
 {% endblock %}

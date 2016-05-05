@@ -14,8 +14,8 @@
 
 cv:andre_baart
 	a cv:user ;
-	speakle:voicelabel_nl audio:andre_baart_nl.wav;
-	speakle:voicelabel_en audio:andre_baart_en.wav;
+	
+	
 	cv:contact_fname "Andre" ;
 	cv:contact_lname "Baart" ;
 	cv:contact_tel "31653105713" ;
@@ -23,8 +23,8 @@ cv:andre_baart
 
 cv:victor_de_boer
 	a cv:user ;
-	speakle:voicelabel_nl audio:victor_de_boer_nl.wav;
-	speakle:voicelabel_en audio:victor_de_boer_en.wav;
+	
+	
 	cv:contact_fname "Victor" ;
 	cv:contact_lname "de Boer" ;
 	cv:contact_tel "316123456" ;
@@ -37,20 +37,17 @@ cv:victor_de_boer
 cv:newcastle
 	a cv:disease ;
 	rdfs:label "Newcastle's disease"@en ;
-	cv:occurs_in cv:chicken_batch ;
-	speakle:voicelabel_en audio:newcastle_en.wav .
+	cv:occurs_in cv:chicken_batch .
 	
 cv:gomboro
 	a cv:disease ;
 	rdfs:label "Gomboro disease"@en ;
-	cv:occurs_in cv:chicken_batch ;
-	speakle:voicelabel_en audio:gomboro_en.wav .
+	cv:occurs_in cv:chicken_batch .
 
 cv:infectious_bronchitis
 	a cv:disease ;
 	rdfs:label "Infectious Bronchitis"@en ;
-	cv:occurs_in cv:chicken_batch ;
-	speakle:voicelabel_en audio:infectious_bronchitis_en.wav .
+	cv:occurs_in cv:chicken_batch .
 
 
 # Chicken batches
@@ -58,16 +55,12 @@ cv:infectious_bronchitis
 cv:chicken_batch_1
 	a cv:chicken_batch ;
 	cv:birth_date "2012-08-11" ;
-	cv:owned_by cv:andre_baart ;
-	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
-	speakle:voicelabel_en audio:chicken_batch1_en.wav .	
+	cv:owned_by cv:andre_baart .	
 	
 cv:chicken_batch_2
 	a cv:chicken_batch ;
 	cv:birth_date "2010-08-11" ;
-	cv:owned_by cv:andre_baart ;
-	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
-	speakle:voicelabel_en audio:chicken_batch1_en.wav .
+	cv:owned_by cv:andre_baart .
 	
 # Vaccinations
 
@@ -75,78 +68,67 @@ cv:newcastle_vac_1
 	a cv:vaccination ;
 	cv:treats cv:newcastle ;
 	cv:days_after_birth "1" ;
-	cv:description "Primo vaccination entre le 1er et le 4ème jour  (pas au delà du 15ème jr)  avec PESTOS (vaccin vivant simple contre Newcastle flacon de 500 et 1000 dose pour boisson et trempage). Il existe aussi un Vaccin vivant complexe qui s'appelle PESTOS + H120 contre la maladie de Newcastle et la Bronchite infectieuse (500 et 1000 doses pour boisson et trempage)" ;
-	speakle:voicelabel_en audio:newcastle_vac1_en.wav .	
+	cv:description "Primo vaccination entre le 1er et le 4ème jour  (pas au delà du 15ème jr)  avec PESTOS (vaccin vivant simple contre Newcastle flacon de 500 et 1000 dose pour boisson et trempage). Il existe aussi un Vaccin vivant complexe qui s'appelle PESTOS + H120 contre la maladie de Newcastle et la Bronchite infectieuse (500 et 1000 doses pour boisson et trempage)" .	
 	
 cv:newcastle_vac_2
 	a cv:vaccination ;
 	cv:treats cv:newcastle ;
 	cv:days_after_birth "7" ;
-	cv:description "1er rappel une semaine après primo avec ITANEW (flaon de 100 doses)" ;
-	speakle:voicelabel_en audio:newcastle_vac2_en.wav .
+	cv:description "1er rappel une semaine après primo avec ITANEW (flaon de 100 doses)" .
 
 cv:newcastle_vac_3
 	a cv:vaccination ;
 	cv:treats cv:newcastle ;
 	cv:days_after_birth "98" ;
-	cv:description "2nd rappel 3 mois après 1er rappel avec ITANEW (flaon de 100 doses)" ;
-	speakle:voicelabel_en audio:newcastle_vac3_en.wav .
+	cv:description "2nd rappel 3 mois après 1er rappel avec ITANEW (flaon de 100 doses)" .
 
 cv:newcastle_vac_4
 	a cv:vaccination ;
 	cv:treats cv:newcastle ;
 	cv:days_after_birth "180" ;
-	cv:description "Autres Rappel Chaque 3 mois avec ITANEW (flaon de 100 doses)" ;
-	speakle:voicelabel_en audio:newcastle_vac4_en.wav .
+	cv:description "Autres Rappel Chaque 3 mois avec ITANEW (flaon de 100 doses)" .
 
 cv:gomboro_vac_1
 	a cv:vaccination ;
 	cv:treats cv:gomboro ;
 	cv:days_after_birth "5" ;
-	cv:description "Primo vaccination le 5 ème jour avec GOMBOPEST (vaccin polyvalent)" ;
-	speakle:voicelabel_en audio:gomboro_vac1_en.wav .
+	cv:description "Primo vaccination le 5 ème jour avec GOMBOPEST (vaccin polyvalent)" .
 
 cv:gomboro_vac_2
 	a cv:vaccination ;
 	cv:treats cv:gomboro ;
 	cv:days_after_birth "12" ;
-	cv:description "1er Rappel avec Gombopest 7 jours après la primo vaccination" ;
-	speakle:voicelabel_en audio:gomboro_vac2_en.wav .
+	cv:description "1er Rappel avec Gombopest 7 jours après la primo vaccination" .
 
 cv:gomboro_vac_3
 	a cv:vaccination ;
 	cv:treats cv:gomboro ;
 	cv:days_after_birth "27" ;
-	cv:description "2nd et dernier rappel 15 jours après le 1 er rappel avec Gombopest" ;
-	speakle:voicelabel_en audio:gomboro_vac3_en.wav .
+	cv:description "2nd et dernier rappel 15 jours après le 1 er rappel avec Gombopest" .
 
 cv:infectious_bronchitis_vac_1
 	a cv:vaccination ;
 	cv:treats cv:infectious_bronchitis ;
 	cv:days_after_birth "7" ;
-	cv:description "Primo vaccination le 7ème jour avec H120 (vaccin vivant de 500 et 1000 doses pour boisson et trempage)" ;
-	speakle:voicelabel_en audio:infectious_bronchitis_vac1_en.wav .
+	cv:description "Primo vaccination le 7ème jour avec H120 (vaccin vivant de 500 et 1000 doses pour boisson et trempage)" .
 
 cv:infectious_bronchitis_vac_2
 	a cv:vaccination ;
 	cv:treats cv:infectious_bronchitis ;
 	cv:days_after_birth "22" ;
-	cv:description "1er Rappel 15 jour après la primo vaccination c’est-à-dire le 22ème jour avec H120" ;
-	speakle:voicelabel_en audio:infectious_bronchitis_vac2_en.wav .
+	cv:description "1er Rappel 15 jour après la primo vaccination c’est-à-dire le 22ème jour avec H120" .
 
 cv:infectious_bronchitis_vac_3
 	a cv:vaccination ;
 	cv:treats cv:infectious_bronchitis ;
 	cv:days_after_birth "37" ;
-	cv:description "2nd Rappel 15 jours après le 1er rappel avec H120" ;
-	speakle:voicelabel_en audio:infectious_bronchitis_vac3_en.wav .
+	cv:description "2nd Rappel 15 jours après le 1er rappel avec H120" .
 
 cv:infectious_bronchitis_vac_3
 	a cv:vaccination ;
 	cv:treats cv:infectious_bronchitis ;
 	cv:days_after_birth "127" ;
-	cv:description "Autres Rappels chaque 3 mois avec H120" ;
-	speakle:voicelabel_en audio:infectious_bronchitis_vac4_en.wav .
+	cv:description "Autres Rappels chaque 3 mois avec H120" .
 
 
 # Languages

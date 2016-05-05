@@ -83,9 +83,9 @@ def recordAudio(language,URI = ""):
     proposedWavURL = config.audioPath + URI.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
 
     resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
-
-
-    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language)
+    languageLabel = sparqlHelper.retrieveLabel(language)
+    voiceLabelResults = getVoiceLabels(URI,changeLocalhostIP = request.host)
+    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language,resourcesMissingVoicelabels=resourcesMissingVoicelabels, languageLabel=languageLabel,voiceLabelResults=voiceLabelResults)
 
 def processAudio(request):
     fileExists = os.path.isfile(request.form['filename'])
@@ -93,8 +93,10 @@ def processAudio(request):
     #if file and allowed_file(file.filename):
         #filename = secure_filename(file.filename)
         #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-    file.save(request.form['filename'])
-    size = os.stat(request.form['filename']).st_size
+    tempFileLocation = "/tmp/"+request.form['filename'].rsplit('/', 1)[-1]
+    file.save(tempFileLocation)
+    size = os.stat(tempFileLocation).st_size
+    subprocess.call(['/usr/bin/sox',tempFileLocation,'-r','8k','-c','1','-e','signed-integer',request.form['filename']])
     if size > 0: flash('File saved successfully! bytes:'+str(size))
     else:
         flash("Error: file "+str(size)+" bytes.")
