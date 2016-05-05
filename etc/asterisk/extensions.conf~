@@ -10,13 +10,11 @@ exten => _.,1,Answer
 exten => _.,n,Vxml(http://127.0.0.1/FlaskKasadaka/chickenvaccination.vxml?callerid=${CALLERID(num)})
 exten => _.,n,Hangup
 
-exten => chickenvaccination,1,Answer
-exten => chickenvaccination,n,Vxml(http://127.0.0.1/FlaskKasadaka/chickenvaccination.vxml?callerid=${CALLERID(num)})
-exten => chickenvaccination,n,Hangup
+exten => cv,1,Answer
+exten => cv,n,Vxml(http://127.0.0.1/FlaskKasadaka/c$
+exten => cv,n,Hangup
 
-exten => seedmarket,1,Answer
-exten => seedmarket,n,Vxml(http://127.0.0.1/seedmarket/seedmarket.vxml?callerid=${CALLERID(num)})
-exten => seedmarket,n,Hangup
+
 
 
 exten => kasadaka,1,Answer
