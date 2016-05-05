@@ -1,7 +1,7 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
 import sparqlInterface
-from datetime import datetime
+from datetime import datetime,date
 from werkzeug import secure_filename
 import config
 from languageVars import LanguageVars, getVoiceLabels
@@ -249,8 +249,7 @@ def insertNewChickenBatch(recordingLocation,user):
     voicelabelLanguage = preferredLanguageLookup(user)
     objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
     preferredURI = objectType
-    now = datetime.now
-    currentDate = now.strftime("%Y-%m-%d")
+    currentDate = date.today().strftime("%Y-%m-%d")
     recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
     tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
         ["http://example.org/chickenvaccinationsapp/owned_by",user],
