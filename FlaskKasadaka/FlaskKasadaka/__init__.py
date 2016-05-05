@@ -33,7 +33,9 @@ def index():
 
 @app.route('/admin/audio', methods=['GET','POST'])
 def adminAudio():
-    if 'lang' in request.args:
+    if 'lang' in request.args and 'uri' in request.args:
+        return recordAudio(request.args['lang'],request.args['uri'])
+    elif 'lang' in request.args:
         return recordAudio(request.args['lang'])
     elif request.method == 'POST' and request.form['action'] == 'upload':
         return processAudio(request)
@@ -68,22 +70,22 @@ def adminAudioHome():
         languages = languages,
         notAvailableWaveFiles = sparqlNonExistingWaveFiles)
 
-def recordAudio(language):
+def recordAudio(language,URI = ""):
     getResourcesMissingVoicelabelQuery = """SELECT DISTINCT ?subject    WHERE {
        ?subject rdf:type   ?type .
         FILTER(NOT EXISTS {?subject <"""+language+"""> ?voicelabel_en .})
         }"""
     resourcesMissingVoicelabels = executeSparqlQuery(getResourcesMissingVoicelabelQuery)
-    resource = resourcesMissingVoicelabels[0][0]
+    if len(URI) == 0: URI = resourcesMissingVoicelabels[0][0]
     resourceDataQuery = """SELECT DISTINCT  ?1 ?2  WHERE {
           ?uri   ?1 ?2.
-         FILTER(?uri=<"""+resource+""">)}"""
-    proposedWavURL = config.audioPath + resource.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
+         FILTER(?uri=<"""+URI+""">)}"""
+    proposedWavURL = config.audioPath + URI.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
 
     resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
 
 
-    return render_template('admin/record.html',uri=resource,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language)
+    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language)
 
 def processAudio(request):
     fileExists = os.path.isfile(request.form['filename'])
@@ -105,7 +107,7 @@ def processAudio(request):
     insertSuccess = executeSparqlUpdate(insertVoicelabelQuery)
     if insertSuccess: flash("Voicelabel sucessfully inserted in to triple store!")
     else: flash("Error in inserting triples")
-    return recordAudio(request.form['lang'])
+    return recordAudio(request.form['lang'],request.form['uri'])
 
 
 @app.route('/admin')
@@ -256,12 +258,14 @@ def insertNewChickenBatch(recordingLocation,user):
         [voicelabelLanguage,recordingLocation]]
     return sparqlHelper.insertObjectTriples(preferredURI,objectType,tuples)
 
+
 def saveRecording(path):
     #remove file:// if present
     #a lot of %00 stuff to remove
     path =  path.replace("\00","")
     path = re.sub(r"(file:\/\/)?(.*)",r"\2",path)
     dest = findFreshFilePath(config.recordingsPath+ "recording.wav")
+    #convert to format that is good for vxml as well as web interface
     subprocess.call(['/usr/bin/sox',path,'-r','8k','-c','1','-e','signed-integer',dest])
     #shutil.copy(path,dest)
     return dest
@@ -310,14 +314,23 @@ def callerID():
     else:
         return errorVXML()
 
-def askLanguageVXML(callerID):
+#TODO tidying
+def askLanguageVXML(callerID,redirect):
+    languages = languageVars.getVoiceLabelPossibilities()
+    for language in languages:
+        language.append(config.audioURLbase + language[0].rsplit('_', 1)[-1] + "/interface/" + language[0].rsplit('/', 1)[-1] + ".wav")
+        language.append(language[0].rsplit('_', 1)[-1])
+        language[0] = redirect +"?callerid="+b16encode(callerID) +"&lang=" + b16encode(language[0])
+    return render_template(
+    'language.vxml',
+    options = languages,
+    audioDir = config.audioURLbase,
+    questionAudio = config.audioURLbase+config.defaultLanguage+"/interface/chooseLanguage.wav"
+    )
 
-    return " "
-
-#TODO afmaken
 def newUserVXML(callerID,lang=""):
     if len(callerID) == 0 : return errorVXML()
-    if len(lang) == 0: return askLanguageVXML(callerID)
+    if len(lang) == 0: return askLanguageVXML(callerID,'insertNewUser.vxml')
     lang = LanguageVars(lang)
     preMessages = [lang.getInterfaceAudioURL('speakUserName.wav'),
         lang.getInterfaceAudioURL('endRecordingWithAnyPress.wav')]
@@ -328,12 +341,48 @@ def newUserVXML(callerID,lang=""):
         preMessages = preMessages,
         postMessages = postMessages,
         passOnVariables = passOnVariables,
+        redirect= 'recordUserName.vxml')
+
+@app.route('/recordUserName.vxml',methods=['GET'])
+def recordUserName():
+    if 'callerid' not in request.args or 'lang' not in request.args: return errorVXML()
+    lang = LanguageVars(b16decode(request.args['lang']))
+    preMessages = [lang.getInterfaceAudioURL('speakUserName.wav'),
+        lang.getInterfaceAudioURL('endRecordingWithAnyPress.wav')]
+    postMessages = [lang.getInterfaceAudioURL('press1ToConfirm.wav'),
+        lang.getInterfaceAudioURL('press2ToRetry.wav')]
+    passOnVariables = [['callerid',request.args['callerid']],
+        ['lang',request.args['lang']]]
+    return render_template('record.vxml',
+        preMessages = preMessages,
+        postMessages = postMessages,
+        passOnVariables = passOnVariables,
         redirect= 'insertNewUser.vxml')
 
 @app.route('/insertNewUser.vxml',methods=['GET'])
 def insertNewUserVXML():
+    if 'callerid' not in request.args or 'lang' not in request.args or 'recording' not in request.args: return errorVXML()
+    lang = LanguageVars(b16decode(request.args['lang']))
+    callerID = b16decode(request.args['callerID'])
+    recordingLocation = request.args['recording']
+    recordingLocation = saveRecording(recordingLocation)
+    newUserURI = insertNewUser(recordingLocation,callerID,lang)
+    if len(newUserURI) != 0:
+        messages = [lang.getInterfaceAudioURL('registerUserSuccess.wav')]
+        return render_template('message.vxml',
+            messages = messages,
+            redirect = "chickenvaccination_main.vxml?user="+b16encode(newUserURI))
+    else: return errorVXML()
 
-    return " "
+def insertNewUser(recordingLocation,callerID,lang):
+    objectType = "http://example.org/chickenvaccinationsapp/user"
+    recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
+    tuples = [["http://example.org/chickenvaccinationsapp/contact_fname","unknown"],
+        ["http://example.org/chickenvaccinationsapp/contact_lname","unknown"],
+        ["http://example.org/chickenvaccinationsapp/contact_tel",callerID],
+        ["http://example.org/chickenvaccinationsapp/preferred_language",lang],
+        [lang,recordingLocation]]
+    return sparqlHelper.insertObjectTriples(preferredURI,objectType,tuples)
 
 def preferredLanguageLookup(userURI):
     """
@@ -407,7 +456,6 @@ def main():
         options = languages,
         audioDir = config.audioURLbase,
         questionAudio = config.audioURLbase+config.defaultLanguage+"/interface/chooseLanguage.wav"
-
         )
 
 
