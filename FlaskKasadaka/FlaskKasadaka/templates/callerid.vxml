@@ -10,9 +10,9 @@ redirects and sends the caller id
 <form>
 <block>
 <prompt>
-<assign name="callerid" expr="session.connection.remote.uri"/>
+{# <assign name="callerid" expr="session.connection.remote.uri"/> #}
 </prompt>
-<submit next="{{redirect}}" method="post" namelist="callerid"/>
+<goto next="http://127.0.0.1/helloworld.vxml"/>
 </block>
 </form>
 

@@ -7,7 +7,9 @@ plays back a message, then sends the user to the redirect
 <form>
 <block>
 <prompt>
-<audio src="{{ interfaceAudioDir ~ messageAudio }}"/>
+{% for messageAudio in messages %}
+<audio src="{{messageAudio}}"/>
+{% endfor %}
 </prompt>
 <goto next="{{ redirect }}"/>
 </block>

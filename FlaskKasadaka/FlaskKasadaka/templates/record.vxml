@@ -1,0 +1,54 @@
+{% extends "vxmlLayout.vxml" %}
+{#
+plays back a message
+records user speech until dtmf tone
+ask for confirmation
+if confirmed, submit to redirect, else re enter.
+#}
+
+{% block content %}
+<form id="recording_form">
+
+<record name="recording" beep="true" maxtime="60s"
+  finalsilence="4s" dtmfterm="true"> 
+<prompt>
+{% for messageAudio in preMessages %}
+<audio src="{{messageAudio}}"/>
+{% endfor %}
+</prompt>
+</record>
+<field name="confirm">
+<prompt>
+<audio expr="recording"/>
+{% for messageAudio in postMessages %}
+<audio src="{{messageAudio}}"/>
+{% endfor %}
+</prompt>
+<grammar xml:lang="en-US" root = "MYRULE" mode="dtmf">
+      <rule id="MYRULE" scope = "public">
+        <one-of>        
+            <item>1</item>         
+            <item>2</item>        
+        </one-of>
+       </rule>
+     </grammar>
+
+  <filled>
+
+      <if cond="confirm == '1'">
+      {% for passOnVar in passOnVariables %}
+      <var name="{{passOnVar[0]}}" expr="'{{passOnVar[1]}}'"/>
+      {% endfor %}
+    <submit next="{{ redirect }}" method="get" 
+     namelist="recording{% for passOnVar in passOnVariables %}{{" "  ~ passOnVar[0]}}{% endfor %}" />
+   </if>
+      <if cond="confirm == '2'">
+    <goto next="#recording_form"/>
+   </if>
+
+  </filled>
+ </field>
+
+</form>
+
+{% endblock %}

@@ -2,7 +2,7 @@
 @prefix     rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix   speakle: <http://purl.org/collections/w4ra/speakle/> .
 @prefix      cv: <http://example.org/chickenvaccinationsapp/> .
-@prefix      audio: <http://heidrunn.nl/audio/>.
+@prefix      audio: <http://127.0.0.1/audio/>.
 @prefix   lvont: <http://lexvo.org/ontology#>.
 @prefix   lexvoid: <http://lexvo.org/id/iso639-3/>.
 
@@ -19,7 +19,7 @@ cv:andre_baart
 	cv:contact_fname "Andre" ;
 	cv:contact_lname "Baart" ;
 	cv:contact_tel "+31653105713" ;
-	cv:preferred_language speakle:voicelabel_nl .
+	cv:preferred_language speakle:voicelabel_en .
 
 cv:victor_de_boer
 	a cv:user ;
@@ -45,14 +45,14 @@ cv:newcastle
 
 # Chicken batches
 
-cv:chicken_batch1
+cv:chicken_batch_1
 	a cv:chicken_batch ;
 	cv:birth_date "2012-08-11" ;
 	cv:owned_by cv:andre_baart ;
 	speakle:voicelabel_nl audio:chicken_batch1_nl.wav ;
 	speakle:voicelabel_en audio:chicken_batch1_en.wav .	
 	
-cv:chicken_batch2
+cv:chicken_batch_2
 	a cv:chicken_batch ;
 	cv:birth_date "2010-08-11" ;
 	cv:owned_by cv:andre_baart ;
@@ -61,7 +61,7 @@ cv:chicken_batch2
 	
 # Vaccinations
 
-cv:newcastle_vac1
+cv:newcastle_vac_1
 	a cv:vaccination ;
 	cv:treats cv:newcastle ;
 	cv:days_after_birth "1" ;
@@ -69,7 +69,7 @@ cv:newcastle_vac1
 	speakle:voicelabel_nl audio:newcastle_vac1_nl.wav ;
 	speakle:voicelabel_en audio:newcastle_vac1_en.wav .	
 	
-cv:newcastle_vac2
+cv:newcastle_vac_2
 	a cv:vaccination ;
 	cv:treats cv:newcastle ;
 	cv:days_after_birth "5" ;

@@ -1,11 +1,14 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+import sparqlInterface
 from datetime import datetime
 from werkzeug import secure_filename
 import config
 from languageVars import LanguageVars, getVoiceLabels
 import sparqlHelper
+import languageVars
 
+import shutil
 import glob
 import re
 import urllib
@@ -210,21 +213,132 @@ def createDataTuples(properties, request):
         dataTuples.append([prop,request.form[encodedProp]])
     return dataTuples
 
-@app.route('/callerid.vxml',methods=['GET','POST'])
+@app.route('/declareBornChickenBatch.vxml',methods=['GET'])
+def cvNewChickenBatchVXML():
+    if 'user' not in request.args: return errorVXML()
+    user = b16decode(request.args['user'])
+    lang = LanguageVars(preferredLanguageLookup(user))
+    preMessages = [lang.getInterfaceAudioURL('speakChickenBatchName.wav'),
+        lang.getInterfaceAudioURL('endRecordingWithAnyPress.wav')]
+    postMessages = [lang.getInterfaceAudioURL('press1ToConfirm.wav'),
+        lang.getInterfaceAudioURL('press2ToRetry.wav')]
+    passOnVariables = [['user',request.args['user']]]
+    return render_template('record.vxml',
+        preMessages = preMessages,
+        postMessages = postMessages,
+        passOnVariables = passOnVariables,
+        redirect= 'insertBornChickenBatch.vxml')
+
+@app.route('/insertBornChickenBatch.vxml',methods=['GET'])
+def cvInsertNewChickenBatchVXML():
+    if 'user' not in request.args or 'recording' not in request.args: return errorVXML()
+    user = b16decode(request.args['user'])
+    lang = LanguageVars(preferredLanguageLookup(user))
+    recordingLocation = request.args['recording']
+    recordingLocation = processRecording(recordingLocation)
+    success = insertNewChickenBatch(recordingLocation,user)
+    if success:
+        messages = [lang.getInterfaceAudioURL('insertChickenBatchSuccess.wav')]
+        return render_template('message.vxml',
+            messages = messages,
+            redirect = "chickenvaccination_main.vxml?user="+request.args['user'])
+    else: return errorVXML()
+
+def insertNewChickenBatch(recordingLocation,user):
+    voicelabelLanguage = preferredLanguageLookup(user)
+    objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
+    preferredURI = objectType
+    currentDate = "2012-08-11"
+    tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
+        ["http://example.org/chickenvaccinationsapp/owned_by",user],
+        [voicelabelLanguage,recordingLocation]]
+    return sparqlHelper.insertObjectTriples(preferredURI,objectType,tuples)
+
+def saveRecording(path):
+    #remove file:// if present
+    #a lot of %00 stuff to remove
+    path =  path.replace("\00","")
+    path = re.sub(r"(file:\/\/)?(.*)",r"\2",path)
+    dest = findFreshFilePath(config.recordingsPath+ "recording.wav")
+    shutil.copy(path,dest)
+    return dest
+
+def findFreshFilePath(preferredPath):
+    addition = 1
+    path = re.sub(r"(.*\/)(\w*)(\.\w{3})",r"\1\2" + "_" + str(addition) + r"\3",preferredPath)
+    while os.path.isfile(path):
+        addition = addition + 1
+        path = re.sub(r"(.*\/)(\w*)(\.\w{3})",r"\1\2" + "_" + str(addition) + r"\3",path)
+    return path
+
+
+
+@app.route('/chickenvaccination_main.vxml',methods=['GET'])
+def cvMainMenuVXML():
+    if 'user' not in request.args: return errorVXML()
+    user = b16decode(request.args['user'])
+    lang = LanguageVars(preferredLanguageLookup(user))
+    #list of options in initial menu: link to file, and audio description of the choice
+    options = [
+            ['declareBornChickenBatch.vxml?user='+request.args['user'],lang.getInterfaceAudioURL('declareBornChickenBatch.wav')]
+            ]
+    return render_template(
+        'main.vxml',
+        interfaceAudioDir = lang.audioInterfaceURL,
+        welcomeAudio = 'welcomeMainMenu.wav',
+        questionAudio = "mainMenuQuestion.wav",
+        options = options)
+
+
+@app.route('/chickenvaccination.vxml',methods=['GET'])
 def callerID():
-    if 'callerid' in request.form:
-        f = open('/home/pi/callerid.txt','w')
-        f.write(request.form['callerid'])
-        f.close()
-        return " "
-        user = callerIDLookup(request.form['callerid'])
+    if 'callerid' in request.args:
+        user = callerIDLookup(request.args['callerid'])
         if len(user) != 0:
-            return main(user)
+            preferredLanguage = preferredLanguageLookup(user)
+            lang = LanguageVars(preferredLanguage.rsplit('_', 1)[-1])
+            userVoiceLabel = lang.getVoiceLabel(user) 
+            welcomeMessage = lang.getInterfaceAudioURL('welcome_cv.wav')
+            return render_template('message.vxml',
+                messages = [welcomeMessage,userVoiceLabel],
+                redirect = "chickenvaccination_main.vxml?user=" + b16encode(user))
         else:
-            return newUser()
+            return newUserVXML(request.args['callerid'])
     else:
-        return render_template('callerid.vxml',
-            redirect = 'callerid.vxml')
+        return errorVXML()
+
+def newUserVXML(callerID):
+    return " "
+
+def preferredLanguageLookup(userURI):
+    """
+    Returns the URI of the preferred voicelabel (language) for an user.
+    """
+    field = ['preferred_language']
+    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
+    ['?userURI','http://example.org/chickenvaccinationsapp/preferred_language','?preferred_language']]
+    result = sparqlInterface.selectTriples(field,triples)
+    if len(result) == 0: return config.defaultLanguageURI
+    else: return result[0][0]
+
+def callerIDLookup(callerID):
+    """
+    Returns the URI of the user associated with the caller ID. Returns an empty string if no match.
+    """
+    callerID = callerID.replace(" ","+")
+    field = ['userURI']
+    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
+    ['?userURI','http://example.org/chickenvaccinationsapp/contact_tel',callerID]]
+    result = sparqlInterface.selectTriples(field,triples)
+    if len(result) == 0: return ""
+    else: return result[0][0]
+    
+@app.route('/error.vxml')
+def errorVXML(language="en"):
+    lang = LanguageVars(language)
+    return render_template('message.vxml',
+        messages = [lang.audioInterfaceURL + 'error.wav'],
+            redirect = 'error.vxml')
 
 
 @app.route('/main.vxml')
