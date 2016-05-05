@@ -2,7 +2,7 @@
 @prefix     rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix   speakle: <http://purl.org/collections/w4ra/speakle/> .
 @prefix      sm: <http://example.org/seedmarketapp/> .
-@prefix      audio: <http://127.0.0.1/audio_seedmarket/>.
+@prefix      audio: <http://127.0.0.1/audio/>.
 @prefix   lvont: <http://lexvo.org/ontology#>.
 @prefix   lexvoid: <http://lexvo.org/id/iso639-3/>.
 
