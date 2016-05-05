@@ -249,6 +249,7 @@ def insertNewChickenBatch(recordingLocation,user):
     objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
     preferredURI = objectType
     currentDate = "2012-08-11"
+    recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
     tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
         ["http://example.org/chickenvaccinationsapp/owned_by",user],
         [voicelabelLanguage,recordingLocation]]
@@ -268,7 +269,7 @@ def findFreshFilePath(preferredPath):
     path = re.sub(r"(.*\/)(\w*)(\.\w{3})",r"\1\2" + "_" + str(addition) + r"\3",preferredPath)
     while os.path.isfile(path):
         addition = addition + 1
-        path = re.sub(r"(.*\/)(\w*)(\.\w{3})",r"\1\2" + "_" + str(addition) + r"\3",path)
+        path = re.sub(r"(.*\/)(\w*)(\.\w{3})",r"\1\2" + "_" + str(addition) + r"\3",preferredPath)
     return path
 
 
