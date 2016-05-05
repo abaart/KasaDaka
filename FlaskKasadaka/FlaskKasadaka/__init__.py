@@ -109,7 +109,7 @@ def processAudio(request):
 
 @app.route('/admin')
 def adminIndex():
-	return render_template('admin/index.html')
+    return render_template('admin/index.html')
 
 @app.route('/admin/object')
 def objectInfo():
@@ -118,7 +118,7 @@ def objectInfo():
     """
     if 'uri' not in request.args: return "Error, no uri specified"
     URI = b16decode(request.args['uri'])
-    voiceLabels = getVoiceLabels(URI)
+    voiceLabels = getVoiceLabels(URI,changeLocalhostIP = request.host)
     objectType = sparqlHelper.determineObjectType(URI)
     fieldNames = sparqlHelper.propertyLabels(objectType)
     result = sparqlHelper.objectInfo(URI)

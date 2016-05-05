@@ -49,7 +49,7 @@ def getVoiceLabelPossibilities():
     return outputLanguagesQuery
 
 #TODO base encoding
-def getVoiceLabels(uri,giveColumns = True,returnEmptyVoiceLabels = True):
+def getVoiceLabels(uri,giveColumns = True,returnEmptyVoiceLabels = True,changeLocalhostIP = "127.0.0.1"):
     VoiceLabelPossibility = getVoiceLabelPossibilities()
     queryBuilder1 = """ SELECT DISTINCT """
     queryBuilder2 = """ """
@@ -64,6 +64,7 @@ def getVoiceLabels(uri,giveColumns = True,returnEmptyVoiceLabels = True):
         voiceLabelResult = executeSparqlQuery(voiceLabelQuery,giveColumns=giveColumns,httpEncode=False)
         if len(voiceLabelResult[1]) is not 0:
             audio = voiceLabelResult[1][0]
+            if changeLocalhostIP: audio = audio.replace("127.0.0.1",changeLocalhostIP)
             voiceLabels.append([voiceLabelResult[0][0],audio])
         elif returnEmptyVoiceLabels == True:
             audio = ""

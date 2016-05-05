@@ -65,10 +65,21 @@ def objectUpdate(URI,deleteProperties,insertTuples):
 
 def insertObjectTriples(URI,objectType,tuples):
     URI = findFreshURI(URI)
+    checkIfNecessaryPropertiesAreSet(objectType,tuples)
     triples = [[URI,'rdf:type',objectType]]
     for tupl in tuples:
         triples.append([URI,tupl[0],tupl[1]])
     return sparqlInterface.insertTriples(triples) 
+
+def checkIfNecessaryPropertiesAreSet(objectType,tuples):
+    properties = getDataStructure(objectType)
+    for prop in properties:
+        found = False
+        for tup in tuples:
+            if prop == tup[0]: found = True
+        if not found: raise ValueError("not all necessary properties set!")
+    return
+
 
 def determineObjectType(URI):
 	triples = [[URI,'rdf:type','?type']]
