@@ -31,6 +31,10 @@ def index():
 	"""
     return 'This is the Kasadaka Vxml generator'
 
+@app.route('/admin/reminders')
+def showReminders():
+    return render_template('admin/reminder.html')
+
 @app.route('/admin/audio', methods=['GET','POST'])
 def adminAudio():
     if 'lang' in request.args and 'uri' in request.args:

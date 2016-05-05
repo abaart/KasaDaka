@@ -1,0 +1,9 @@
+
+{% extends "admin/index.html" %}
+{% import "admin/voiceLabels.html" as voiceLabelsHtml %}
+
+
+{% block body %}
+<audio controls><source src="/audio/sampleReminder.wav" type="audio/wav"></audio>
+
+{% endblock %}
