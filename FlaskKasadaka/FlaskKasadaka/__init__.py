@@ -8,6 +8,7 @@ from languageVars import LanguageVars, getVoiceLabels
 import sparqlHelper
 import languageVars
 
+import subprocess
 import shutil
 import glob
 import re
@@ -248,7 +249,8 @@ def insertNewChickenBatch(recordingLocation,user):
     voicelabelLanguage = preferredLanguageLookup(user)
     objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
     preferredURI = objectType
-    currentDate = "2012-08-11"
+    now = datetime.now
+    currentDate = now.strftime("%Y-%m-%d")
     recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
     tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
         ["http://example.org/chickenvaccinationsapp/owned_by",user],
@@ -261,7 +263,8 @@ def saveRecording(path):
     path =  path.replace("\00","")
     path = re.sub(r"(file:\/\/)?(.*)",r"\2",path)
     dest = findFreshFilePath(config.recordingsPath+ "recording.wav")
-    shutil.copy(path,dest)
+    subprocess.call(['/usr/bin/sox',path,'-r','8k','-c','1','-e','signed-integer',dest])
+    #shutil.copy(path,dest)
     return dest
 
 def findFreshFilePath(preferredPath):
@@ -308,7 +311,29 @@ def callerID():
     else:
         return errorVXML()
 
-def newUserVXML(callerID):
+def askLanguageVXML(callerID):
+
+    return " "
+
+#TODO afmaken
+def newUserVXML(callerID,lang=""):
+    if len(callerID) == 0 : return errorVXML()
+    if len(lang) == 0: return askLanguageVXML(callerID)
+    lang = LanguageVars(lang)
+    preMessages = [lang.getInterfaceAudioURL('speakUserName.wav'),
+        lang.getInterfaceAudioURL('endRecordingWithAnyPress.wav')]
+    postMessages = [lang.getInterfaceAudioURL('press1ToConfirm.wav'),
+        lang.getInterfaceAudioURL('press2ToRetry.wav')]
+    passOnVariables = [['callerid',callerID],['lang', lang]]
+    return render_template('record.vxml',
+        preMessages = preMessages,
+        postMessages = postMessages,
+        passOnVariables = passOnVariables,
+        redirect= 'insertNewUser.vxml')
+
+@app.route('/insertNewUser.vxml',methods=['GET'])
+def insertNewUserVXML():
+
     return " "
 
 def preferredLanguageLookup(userURI):

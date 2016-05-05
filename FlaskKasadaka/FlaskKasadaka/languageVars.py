@@ -5,6 +5,7 @@ class LanguageVars(object):
     audioURL = config.audioURLbase + config.defaultLanguage + "/"
     audioInterfaceURL = config.audioURLbase + config.defaultLanguage + "/interface/"
     language = config.defaultLanguage
+    languageURI = ""
 
     #TODO remove unused?
     def replaceVoicelabels(self,inputQuery,
@@ -26,21 +27,24 @@ class LanguageVars(object):
 
     def __init__(self,languageInit):
         if type(languageInit) is not str and 'lang' in languageInit:
-             self.audioURL = config.audioURLbase + languageInit['lang'] + "/"
-             self.audioInterfaceURL = config.audioURLbase + languageInit['lang'] + "/interface/"
-             self.language = languageInit['lang']
+            self.languageURI = languageInit
+            self.audioURL = config.audioURLbase + languageInit['lang'] + "/"
+            self.audioInterfaceURL = config.audioURLbase + languageInit['lang'] + "/interface/"
+            self.language = languageInit['lang']
         elif type(languageInit) is str and not validURI(languageInit):
+            self.languageURI = languageInit
             self.audioURL = config.audioURLbase + languageInit + "/"
             self.audioInterfaceURL = config.audioURLbase + languageInit + "/interface/"
             self.language = languageInit
         elif type(languageInit) is str and validURI(languageInit):
+            self.languageURI = languageInit
             self.language = languageInit.rsplit('_', 1)[-1]
             self.audioURL = config.audioURLbase + self.language + "/"
             self.audioInterfaceURL = self.audioURL + "interface/"
 
 
     def __str__(self):
-        return language
+        return languageURI
 
 def getVoiceLabelPossibilities():
     languagesQuery =""" SELECT DISTINCT  ?voicelabel  WHERE {

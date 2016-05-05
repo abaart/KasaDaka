@@ -36,9 +36,8 @@ sparqlPrefixDict = {
 defaultLanguage = "en"
 defaultLanguageURI = "http://purl.org/collections/w4ra/speakle/voicelabel_en"
 #audio files locations: THESE PATHS MUST POINT TO THE SAME LOCATION
-audioURLbase = "http://127.0.0.1/audio/"
-
 # IMPORTANT: MAKE SURE TO CHMOD 777 THIS DIR
+audioURLbase = "http://127.0.0.1/audio/"
 audioPath = "/home/pi/KasaDaka/html/audio/"
 
 #path to place user recordings
