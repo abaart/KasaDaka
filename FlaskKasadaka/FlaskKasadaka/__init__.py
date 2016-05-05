@@ -72,7 +72,9 @@ def adminAudioHome():
 
     finalResultsInterface = []
     pythonFiles = glob.glob(config.pythonFilesDir+'*.py')
-    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*'))
+    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*.html'))
+    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*.vxml'))
+    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/admin/*.html'))
     waveFilesInterface = []
     wavFilePattern = re.compile("""([^\s\\/+"']+\.wav)""",re.I)
     for pythonFile in pythonFiles:
