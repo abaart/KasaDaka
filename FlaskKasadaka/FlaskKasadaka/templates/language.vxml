@@ -44,10 +44,19 @@ options=matrix of languages, for each language: [goto URL, audio file of languag
     {% for option in options %}
       {% if loop.index == 1 %}
       <if cond="question1 == '{{ loop.index }}'">
-      <goto next="{{option[0]}}"/>
+      <var name="lang" expr="'{{option[0]}}'"/>
+            {% for passOnVar in passOnVariables %}
+      <var name="{{passOnVar[0]}}" expr="'{{passOnVar[1]}}'"/>
+      {% endfor %}
+      <submit next="{{redirect}}" method="get" namelist="lang {% for passOnVar in passOnVariables %}{{" "  ~ passOnVar[0]}}{% endfor %}"/>
       {% else %}
       <elseif cond="question1 == '{{ loop.index }}'" />
-      <goto next="{{option[0]}}"/>
+      <var name="lang" expr="'{{option[0]}}'"/>
+            {% for passOnVar in passOnVariables %}
+      <var name="{{passOnVar[0]}}" expr="'{{passOnVar[1]}}'"/>
+      {% endfor %}
+
+      <submit next="{{redirect}}" method="get" namelist="lang {% for passOnVar in passOnVariables %}{{" "  ~ passOnVar[0]}}{% endfor %}"/>
       {% endif %}
     {% endfor %}
 

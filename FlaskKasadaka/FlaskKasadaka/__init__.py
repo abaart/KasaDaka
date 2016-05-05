@@ -315,22 +315,24 @@ def callerID():
         return errorVXML()
 
 #TODO tidying
-def askLanguageVXML(callerID,redirect):
+def askLanguageVXML(redirect,passOnVariables):
     languages = languageVars.getVoiceLabelPossibilities()
     for language in languages:
         language.append(config.audioURLbase + language[0].rsplit('_', 1)[-1] + "/interface/" + language[0].rsplit('/', 1)[-1] + ".wav")
         language.append(language[0].rsplit('_', 1)[-1])
-        language[0] = redirect +"?callerid="+b16encode(callerID) +"&amp;lang=" + b16encode(language[0])
+        language[0] = b16encode(language[0])
     return render_template(
     'language.vxml',
     options = languages,
     audioDir = config.audioURLbase,
-    questionAudio = config.audioURLbase+config.defaultLanguage+"/interface/chooseLanguage.wav"
+    questionAudio = config.audioURLbase+config.defaultLanguage+"/interface/chooseLanguage.wav",
+    passOnVariables = passOnVariables,
+    redirect = redirect
     )
 
 def newUserVXML(callerID,lang=""):
     if len(callerID) == 0 : return errorVXML()
-    if len(lang) == 0: return askLanguageVXML(callerID,'insertNewUser.vxml')
+    if len(lang) == 0: return askLanguageVXML('recordUserName.vxml',[['callerid',b16encode(callerID)]])
     lang = LanguageVars(lang)
     preMessages = [lang.getInterfaceAudioURL('speakUserName.wav'),
         lang.getInterfaceAudioURL('endRecordingWithAnyPress.wav')]
