@@ -300,7 +300,8 @@ def cvMainMenuVXML():
 @app.route('/chickenvaccination.vxml',methods=['GET'])
 def callerID():
     if 'callerid' in request.args:
-        user = callerIDLookup(request.args['callerid'])
+        callerID = preProcessCallerID(request.args['callerid'])
+        user = callerIDLookup(callerID)
         if len(user) != 0:
             preferredLanguage = preferredLanguageLookup(user)
             lang = LanguageVars(preferredLanguage.rsplit('_', 1)[-1])
@@ -310,9 +311,16 @@ def callerID():
                 messages = [welcomeMessage,userVoiceLabel],
                 redirect = "chickenvaccination_main.vxml?user=" + b16encode(user))
         else:
-            return newUserVXML(request.args['callerid'])
+            return newUserVXML(callerID)
     else:
         return errorVXML()
+
+def preProcessCallerID(callerID):
+    """
+    remove any spaces or plus signs from the callerID
+    """
+    processed = re.sub(r"(\s*\+*)(\d+)",r"\2",callerID)
+    return processed
 
 #TODO tidying
 def askLanguageVXML(redirect,passOnVariables):
