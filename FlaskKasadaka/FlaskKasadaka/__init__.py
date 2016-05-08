@@ -377,6 +377,7 @@ def generateReminderMessage(userURI):
             batchVoicelabel = lang.getVoiceLabel(batchVaccination[0])
             vaccinationVoicelabel = lang.getVoiceLabel(batchVaccination[1])
             diseaseVoicelabel = lang.getVoiceLabel(batchVaccination[2])
+            if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: raise ValueError('unable to create reminder, voicelabel not defined!')
             messages.extend([lang.getInterfaceAudioURL('for.wav'),batchVoicelabel,lang.getInterfaceAudioURL('toPreventDisease.wav'),diseaseVoicelabel,lang.getInterfaceAudioURL('useVaccination.wav'),vaccinationVoicelabel])
     #return render_template('message.vxml',
     #    messages = messages,
