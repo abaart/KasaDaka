@@ -38,12 +38,16 @@ def showReminders():
     users = executeSparqlQuery("""SELECT DISTINCT ?subject    WHERE {
        ?subject rdf:type   cv:user .
         }""")
-    if len(userURI) != 0: messages = generateReminderMessage(userURI)
-    else: messages = []
-    reminder = concatenateWavs(messages)
-    reminderURL = reminder.replace(config.audioPath,config.audioURLbase)
+    if len(userURI) != 0: 
+        messages = generateReminderMessage(userURI)
+        reminder = concatenateWavs(messages)
+        reminderURL = reminder.replace(config.audioPath,config.audioURLbase)
+    else:
+        reminderURL = ""
     return render_template('admin/reminder.html',
-        reminderURL = reminderURL,users = users,uri = userURI)
+        reminderURL = reminderURL,
+        users = users,
+        uri = userURI)
 
 @app.route('/admin/audio', methods=['GET','POST'])
 def adminAudio():
@@ -357,7 +361,7 @@ def concatenateWavs(messages):
     command.append(path)
     #command.extend(['-r','8k','-c','1','-e','signed-integer',path])
     subprocess.call(command)
-    flash(str(command))
+    flash(" ".join(messages))
     return path
 
 def generateReminderMessage(userURI):
@@ -377,7 +381,9 @@ def generateReminderMessage(userURI):
             batchVoicelabel = lang.getVoiceLabel(batchVaccination[0])
             vaccinationVoicelabel = lang.getVoiceLabel(batchVaccination[1])
             diseaseVoicelabel = lang.getVoiceLabel(batchVaccination[2])
-            if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: raise ValueError('unable to create reminder, voicelabel not defined!')
+            if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: 
+                flash('unable to create reminder, voicelabel not defined!')
+                return []
             messages.extend([lang.getInterfaceAudioURL('for.wav'),batchVoicelabel,lang.getInterfaceAudioURL('toPreventDisease.wav'),diseaseVoicelabel,lang.getInterfaceAudioURL('useVaccination.wav'),vaccinationVoicelabel])
     #return render_template('message.vxml',
     #    messages = messages,
