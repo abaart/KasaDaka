@@ -4,7 +4,7 @@
 
 
 {% block body %}
-<form enctype="multipart/form-data" method="get" action='audio'>
+<form enctype="multipart/form-data" method="get" action='reminders'>
 <select name="uri">
 {% for resource in users %}
 <option{% if uri == resource[0] %} selected="selected"{% endif %}>{{resource[0]}}</option>

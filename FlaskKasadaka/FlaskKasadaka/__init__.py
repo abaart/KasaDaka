@@ -33,7 +33,7 @@ def index():
 
 @app.route('/admin/reminders')
 def showReminders():
-    if 'user' in request.args: userURI = request.args['user']
+    if 'uri' in request.args: userURI = request.args['uri']
     else: userURI = ""
     users = executeSparqlQuery("""SELECT DISTINCT ?subject    WHERE {
        ?subject rdf:type   cv:user .
