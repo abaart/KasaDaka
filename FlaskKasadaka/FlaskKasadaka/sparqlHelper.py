@@ -25,12 +25,12 @@ def propertyLabels(objectType,firstColumnIsURI=False):
 	result.extend(sparqlInterface.selectTriples(fields,triples,giveColumns=False)[0])
 	return result
 
-def objectInfo(URI):
+def objectInfo(URI, properties = []):
 	objectType = determineObjectType(URI)
-	properties = dataStructure[objectType]
+	if len(properties) == 0: properties = dataStructure[objectType]
 	triples = []
 	fields = []
-	for prop in dataStructure[objectType]:
+	for prop in properties:
 		triples.append(["?uri" , prop , '?' + b16encode(prop)])
 		fields.append(b16encode(prop))
 	filter = ["uri",URI]
