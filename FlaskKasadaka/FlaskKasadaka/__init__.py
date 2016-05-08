@@ -435,7 +435,8 @@ def preferredLanguageLookup(userURI):
     field = ['preferred_language']
     triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
     ['?userURI','http://example.org/chickenvaccinationsapp/preferred_language','?preferred_language']]
-    result = sparqlInterface.selectTriples(field,triples)
+    filter = ['userURI',userURI]
+    result = sparqlInterface.selectTriples(field,triples,filter)
     if len(result) == 0: return config.defaultLanguageURI
     else: return result[0][0]
 
