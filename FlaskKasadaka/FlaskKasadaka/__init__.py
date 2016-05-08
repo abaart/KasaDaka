@@ -362,7 +362,7 @@ def concatenateWavs(messages):
     command.append(path)
     #command.extend(['-r','8k','-c','1','-e','signed-integer',path])
     subprocess.call(command)
-    flash(" ".join(command))
+    #flash(" ".join(command))
     return path
 
 def generateReminderMessage(userURI):
