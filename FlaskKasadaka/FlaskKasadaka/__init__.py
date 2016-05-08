@@ -42,6 +42,7 @@ def showReminders():
         messages = generateReminderMessage(userURI)
         reminder = concatenateWavs(messages)
         reminderURL = reminder.replace(config.audioPath,config.audioURLbase)
+        reminderURL = reminder.replace("127.0.0.1",request.host)
     else:
         reminderURL = ""
     return render_template('admin/reminder.html',
