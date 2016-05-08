@@ -4,6 +4,7 @@
 
 
 {% block body %}
+<br/>Reminder for: {{uri}}<br/>
 <form enctype="multipart/form-data" method="get" action='reminders'>
 <select name="uri">
 {% for resource in users %}
