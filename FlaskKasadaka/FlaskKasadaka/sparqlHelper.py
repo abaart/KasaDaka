@@ -36,14 +36,14 @@ def objectInfo(URI):
 	filter = ["uri",URI]
 	return sparqlInterface.selectTriples(fields,triples,filter,giveColumns=True)
 
-def objectList(objectType):
+def objectList(objectType, properties = []):
 	#gives a list of all objects of a certain type
-	properties = dataStructure[objectType]
+	if len(properties) == 0: properties = dataStructure[objectType]
 	triples = []
 	fields = []
 	triples.append(['?' + b16encode(objectType) , 'rdf:type' , objectType])
 	fields.append(b16encode(objectType))
-	for prop in dataStructure[objectType]:
+	for prop in properties:
 		triples.append(['?' + b16encode(objectType) , prop , '?' + b16encode(prop)])
 		fields.append(b16encode(prop))
 	return sparqlInterface.selectTriples(fields,triples)
