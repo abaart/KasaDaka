@@ -42,7 +42,6 @@ def showReminders():
     else: messages = []
     reminder = concatenateWavs(messages)
     reminderURL = reminder.replace(config.audioPath,config.audioURLbase)
-    reminderURL = ""
     return render_template('admin/reminder.html',
         reminderURL = reminderURL,users = users,uri = userURI)
 
@@ -355,7 +354,8 @@ def concatenateWavs(messages):
         wavs.append(wav.replace(config.audioURLbase,config.audioPath))
     command = ['/usr/bin/sox']
     command.extend(wavs)
-    command.extend(['-r','8k','-c','1','-e','signed-integer',path])
+    command.append(path)
+    #command.extend(['-r','8k','-c','1','-e','signed-integer',path])
     subprocess.call(command)
     return path
 
