@@ -4,6 +4,17 @@
 
 
 {% block body %}
-<audio controls><source src="/audio/sampleReminder.wav" type="audio/wav"></audio>
+<form enctype="multipart/form-data" method="get" action='audio'>
+<select name="uri">
+{% for resource in users %}
+<option{% if uri == resource[0] %} selected="selected"{% endif %}>{{resource[0]}}</option>
+{% endfor %}
+</select>
+<input type="submit" value="Select User">
+</form>
+
+<br/>Sample reminder:
+
+<audio controls><source src="{{reminderURL}}" type="audio/wav"></audio>
 
 {% endblock %}
