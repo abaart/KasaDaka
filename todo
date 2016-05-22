@@ -1,11 +1,19 @@
-TODO:
+#Ideas:
+Make templates for SPARQL queries as well?
 
-SOX AND VORBIS-TOOLS toevoegen aan setup documentatie
 
-libasound2-plugins libsox-fmt-all libsox-dev sox
 
-image maken van nieuwe versie
-usb-modeswitch in installatie doen
+#TODO:
+Functionality:
+Reminder generation
+Outgoing calls
+
+Hardware:
+RTC testing
+
+Documentation:
+Add dependency sox to set up guide
+Add usb-modeswitch to set up guide
 
 
 
