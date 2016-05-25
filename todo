@@ -4,9 +4,15 @@ Make templates for SPARQL queries as well?
 
 
 #TODO:
+Bugs:
+Uploading audio sometimes goes wrong
+Openvxi crash?
+
 Functionality:
 Reminder generation
 Outgoing calls
+Registration of received reminders
+Add languages in admin interface
 
 Hardware:
 RTC testing
