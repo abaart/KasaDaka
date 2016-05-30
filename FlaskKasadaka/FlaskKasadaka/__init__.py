@@ -38,7 +38,7 @@ def showReminders():
     users = executeSparqlQuery("""SELECT DISTINCT ?subject    WHERE {
        ?subject rdf:type   cv:user .
         }""")
-    if len(userURI) != 0: 
+    if len(userURI) != 0:
         messages = generateReminderMessage(userURI)
         reminder = concatenateWavs(messages)
         reminderURL = reminder.replace(config.audioPath,config.audioURLbase)
@@ -239,6 +239,17 @@ def insertNewObject():
         flash("Error inserting "+objectType)
     return objectList(objectType)
 
+@app.route('/admin/delete', methods=['POST'])
+def deleteObject():
+    if 'uri' not in request.form: return "Error, no uri specified"
+    URI = request.form['uri']
+    objectType = sparqlHelper.determineObjectType(URI)
+    success = sparqlHelper.objectDelete(URI)
+    if success:
+        flash("URI:" + URI +' deleted!')
+    else:
+        flash('Error in deleting '+URI)
+    return objectList(objectType)
 
 @app.route('/admin/update', methods=['POST'])
 def updateObject():

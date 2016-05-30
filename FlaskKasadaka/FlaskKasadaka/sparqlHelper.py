@@ -48,6 +48,16 @@ def objectList(objectType, properties = []):
 		fields.append(b16encode(prop))
 	return sparqlInterface.selectTriples(fields,triples)
 
+def objectDelete(URI):
+    """Deletes all triples that have as subject the supplied URI.
+    Returns if successful.
+    """
+    #delete triples where URI is subject
+    triples = [[URI,"?one","?two"]
+    ]
+    success = sparqlInterface.deleteTriples(triples)
+    return success
+
 def objectUpdate(URI,deleteProperties,insertTuples):
 	if len(deleteProperties) == 0 or len(insertTuples) == 0: raise ValueError("Nothing to delete/update!")
 	if len(deleteProperties) != len(insertTuples): raise ValueError('Number of fields in deleting not equal to inserting!')
