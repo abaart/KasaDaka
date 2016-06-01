@@ -168,7 +168,7 @@ def sayMessageVXML():
 @app.route('/insertMessage.vxml',methods=['GET'])
 def insertMessageVXML():
     if 'callerid' not in request.args or 'language' not in request.args or 'recording' not in request.args: return errorVXML()
-    lang = LanguageVars(request.args['language'])
+    lang = LanguageVars("http://purl.org/collections/w4ra/speakle/voicelabel_fr")
     callerid = request.args['callerid']
     recordingLocation = request.args['recording']
     recordingLocation = saveRecording(recordingLocation)
