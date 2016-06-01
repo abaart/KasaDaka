@@ -169,6 +169,7 @@ def sayMessageVXML():
 def insertMessageVXML():
     if 'callerid' not in request.args or 'language' not in request.args or 'recording' not in request.args: return errorVXML()
     lang = LanguageVars(request.args['language'])
+    callerid = request.args['callerid']
     recordingLocation = request.args['recording']
     recordingLocation = saveRecording(recordingLocation)
     success = insertNewMessage(recordingLocation,callerid,lang)
