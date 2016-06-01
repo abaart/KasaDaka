@@ -5,14 +5,11 @@
 sparqlURL = "http://127.0.0.1:3020/sparql/"
 
 #URI of graph to use
-sparqlGraph = "http://localhost/chickenvaccination"
+sparqlGraph = "http://localhost/foroba-blon"
 
 #key is rdf:type, values is array of properties to use
 dataStructure = {
-    'http://example.org/chickenvaccinationsapp/user' : ['http://example.org/chickenvaccinationsapp/contact_fname','http://example.org/chickenvaccinationsapp/contact_lname','http://example.org/chickenvaccinationsapp/contact_tel','http://example.org/chickenvaccinationsapp/preferred_language'],
-    'http://example.org/chickenvaccinationsapp/chicken_batch' : ['http://example.org/chickenvaccinationsapp/birth_date','http://example.org/chickenvaccinationsapp/owned_by'],
-    'http://example.org/chickenvaccinationsapp/disease' : ['http://example.org/chickenvaccinationsapp/occurs_in'],
-    'http://example.org/chickenvaccinationsapp/vaccination' : ['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats']
+    'http://example.org/foroba-blon/message' : ['http://example.org/foroba-blon/contact_tel','http://example.org/foroba-blon/date']
 }
 
 #TODO implement automatic insertion of prefixes
@@ -22,7 +19,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
 PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
 PREFIX lexvo: <http://lexvo.org/ontology#>
-PREFIX cv: <http://example.org/chickenvaccinationsapp/>
+PREFIX fb: <http://example.org/foroba-blon/>
 """
 sparqlPrefixDict = {
     'http://www.w3.org/1999/02/22-rdf-syntax-ns#' : 'rdf',
@@ -30,7 +27,7 @@ sparqlPrefixDict = {
     'http://purl.org/collections/w4ra/speakle/' : 'speakle',
     'http://purl.org/collections/w4ra/radiomarche/' : 'radiomarche',
     'http://lexvo.org/ontology#' : 'lexvo',
-    'http://example.org/chickenvaccinationsapp/' : 'cv'
+    'http://example.org/foroba-blon/' : 'fb'
 }
 #default language
 defaultLanguage = "en"
