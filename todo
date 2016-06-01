@@ -1,38 +1,18 @@
-#Ideas:
-Make templates for SPARQL queries as well?
+fix passing on languages
+fix passing on caller id
+add time in date of message
+remove more un necessary code
+
+permission denied in reading cachecontent recording file???
+turn off printing of queries
 
 
+howto install forobla bolon:
+git pull
+chmod /tmp
+mkdir user recordings
+chmod user recordings
+upload triples
+restart asterisk and apache
+give ano user all rights in cliopatria
 
-#TODO:
-Bugs:
-Uploading audio sometimes goes wrong
-Openvxi crash?
-
-Functionality:
-Reminder generation
-Outgoing calls
-Registration of received reminders
-Add languages in admin interface
-
-Hardware:
-RTC testing
-
-Documentation:
-Add dependency sox to set up guide
-Add usb-modeswitch to set up guide
-
-
-
-after giving requested results, return back to main menu
-confirm posting inputs before moving on and submitting
-wait a longer time for user input
-add a no results message when there are no results found
-
-Speech recorder web front end
-Solution to generating numbers in different languages and storing numbers in the triple store
-
-Known issues:
-- OpenVXI sometimes hangs, then new calls are not accepted. Reason still unknown. Restarting openvxi and asterisk solves this.
-
-Further testing:
-more than 9 results in many situations
