@@ -1,36 +1,20 @@
 @prefix    rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix     rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix   speakle: <http://purl.org/collections/w4ra/speakle/> .
-@prefix      cv: <http://example.org/foroba-blon/> .
+@prefix      fb: <http://example.org/foroba-blon/> .
 @prefix      audio: <http://127.0.0.1/audio/>.
 @prefix   lvont: <http://lexvo.org/ontology#>.
 @prefix   lexvoid: <http://lexvo.org/id/iso639-3/>.
 
 
-# Setup data for chicken vaccination use-case
-
-
-# Users
-
-cv:andre_baart
-	a cv:user ;
-	cv:contact_fname "Andre" ;
-	cv:contact_lname "Baart" ;
-	cv:contact_tel "31653105713" ;
-	cv:preferred_language speakle:voicelabel_en .
-
-cv:victor_de_boer
-	a cv:user ;
-	cv:contact_fname "Victor" ;
-	cv:contact_lname "de Boer" ;
-	cv:contact_tel "316123456" ;
-	cv:preferred_language speakle:voicelabel_nl .
-	
+# Setup data for foroba-blon use-case
 # messages
 	
-cv:message_1
-	a cv:message ;
-	cv:left_by_user cv:andre_baart	.
+fb:message_1
+	a fb:message ;
+	fb:contact_tel fb:andre_baart	;
+	fb:date "2016-06-01 12:00:00" ;
+	speakle:voicelabel_en <http://localhost/audio/stupidmessage.wav> .
 	
 
 # Languages
@@ -59,31 +43,31 @@ speakle:voicelabel
 
 # Properties
 
-cv:contact_fname
+fb:contact_fname
 	a rdf:Property;
 	rdfs:label "Contact First Name".
 
-cv:contact_lname
+fb:contact_lname
 	a rdf:Property;
 	rdfs:label "Contact Last Name".
 
-cv:contact_tel
+fb:contact_tel
 	a rdf:Property;
 	rdfs:label "Contact Telephone Number".
 
-cv:preferred_language
+fb:preferred_language
 	a rdf:Property;
 	rdfs:label "Preferred Language".
 
-cv:user
+fb:user
 	a rdf:Property;
 	rdfs:label "User".
 
-cv:message
+fb:message
 	a rdf:Property;
 	rdfs:label "Message".
 
-cv:left_by_user
+fb:date
 	a rdf:Property;
-	rdfs:label "Left by user".
+	rdfs:label "Date".
 	
