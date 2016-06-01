@@ -244,7 +244,7 @@ def deleteObject():
     if 'uri' not in request.form: return "Error, no uri specified"
     URI = request.form['uri']
     objectType = sparqlHelper.determineObjectType(URI)
-    success = sparqlHelper.objectDelete(URI)
+    success = sparqlInterface.deleteObject(URI)
     if success:
         flash("URI:" + URI +' deleted!')
     else:
