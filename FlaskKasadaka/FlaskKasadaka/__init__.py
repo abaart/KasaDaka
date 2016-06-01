@@ -181,7 +181,7 @@ def insertMessageVXML():
     else: return errorVXML()
 
 def insertNewMessage(recordingLocation,callerid,lang):
-    voicelabelLanguage = lang
+    voicelabelLanguage = str(lang)
     objectType =  "http://example.org/foroba-blon/message"
     preferredURI = objectType
     currentDate = date.today().strftime(config.dateFormat)
