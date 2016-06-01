@@ -53,7 +53,7 @@ def objectDelete(URI):
     Returns if successful.
     """
     #delete triples where URI is subject
-    triples = [[URI,"?one","?two"]
+    triples =[[URI,"?one","?two"],[URI,"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","?type"]
     ]
     success = sparqlInterface.deleteTriples(triples)
     return success
