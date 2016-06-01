@@ -182,6 +182,8 @@ def insertMessageVXML():
 
 def insertNewMessage(recordingLocation,callerid,lang):
     voicelabelLanguage = str(lang)
+    voicelabelLanguage =  "http://purl.org/collections/w4ra/speakle/voicelabel_fr"
+    callerid = '123'
     objectType =  "http://example.org/foroba-blon/message"
     preferredURI = objectType
     currentDate = date.today().strftime(config.dateFormat)
