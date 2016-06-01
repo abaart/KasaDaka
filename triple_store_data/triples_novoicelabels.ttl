@@ -1,7 +1,7 @@
 @prefix    rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix     rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix   speakle: <http://purl.org/collections/w4ra/speakle/> .
-@prefix      cv: <http://example.org/chickenvaccinationsapp/> .
+@prefix      cv: <http://example.org/foroba-blon/> .
 @prefix      audio: <http://127.0.0.1/audio/>.
 @prefix   lvont: <http://lexvo.org/ontology#>.
 @prefix   lexvoid: <http://lexvo.org/id/iso639-3/>.
@@ -14,8 +14,6 @@
 
 cv:andre_baart
 	a cv:user ;
-	
-	
 	cv:contact_fname "Andre" ;
 	cv:contact_lname "Baart" ;
 	cv:contact_tel "31653105713" ;
@@ -23,113 +21,17 @@ cv:andre_baart
 
 cv:victor_de_boer
 	a cv:user ;
-	
-	
 	cv:contact_fname "Victor" ;
 	cv:contact_lname "de Boer" ;
 	cv:contact_tel "316123456" ;
 	cv:preferred_language speakle:voicelabel_nl .
-
-
 	
-# Diseases
+# messages
 	
-cv:newcastle
-	a cv:disease ;
-	rdfs:label "Newcastle's disease"@en ;
-	cv:occurs_in cv:chicken_batch .
+cv:message_1
+	a cv:message ;
+	cv:left_by_user cv:andre_baart	.
 	
-cv:gomboro
-	a cv:disease ;
-	rdfs:label "Gomboro disease"@en ;
-	cv:occurs_in cv:chicken_batch .
-
-cv:infectious_bronchitis
-	a cv:disease ;
-	rdfs:label "Infectious Bronchitis"@en ;
-	cv:occurs_in cv:chicken_batch .
-
-
-# Chicken batches
-
-cv:chicken_batch_1
-	a cv:chicken_batch ;
-	cv:birth_date "2012-08-11" ;
-	cv:owned_by cv:andre_baart .	
-	
-cv:chicken_batch_2
-	a cv:chicken_batch ;
-	cv:birth_date "2010-08-11" ;
-	cv:owned_by cv:andre_baart .
-	
-# Vaccinations
-
-cv:newcastle_vac_1
-	a cv:vaccination ;
-	cv:treats cv:newcastle ;
-	cv:days_after_birth "1" ;
-	cv:description "Primo vaccination entre le 1er et le 4ème jour  (pas au delà du 15ème jr)  avec PESTOS (vaccin vivant simple contre Newcastle flacon de 500 et 1000 dose pour boisson et trempage). Il existe aussi un Vaccin vivant complexe qui s'appelle PESTOS + H120 contre la maladie de Newcastle et la Bronchite infectieuse (500 et 1000 doses pour boisson et trempage)" .	
-	
-cv:newcastle_vac_2
-	a cv:vaccination ;
-	cv:treats cv:newcastle ;
-	cv:days_after_birth "7" ;
-	cv:description "1er rappel une semaine après primo avec ITANEW (flaon de 100 doses)" .
-
-cv:newcastle_vac_3
-	a cv:vaccination ;
-	cv:treats cv:newcastle ;
-	cv:days_after_birth "98" ;
-	cv:description "2nd rappel 3 mois après 1er rappel avec ITANEW (flaon de 100 doses)" .
-
-cv:newcastle_vac_4
-	a cv:vaccination ;
-	cv:treats cv:newcastle ;
-	cv:days_after_birth "180" ;
-	cv:description "Autres Rappel Chaque 3 mois avec ITANEW (flaon de 100 doses)" .
-
-cv:gomboro_vac_1
-	a cv:vaccination ;
-	cv:treats cv:gomboro ;
-	cv:days_after_birth "5" ;
-	cv:description "Primo vaccination le 5 ème jour avec GOMBOPEST (vaccin polyvalent)" .
-
-cv:gomboro_vac_2
-	a cv:vaccination ;
-	cv:treats cv:gomboro ;
-	cv:days_after_birth "12" ;
-	cv:description "1er Rappel avec Gombopest 7 jours après la primo vaccination" .
-
-cv:gomboro_vac_3
-	a cv:vaccination ;
-	cv:treats cv:gomboro ;
-	cv:days_after_birth "27" ;
-	cv:description "2nd et dernier rappel 15 jours après le 1 er rappel avec Gombopest" .
-
-cv:infectious_bronchitis_vac_1
-	a cv:vaccination ;
-	cv:treats cv:infectious_bronchitis ;
-	cv:days_after_birth "7" ;
-	cv:description "Primo vaccination le 7ème jour avec H120 (vaccin vivant de 500 et 1000 doses pour boisson et trempage)" .
-
-cv:infectious_bronchitis_vac_2
-	a cv:vaccination ;
-	cv:treats cv:infectious_bronchitis ;
-	cv:days_after_birth "22" ;
-	cv:description "1er Rappel 15 jour après la primo vaccination c’est-à-dire le 22ème jour avec H120" .
-
-cv:infectious_bronchitis_vac_3
-	a cv:vaccination ;
-	cv:treats cv:infectious_bronchitis ;
-	cv:days_after_birth "37" ;
-	cv:description "2nd Rappel 15 jours après le 1er rappel avec H120" .
-
-cv:infectious_bronchitis_vac_3
-	a cv:vaccination ;
-	cv:treats cv:infectious_bronchitis ;
-	cv:days_after_birth "127" ;
-	cv:description "Autres Rappels chaque 3 mois avec H120" .
-
 
 # Languages
 
@@ -177,38 +79,11 @@ cv:user
 	a rdf:Property;
 	rdfs:label "User".
 
-cv:disease
+cv:message
 	a rdf:Property;
-	rdfs:label "Disease".
+	rdfs:label "Message".
 
-cv:chicken_batch
+cv:left_by_user
 	a rdf:Property;
-	rdfs:label "Chicken Batch".
-
-cv:birth_date
-	a rdf:Property;
-	rdfs:label "Birth Date".
-
-cv:owned_by
-	a rdf:Property;
-	rdfs:label "Owned By".
-
-cv:vaccination
-	a rdf:Property;
-	rdfs:label "Vaccination".
-
-cv:treats
-	a rdf:Property;
-	rdfs:label "Treats".
-
-cv:days_after_birth
-	a rdf:Property;
-	rdfs:label "Days after birth".
-
-cv:description
-	a rdf:Property;
-	rdfs:label "Description".
-
-cv:occurs_in
-	a rdf:Property;
-	rdfs:label "Occurs in".
+	rdfs:label "Left by user".
+	
