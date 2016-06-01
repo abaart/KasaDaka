@@ -12,7 +12,7 @@
 	
 fb:message_1
 	a fb:message ;
-	fb:contact_tel fb:andre_baart	;
+	fb:contact_tel "31653105713"	;
 	fb:date "2016-06-01 12:00:00" ;
 	speakle:voicelabel_en <http://localhost/audio/stupidmessage.wav> .
 	
