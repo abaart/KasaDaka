@@ -9,7 +9,7 @@
 {% for voicelabel in voiceLabelResults %}
 <tr>
 <td>{{voicelabel[0]}}</td>
-<td>{{voicelabel[1]}}</td>
+<td><a href="{{voicelabel[1]}}">{{voicelabel[1]}}</a></td>
 <td><audio controls><source src="{{voicelabel[1]}}" type="audio/wav"></audio></td>
 </tr>
 {% endfor %}
