@@ -20,7 +20,8 @@ How to set up foroba blon:
 	sudo /etc/init.d/apache2 restart
 	sudo /etc/init.d/openvxi restart
 	sudo /etc/init.d/asterisk restart
-
+8. Install sox
+	sudo apt-get install sox
 
 
 NOTES:
