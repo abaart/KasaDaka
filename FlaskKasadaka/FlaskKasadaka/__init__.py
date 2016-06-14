@@ -186,7 +186,7 @@ def insertNewMessage(recordingLocation,callerid,lang):
     if len(callerid) == 0: callerid = "unknown"
     objectType =  "http://example.org/foroba-blon/message"
     preferredURI = objectType
-    currentDate = date.today().strftime(config.dateFormat)
+    currentDate = datetime.now().strftime(config.dateFormat)
     recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
     tuples = [["http://example.org/foroba-blon/date",currentDate],
         ["http://example.org/foroba-blon/contact_tel",callerid],
