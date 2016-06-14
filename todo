@@ -1,18 +1,4 @@
 fix passing on languages
-fix passing on caller id
-add time in date of message
 remove more un necessary code
 
-permission denied in reading cachecontent recording file???
-turn off printing of queries
-
-
-howto install forobla bolon:
-git pull
-chmod /tmp
-mkdir user recordings
-chmod user recordings
-upload triples
-restart asterisk and apache
-give ano user all rights in cliopatria
 
