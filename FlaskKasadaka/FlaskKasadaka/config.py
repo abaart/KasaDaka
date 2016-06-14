@@ -43,7 +43,7 @@ recordingsPath = audioPath + "user_recordings/"
 allowedUploadExtensions = set(['wav'])
 
 #date format in triple store
-dateFormat = "%Y-%m-%d"
+dateFormat = "%Y-%m-%d %H:%M:%S"
 
 #debug mode
 debug=True
