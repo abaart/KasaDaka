@@ -89,7 +89,6 @@ def selectTriples(fields,triples,filter = "",distinct = True,giveColumns = False
     if len(filter) != 0:
         queryBuilder5 = " FILTER(?" + filter[0] + "=" + preProcessElement(filter[1]) + " ) "
     query = queryBuilder1 + queryBuilder2 + queryBuilder3 + queryBuilder4 + queryBuilder5 + queryBuilder6
-    print query
     return executeSparqlQuery(query,giveColumns=giveColumns,httpEncode=httpEncode)
 
 def deleteObject(URI):
