@@ -111,6 +111,7 @@ URI's without a {{ languageLabel }}:<br/>
       li.appendChild(au);
       li.appendChild(hf);
       li.appendChild(click);
+      recordingslist.removeChild(recordingslist.childNodes[0]);
       recordingslist.appendChild(li);
     });
     __log('Download link created.');
@@ -119,7 +120,7 @@ URI's without a {{ languageLabel }}:<br/>
   function uploadAudio() {
   
 
-    if (confirm('Do you want to upload this audio file?')) {
+    if (confirm('Do you want to upload the latest audio recording?')) {
 
 
 	__log('Start uploading');
