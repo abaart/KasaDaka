@@ -135,7 +135,7 @@ URI's without a {{ languageLabel }}:<br/>
 	formData.append("file", latestBlob);
 
 	var request = new XMLHttpRequest();
-	request.open("POST", "audio");
+	request.open("POST", "audio",false);
 	request.send(formData);
 	__log(request.statusText);
        __log('Uploading complete.');
