@@ -111,7 +111,9 @@ URI's without a {{ languageLabel }}:<br/>
       li.appendChild(au);
       li.appendChild(hf);
       li.appendChild(click);
+      if (recordingslist.childElementCount > 0) {
       recordingslist.removeChild(recordingslist.childNodes[0]);
+		}
       recordingslist.appendChild(li);
     });
     __log('Download link created.');
