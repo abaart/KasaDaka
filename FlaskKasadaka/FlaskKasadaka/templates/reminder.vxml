@@ -16,9 +16,10 @@ If all confirmations are given, reminders are recorded as received
 </prompt>
 <goto next="#reminder_1"/>
 </block>
+</form>
 {% for reminder in reminders %}
-
-<field name="reminder_{{loop.index}}">
+<form name="reminder_{{loop.index}}>
+<field name="reminder_{{loop.index}}_field">
 <prompt>
 
 {% for part in reminder %}
@@ -58,10 +59,11 @@ If all confirmations are given, reminders are recorded as received
 </noinput>
 
  </field>
+ </form>
 {% endfor %}
 
 
 
-</form>
+
 
 {% endblock %}
