@@ -70,7 +70,7 @@ def getUserTelNumber(userURI):
     """
     field = ['tel']
     triples = [[userURI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
-    ['?userURI','http://example.org/chickenvaccinationsapp/contact_tel','?tel']]
+    [userURI,'http://example.org/chickenvaccinationsapp/contact_tel','?tel']]
     result = sparqlInterface.selectTriples(field,triples)
     if len(result) == 0: return ""
     else: return result[0][0]
