@@ -43,9 +43,9 @@ Preferred URI for new {{objectTypeLabel}}:<br/>
 </form>
 {% if not new %}
 {{ voiceLabelsHtml.voiceLabels(voiceLabelResults) }}
-<form method="post" action="delete">
+<!-- <form method="post" action="delete">
 	<input type="hidden" name="uri" value="{{uri}}">
 	<input type="submit" value="DELETE {{objectTypeLabel}}!">	
-</form>
+	</form> --!>
 {% endif %}
 {% endblock %}
