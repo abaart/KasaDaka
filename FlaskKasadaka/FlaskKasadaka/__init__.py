@@ -144,8 +144,8 @@ def generateReminderMessage(userURI):
             batchVoicelabel = lang.getVoiceLabel(batchVaccination[0])
             vaccinationVoicelabel = lang.getVoiceLabel(batchVaccination[1])
             diseaseVoicelabel = lang.getVoiceLabel(batchVaccination[2])
-            #if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: 
-                #return errorVXML(error="Voicelabel does not exist: " + str(batchVaccination))
+            if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: 
+                return errorVXML(error="Voicelabel does not exist: " + str(batchVaccination))
             reminder = [lang.getInterfaceAudioURL('for.wav'),batchVoicelabel,lang.getInterfaceAudioURL('toPreventDisease.wav'),diseaseVoicelabel,lang.getInterfaceAudioURL('useVaccination.wav'),vaccinationVoicelabel,lang.getInterfaceAudioURL('press1ToConfirm.wav')]
             reminders.append(reminder)
     return render_template('reminder.vxml',
