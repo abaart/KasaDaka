@@ -88,6 +88,7 @@ URI's without a {{ languageLabel }}:<br/>
   }
 
   function createDownloadLink() {
+  	__log('Start creating download link');
     recorder && recorder.exportWAV(function(blob) {
       var url = URL.createObjectURL(blob);
       var li = document.createElement('li');
@@ -103,6 +104,7 @@ URI's without a {{ languageLabel }}:<br/>
       li.appendChild(hf);
       recordingslist.appendChild(li);
     });
+    __log('Download link created.');
   }
 
   window.onload = function init() {
