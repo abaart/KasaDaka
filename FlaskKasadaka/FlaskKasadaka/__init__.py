@@ -36,23 +36,23 @@ def index():
 def createOutgoingCalls():
     """Creates an random outgoing reminder call.
     Respects the times as set in the config"""
-    if not insideOfOutgoingCallsHours(): return datetime.now().isoformat() + " Outside of outgoing call hours"
+    #if not insideOfOutgoingCallsHours(): return datetime.now().isoformat() + " Outside of outgoing call hours"
     users = sparqlHelper.objectList("http://example.org/chickenvaccinationsapp/user")
     usersWithReminders = getUsersWithReminders(users)
     #choose a random user from the users with reminders (this is to prevent having multiple outgoing calls at once)
     if len(usersWithReminders) >0:
         randomChosenUser = random.choice(usersWithReminders)
-        placeOutgoingReminderCall(randomChosenUser)
-        return datetime.now().isoformat() +" Placed outgoing call to: " + randomChosenUser + " . Users with reminders left (out of total users):" + str(len(usersWithReminders)) +"/"+str(len(users))
+        placeResult = placeOutgoingReminderCall(randomChosenUser)
+        return placeResult + " Users with reminders left (out of total users):" + str(len(usersWithReminders)) +"/"+str(len(users))
     else:
         return datetime.now().isoformat() + " No users with reminders (left)"
 
 def placeOutgoingReminderCall(userURI):
-    reminders = lookupVaccinationReminders(userURI)
+
     #TODO genereer een uitgaande call naar het nummer van de user:
     userNumber = "123"
     #"reminder.vxml?user=" + b16encode(userURI)
-    return 
+    return datetime.now().isoformat() +" Placed outgoing call to: " + userURI 
 
 def insideOfOutgoingCallsHours():
     currentHour = datetime.now().hour
@@ -63,8 +63,36 @@ def getUsersWithReminders(users):
     usersWithReminders = []
     for user in users:
         reminders = lookupVaccinationReminders(user[0])
-        if len(reminders) > 0: usersWithReminders.append(user[0])
+        if len(reminders) > 0: 
+            if not checkIfReminderAlreadySent(user[0]):
+                usersWithReminders.append(user[0])
     return usersWithReminders
+
+def checkIfReminderAlreadySent(userURI):
+    """Returns whether the user already received reminders today, or has been called in the last couple of hours"""
+    pastReminders = getPastReminders(userURI)
+    for reminder in pastReminders:
+        reminderDateTime = datetime.strptime(reminder[2], "%Y-%m-%dT%H:%M:%S.%f")
+        reminderDate = reminderDateTime.date()
+        currentDateTime = datetime.now()
+        currentDate = currentDateTime.date()
+        if int((currentDate - reminderDate).days) == 0:
+            if reminder[3] == 'True':
+                return True
+            if int((currentDateTime - reminderDateTime).seconds) // 3600 < 3:
+                return True
+    return False
+
+
+
+def getPastReminders(userURI):
+    """Gets all past reminders sent to an user"""
+    reminders = sparqlHelper.objectList('http://example.org/chickenvaccinationsapp/outgoing_reminder')
+    result = []
+    for reminder in reminders:
+        if reminder[1] == userURI:
+            result.append(reminder)
+    return result
 
 
 def lookupVaccinationReminders(userURI):
@@ -122,16 +150,13 @@ def markReminderResult(userURI,received):
     tuples = [['http://example.org/chickenvaccinationsapp/user',userURI],['http://example.org/chickenvaccinationsapp/date',str(datetime.now().isoformat())],['http://example.org/chickenvaccinationsapp/received',str(received)]]
     success = sparqlHelper.insertObjectTriples(receivedURI,objectType,tuples)
     messages = [lang.getInterfaceAudioURL('userDidNotConfirm.wav')]
-    if received: messages = [lang.getInterfaceAudioURL('thanks.wav')]
+    if received: messages = [lang.getInterfaceAudioURL('reminderMarkedReceived.wav'),lang.getInterfaceAudioURL('thanks.wav')]
     return render_template('message.vxml',
         messages = messages)
 
 def generateReminderMessage(userURI):
     lang = LanguageVars(preferredLanguageLookup(userURI))
-
-    #TODO look up actual chicken batches that need a reminder today
     batchVaccinations = lookupVaccinationReminders(userURI)
-
     welcomeMessage = lang.getInterfaceAudioURL('welcome_cv.wav')
     userVoiceLabel = lang.getVoiceLabel(userURI) 
     messages = [welcomeMessage,userVoiceLabel]
