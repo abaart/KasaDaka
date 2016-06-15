@@ -18,7 +18,7 @@ If all confirmations are given, reminders are recorded as received
 </block>
 </form>
 {% for reminder in reminders %}
-<form name="reminder_{{loop.index}}>
+<form name="reminder_{{loop.index}}">
 <field name="reminder_{{loop.index}}_field">
 <prompt>
 
