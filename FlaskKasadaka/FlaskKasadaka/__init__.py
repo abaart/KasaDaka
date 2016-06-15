@@ -121,8 +121,8 @@ def markReminderResult(userURI,received):
     objectType = 'http://example.org/chickenvaccinationsapp/outgoing_reminder'
     tuples = [['http://example.org/chickenvaccinationsapp/user',userURI],['http://example.org/chickenvaccinationsapp/date',str(datetime.now().isoformat())],['http://example.org/chickenvaccinationsapp/received',str(received)]]
     success = sparqlHelper.insertObjectTriples(receivedURI,objectType,tuples)
-    messages = [lang.getVoiceLabel('userDidNotConfirm.wav')]
-    if received: messages = [lang.getVoiceLabel('thanks.wav')]
+    messages = [lang.getInterfaceAudioURL('userDidNotConfirm.wav')]
+    if received: messages = [lang.getInterfaceAudioURL('thanks.wav')]
     return render_template('message.vxml',
         messages = messages)
 
