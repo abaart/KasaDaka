@@ -42,7 +42,9 @@ If all confirmations are given, reminders are recorded as received
     <goto next="#reminder_{{loop.index + 1 }}"/>
 
    {% else %}
-		<goto next="reminder.vxml?action=received&user={{userURI}}"/>
+   <assign name="user" expr="'{{userURI}}'"/>
+   <assign name="action" expr="received"/>
+   <submit next="reminder.vxml" method="get" namelist="user action"/>
    {% endif %}   
    </if>
 
