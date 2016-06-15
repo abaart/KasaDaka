@@ -98,7 +98,7 @@ URI's without a {{ languageLabel }}:<br/>
       click.id = 'clickMe';
       click.type = 'button';
       click.value = 'clickme';
-      click.onclick = createDownloadLink();;
+      click.onclick = function() {createDownloadLink();};
 
       au.controls = true;
       au.src = url;
