@@ -36,7 +36,7 @@ URI's without a {{ languageLabel }}:<br/>
 </table></br>
 {{ voiceLabelsHtml.voiceLabels(voiceLabelResults) }}
 <br/>
-  <p><b>Make sure you are using a recent version of Google Chrome.</b></p>
+  <p><b>NOT WORKING? Make sure you are using a recent version of Google Chrome. Make sure you are connected through <u>https</u>!</b></p>
 
   <button onclick="startRecording(this);">record</button>
   <button onclick="stopRecording(this);" disabled>stop</button>
@@ -140,6 +140,7 @@ URI's without a {{ languageLabel }}:<br/>
 	__log(request.responseText);
 	alert(request.responseText);
        __log('Uploading complete.');
+       location.reload(true);
   	}
       else {
  	   // Do nothing!
@@ -172,7 +173,7 @@ URI's without a {{ languageLabel }}:<br/>
 
   <script src="../static/recorder.js"></script>
 
-<!-- <input id="clickMe" type="button" value="clickme" onclick="doFunction();" /> -->
+<!-- <input id="clickMe" type="button" value="clickme" onclick="doFunction();" /> 
 
 
 <br/>
@@ -190,5 +191,5 @@ Audio file:<input type="file" name="file"></br>
 
 </form>
 <br/>
-Recording tool: https://kasadaka-ip/wavrecord.html
+Recording tool: https://kasadaka-ip/wavrecord.html-->
 {% endblock %}
