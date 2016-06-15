@@ -7,6 +7,7 @@ import config
 from languageVars import LanguageVars, getVoiceLabels
 import sparqlHelper
 import languageVars
+import callhelper
 
 import subprocess
 import shutil
@@ -50,10 +51,18 @@ def createOutgoingCalls():
 def placeOutgoingReminderCall(userURI):
     #TODO genereer een uitgaande call naar het nummer van de user:
     userNumber = getUserTelNumber(userURI)
+    vxmlURL = "http://127.0.0.1/FlaskKasadaka/reminder.vxml?user=" + b16encode(userURI)
     if validTelNumber(userNumber):
-        return atetime.now().isoformat() +" Placed outgoing call to: " + userURI
+        userNumber = "+" + userNumber
+
+        callhelper.placeCall(userNumber,vxmlURL)
+        return datetime.now().isoformat() +" Placed outgoing call to: " + userURI + " (" + userNumber + ") URL: " + vxmlURL
     #"reminder.vxml?user=" + b16encode(userURI)
     else: return  "invalid user telephone number"
+
+def validTelNumber(number):
+    return number.isdigit()
+
 
 def getUserTelNumber(userURI):
     """
