@@ -48,11 +48,23 @@ def createOutgoingCalls():
         return datetime.now().isoformat() + " No users with reminders (left)"
 
 def placeOutgoingReminderCall(userURI):
-
     #TODO genereer een uitgaande call naar het nummer van de user:
-    userNumber = "123"
+    userNumber = getUserTelNumber(userURI)
+    if validTelNumber(userNumber):
+        return atetime.now().isoformat() +" Placed outgoing call to: " + userURI
     #"reminder.vxml?user=" + b16encode(userURI)
-    return datetime.now().isoformat() +" Placed outgoing call to: " + userURI 
+    else: return  "invalid user telephone number"
+
+def getUserTelNumber(userURI):
+    """
+    Returns the telephone number of the specified user.
+    """
+    field = ['tel']
+    triples = [[userURI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
+    ['?userURI','http://example.org/chickenvaccinationsapp/contact_tel','?tel']]
+    result = sparqlInterface.selectTriples(field,triples)
+    if len(result) == 0: return ""
+    else: return result[0][0]
 
 def insideOfOutgoingCallsHours():
     currentHour = datetime.now().hour
@@ -646,6 +658,7 @@ def callerIDLookup(callerID):
     result = sparqlInterface.selectTriples(field,triples)
     if len(result) == 0: return ""
     else: return result[0][0]
+
     
 @app.route('/error.vxml')
 def errorVXML(error="undefined error",language="en"):
