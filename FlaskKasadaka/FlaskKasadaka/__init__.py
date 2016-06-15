@@ -153,9 +153,11 @@ def processAudio(request):
     <"""+ request.form['uri'] + """> <"""+ request.form['lang'] +"""> <""" + URL + """>.
     }"""
     insertSuccess = executeSparqlUpdate(insertVoicelabelQuery)
-    if insertSuccess: flash("Voicelabel sucessfully inserted in to triple store!")
-    else: flash("Error in inserting triples")
-    return recordAudio(request.form['lang'],request.form['uri'])
+    if insertSuccess: return 'Upload Succesful!'
+    else: return "upload failed :(" 
+    #if insertSuccess: flash("Voicelabel sucessfully inserted in to triple store!")
+    #else: flash("Error in inserting triples")
+    #return recordAudio(request.form['lang'],request.form['uri'])
 
 
 @app.route('/admin')
