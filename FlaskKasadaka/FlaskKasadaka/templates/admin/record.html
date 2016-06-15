@@ -137,7 +137,7 @@ URI's without a {{ languageLabel }}:<br/>
 	var request = new XMLHttpRequest();
 	request.open("POST", "audio");
 	request.send(formData);
-	__log(request.responseText);
+	__log(request.statusText);
        __log('Uploading complete.');
   	}
       else {
