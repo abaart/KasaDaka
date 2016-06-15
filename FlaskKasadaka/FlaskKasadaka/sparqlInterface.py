@@ -93,7 +93,9 @@ def selectTriples(fields,triples,filter = "",distinct = True,giveColumns = False
 
 def deleteObject(URI):
     """Deletes all triples where the provided URI is the subject."""
-    return executeSparqlQuery("""DELETE { <""" + URI + """> ?p ?v};""")
+    query = """WITH <""" + config.sparqlGraph + """> DELETE { ?del ?p ?v} WHERE {?del ?p ?v FILTER( ?del = <""" + URI + """> )} ;"""
+    print query
+    return executeSparqlUpdate(query,addGraph=False)
 
 def deleteTriples(triples):
     """
