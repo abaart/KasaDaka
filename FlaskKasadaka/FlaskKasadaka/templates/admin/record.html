@@ -55,6 +55,7 @@ URI's without a {{ languageLabel }}:<br/>
 
   var audio_context;
   var recorder;
+  var latestBlob;
 
   function startUserMedia(stream) {
     var input = audio_context.createMediaStreamSource(stream);
@@ -89,6 +90,8 @@ URI's without a {{ languageLabel }}:<br/>
   function createDownloadLink() {
   	__log('Start creating download link');
     recorder && recorder.exportWAV(function(blob) {
+    	latestBlob = blob
+
       var url = URL.createObjectURL(blob);
       var li = document.createElement('li');
       var au = document.createElement('audio');
@@ -120,21 +123,21 @@ URI's without a {{ languageLabel }}:<br/>
 
 
 	__log('Start uploading');
-    recorder && recorder.exportWAV(function(blob) {
-      	var formData = new FormData();
+
+    var formData = new FormData();
 
 	formData.append("filename", "{{proposedWavURL}}");
 	formData.append("uri", "{{uri}}");
 	formData.append("lang", "{{langURI}}");
 	formData.append("action", "upload");
-	formData.append("file", blob);
+	formData.append("file", latestBlob);
 
 	var request = new XMLHttpRequest();
 	request.open("POST", "audio");
 	request.send(formData);
 	__log(request.responseText);
        __log('Uploading complete.');
-  	});}
+  	}
       else {
  	   // Do nothing!
 		}		
