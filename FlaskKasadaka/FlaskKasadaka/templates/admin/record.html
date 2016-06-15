@@ -95,9 +95,9 @@ URI's without a {{ languageLabel }}:<br/>
       var hf = document.createElement('a');
       var click = document.createElement('input');
       
-      click.id = 'clickMe';
+      click.id = 'uploadButton';
       click.type = 'button';
-      click.value = 'clickme';
+      click.value = 'Upload!';
       click.onclick = function() {createDownloadLink();};
 
       au.controls = true;
@@ -118,6 +118,37 @@ URI's without a {{ languageLabel }}:<br/>
     });
     __log('Download link created.');
   }
+
+  function uploadAudio() {
+  
+
+    if (confirm('Do you want to upload this audio file?')) {
+
+
+	__log('Start uploading');
+    recorder && recorder.exportWAV(function(blob) {
+      	var formData = new FormData();
+
+	formData.append("filename", "{{proposedWavURL}}");
+	formData.append("uri", "{{uri}}");
+	formData.append("lang", "{{langURI}}");
+	formData.append("action", "upload");
+	formData.append("file", blob);
+
+	var request = new XMLHttpRequest();
+	request.open("POST", "audio");
+	request.send(formData);
+	__log(request.responseText);
+       __log('Uploading complete.');
+  	} 
+      else {
+ 	   // Do nothing!
+		}		
+    });
+
+
+  }
+
 
   window.onload = function init() {
     try {
