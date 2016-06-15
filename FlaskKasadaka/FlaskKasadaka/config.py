@@ -1,12 +1,15 @@
-
 #Change these variables according to your installation
 
+#####CHICKENVACCINATION SETTINGS###########################################
+#Hours between which outgoing calls will be placed
+reminderCallHours = [9,21]
+
+
+####SPARQL SETTINGS########################################################
 #Sparql endpoint
 sparqlURL = "http://127.0.0.1:3020/sparql/"
-
 #URI of graph to use
 sparqlGraph = "http://localhost/chickenvaccination"
-
 #key is rdf:type, values is array of properties to use
 dataStructure = {
     'http://example.org/chickenvaccinationsapp/user' : ['http://example.org/chickenvaccinationsapp/contact_fname','http://example.org/chickenvaccinationsapp/contact_lname','http://example.org/chickenvaccinationsapp/contact_tel','http://example.org/chickenvaccinationsapp/preferred_language'],
@@ -32,6 +35,8 @@ sparqlPrefixDict = {
     'http://lexvo.org/ontology#' : 'lexvo',
     'http://example.org/chickenvaccinationsapp/' : 'cv'
 }
+
+####LANGUAGE AND AUDIO SETTINGS######################################################
 #default language
 defaultLanguage = "en"
 defaultLanguageURI = "http://purl.org/collections/w4ra/speakle/voicelabel_en"
@@ -51,6 +56,6 @@ dateFormat = "%Y-%m-%d"
 #debug mode
 debug=True
 
-#python files location
+#python files location, used for checking references to *.wav files
 pythonFilesDir = "/home/pi/KasaDaka/FlaskKasadaka/FlaskKasadaka/"
 

@@ -16,6 +16,7 @@ import urllib
 import copy
 import os.path
 import os
+import random
 from base64 import b16encode , b16decode
 
 app = Flask(__name__)
@@ -30,6 +31,132 @@ def index():
 	Only used to confirm hosting is working correctly
 	"""
     return 'This is the Kasadaka Vxml generator'
+
+@app.route('/outgoing')
+def createOutgoingCalls():
+    """Creates an random outgoing reminder call.
+    Respects the times as set in the config"""
+    if not insideOfOutgoingCallsHours(): return datetime.now().isoformat() + " Outside of outgoing call hours"
+    users = sparqlHelper.objectList("http://example.org/chickenvaccinationsapp/user")
+    usersWithReminders = getUsersWithReminders(users)
+    #choose a random user from the users with reminders (this is to prevent having multiple outgoing calls at once)
+    if len(usersWithReminders) >0:
+        randomChosenUser = random.choice(usersWithReminders)
+        placeOutgoingReminderCall(randomChosenUser)
+        return datetime.now().isoformat() +" Placed outgoing call to: " + randomChosenUser + " . Users with reminders left (out of total users):" + str(len(usersWithReminders)) +"/"+str(len(users))
+    else:
+        return datetime.now().isoformat() + " No users with reminders (left)"
+
+def placeOutgoingReminderCall(userURI):
+    reminders = lookupVaccinationReminders(userURI)
+    #TODO genereer een uitgaande call naar het nummer van de user:
+    userNumber = "123"
+    #"reminder.vxml?user=" + b16encode(userURI)
+    return 
+
+def insideOfOutgoingCallsHours():
+    currentHour = datetime.now().hour
+    return currentHour > config.reminderCallHours[0] and currentHour < config.reminderCallHours[1]
+    
+
+def getUsersWithReminders(users):
+    usersWithReminders = []
+    for user in users:
+        reminders = lookupVaccinationReminders(user[0])
+        if len(reminders) > 0: usersWithReminders.append(user[0])
+    return usersWithReminders
+
+
+def lookupVaccinationReminders(userURI):
+    """
+    Returns an array of triples (chicken batch URI, vaccination URI,disease URI)
+    Of the vaccination needed for an user's chicken batches
+    """
+    date_format = config.dateFormat
+    chickenBatches = lookupChickenBatches(userURI,giveBirthDates = True)
+    vaccinations = lookupVaccinations()
+    results = []
+    for chickenBatch in chickenBatches:
+        birthDate = datetime.strptime(chickenBatch[1],date_format)
+        currentDate = datetime.now()
+        for index, vaccination in enumerate(vaccinations):
+            vaccinationDays = vaccination[1]
+            if int(vaccinationDays) == int((currentDate - birthDate).days):
+                results.append([chickenBatch[0],vaccination[0],vaccination[3]])
+    return results
+
+def lookupVaccinations():
+    """
+    Returns array of vaccinations, with properties in order as in second argument of objectList call.
+    """
+    return sparqlHelper.objectList('http://example.org/chickenvaccinationsapp/vaccination',['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats'])
+
+def lookupChickenBatches(userURI,giveBirthDates = False):
+    """
+    Returns an array of chicken batches belonging to an user.
+    """
+    field = ['chicken_batch']
+    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
+    ['?chicken_batch','http://example.org/chickenvaccinationsapp/owned_by','?userURI']]
+    filter = ['userURI',userURI]
+    if giveBirthDates:
+        field.append('birth_date')
+        triples.append(['?chicken_batch','http://example.org/chickenvaccinationsapp/birth_date','?birth_date'])
+    return sparqlInterface.selectTriples(field,triples,filter)
+
+
+@app.route('/reminder.vxml',methods=['GET'])
+def reminderVXML():
+    if 'user' not in request.args: return errorVXML(error="No user defined to look up reminders")
+    user = b16decode(request.args['user'])
+    if 'action' in request.args and request.args['action'] == 'received':
+        return markRemindersAsReceived(user)
+    return generateReminderMessage(user)
+
+def markRemindersAsReceived(userURI):
+    return "reminder received of " + userURI
+
+def generateReminderMessage(userURI):
+    lang = LanguageVars(preferredLanguageLookup(userURI))
+
+    #TODO look up actual chicken batches that need a reminder today
+    batchVaccinations = lookupVaccinationReminders(userURI)
+
+    welcomeMessage = lang.getInterfaceAudioURL('welcome_cv.wav')
+    userVoiceLabel = lang.getVoiceLabel(userURI) 
+    messages = [welcomeMessage,userVoiceLabel]
+    reminders = []
+    if len(batchVaccinations) == 0:
+        messages.append(lang.getInterfaceAudioURL('currentlyNoVaccinationsNeeded.wav'))
+    else:
+        messages.append(lang.getInterfaceAudioURL('reminderIntro.wav'))
+        for batchVaccination in batchVaccinations:
+            batchVoicelabel = lang.getVoiceLabel(batchVaccination[0])
+            vaccinationVoicelabel = lang.getVoiceLabel(batchVaccination[1])
+            diseaseVoicelabel = lang.getVoiceLabel(batchVaccination[2])
+            #if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: 
+                #return errorVXML(error="Voicelabel does not exist: " + str(batchVaccination))
+            reminder = [lang.getInterfaceAudioURL('for.wav'),batchVoicelabel,lang.getInterfaceAudioURL('toPreventDisease.wav'),diseaseVoicelabel,lang.getInterfaceAudioURL('useVaccination.wav'),vaccinationVoicelabel,lang.getInterfaceAudioURL('press1ToConfirm.wav')]
+            reminders.append(reminder)
+    return render_template('reminder.vxml',
+        messages = messages,
+        reminders=reminders,
+        userURI = b16encode(userURI))
+    #return messages
+
+def concatenateWavs(messages):
+    path = config.recordingsPath + "reminder.wav"
+    path = findFreshFilePath(path)
+    wavs = []
+    for wav in messages:
+        wavs.append(wav.replace(config.audioURLbase,config.audioPath))
+    command = ['/usr/bin/sox']
+    command.extend(wavs)
+    command.append(path)
+    #command.extend(['-r','8k','-c','1','-e','signed-integer',path])
+    subprocess.call(command)
+    #flash(" ".join(command))
+    return path
 
 @app.route('/admin/reminders')
 def showReminders():
@@ -357,93 +484,6 @@ def cvMainMenuVXML():
         questionAudio = "mainMenuQuestion.wav",
         options = options)
 
-@app.route('/reminder.vxml',methods=['GET'])
-def reminderVXML():
-    if 'user' not in request.args: return errorVXML()
-    user = b16decode(request.args['user'])
-    return str(generateReminderWav(generateReminderMessage(user)))
-    return str(generateReminderMessage(user))
-
-def concatenateWavs(messages):
-    path = config.recordingsPath + "reminder.wav"
-    path = findFreshFilePath(path)
-    wavs = []
-    for wav in messages:
-        wavs.append(wav.replace(config.audioURLbase,config.audioPath))
-    command = ['/usr/bin/sox']
-    command.extend(wavs)
-    command.append(path)
-    #command.extend(['-r','8k','-c','1','-e','signed-integer',path])
-    subprocess.call(command)
-    #flash(" ".join(command))
-    return path
-
-def generateReminderMessage(userURI):
-    lang = LanguageVars(preferredLanguageLookup(userURI))
-
-    #TODO look up actual chicken batches that need a reminder today
-    batchVaccinations = lookupVaccinationReminders(userURI)
-
-    welcomeMessage = lang.getInterfaceAudioURL('welcome_cv.wav')
-    userVoiceLabel = lang.getVoiceLabel(userURI) 
-    messages = [welcomeMessage,userVoiceLabel]
-    if len(batchVaccinations) == 0:
-        messages.append(lang.getInterfaceAudioURL('currentlyNoVaccinationsNeeded.wav'))
-    else:
-        messages.append(lang.getInterfaceAudioURL('reminderIntro.wav'))
-        for batchVaccination in batchVaccinations:
-            batchVoicelabel = lang.getVoiceLabel(batchVaccination[0])
-            vaccinationVoicelabel = lang.getVoiceLabel(batchVaccination[1])
-            diseaseVoicelabel = lang.getVoiceLabel(batchVaccination[2])
-            if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: 
-                flash('unable to create reminder, voicelabel not defined!')
-                return []
-            messages.extend([lang.getInterfaceAudioURL('for.wav'),batchVoicelabel,lang.getInterfaceAudioURL('toPreventDisease.wav'),diseaseVoicelabel,lang.getInterfaceAudioURL('useVaccination.wav'),vaccinationVoicelabel])
-    #return render_template('message.vxml',
-    #    messages = messages,
-    #    redirect = 'chickenvaccination_main.vxml?user=' + b16encode(userURI))
-    return messages
-
-
-def lookupVaccinationReminders(userURI):
-    """
-    Returns an array of triples (chicken batch URI, vaccination URI,disease URI)
-    Of the vaccination needed for an user's chicken batches
-    """
-    date_format = config.dateFormat
-    chickenBatches = lookupChickenBatches(userURI,giveBirthDates = True)
-    vaccinations = lookupVaccinations()
-    results = []
-    for chickenBatch in chickenBatches:
-        birthDate = datetime.strptime(chickenBatch[1],date_format)
-        currentDate = datetime.now()
-        for index, vaccination in enumerate(vaccinations):
-            vaccinationDays = vaccination[1]
-            if vaccinationDays == (currentDate - birthDate).days or index == 0:
-                results.append([chickenBatch[0],vaccination[0],vaccination[3]])
-    return results
-
-def lookupVaccinations():
-    """
-    Returns array of vaccinations, with properties in order as in second argument of objectList call.
-    """
-    return sparqlHelper.objectList('http://example.org/chickenvaccinationsapp/vaccination',['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats'])
-
-def lookupChickenBatches(userURI,giveBirthDates = False):
-    """
-    Returns an array of chicken batches belonging to an user.
-    """
-    field = ['chicken_batch']
-    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
-    ['?chicken_batch','http://example.org/chickenvaccinationsapp/owned_by','?userURI']]
-    filter = ['userURI',userURI]
-    if giveBirthDates:
-        field.append('birth_date')
-        triples.append(['?chicken_batch','http://example.org/chickenvaccinationsapp/birth_date','?birth_date'])
-    return sparqlInterface.selectTriples(field,triples,filter)
-
-
-
 
 @app.route('/chickenvaccination.vxml',methods=['GET'])
 def callerID():
@@ -568,11 +608,12 @@ def callerIDLookup(callerID):
     else: return result[0][0]
     
 @app.route('/error.vxml')
-def errorVXML(language="en"):
+def errorVXML(error="undefined error",language="en"):
     lang = LanguageVars(language)
     return render_template('message.vxml',
         messages = [lang.audioInterfaceURL + 'error.wav'],
-            redirect = 'error.vxml')
+            redirect = 'error.vxml',
+            error=error)
 
 @app.route('/static/<path:path>')
 def send_static(path):

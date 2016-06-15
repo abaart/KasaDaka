@@ -1,0 +1,65 @@
+{% extends "vxmlLayout.vxml" %}
+{#
+plays back reminders, asks to confirm after each one.
+
+If no confirmation is given, reminder is recorded as failed.
+If all confirmations are given, reminders are recorded as received
+#}
+
+{% block content %}
+<form>
+<block>
+<prompt>
+{% for messageAudio in messages %}
+<audio src="{{messageAudio}}"/>
+{% endfor %}
+</prompt>
+<goto next="#reminder_1"/>
+</block>
+{% for reminder in reminders %}
+
+<field name="reminder_{{loop.index}}">
+<prompt>
+
+{% for part in reminder %}
+<audio src="{{part}}"/>
+{% endfor %}
+
+</prompt>
+<grammar xml:lang="en-US" root = "MYRULE" mode="dtmf">
+      <rule id="MYRULE" scope = "public">
+        <one-of>        
+            <item>1</item>         
+        </one-of>
+       </rule>
+     </grammar>
+
+  <filled>
+
+      <if cond="confirm == '1'">
+
+      {% if not loop.last %}
+    <goto next="#reminder_{{loop.index + 1 }}"/>
+
+   {% else %}
+		<goto next="reminder.vxml?action=received&user={{userURI}}"/>
+   {% endif %}   
+   </if>
+
+  </filled>
+
+<noinput>
+<reprompt/>
+</noinput>
+<noinput count="5">
+<disconnect/>
+</noinput>
+
+ </field>
+{% endfor %}
+
+
+
+</form>
+
+{% endblock %}

@@ -3,7 +3,10 @@ Make templates for SPARQL queries as well?
 
 #TODO:
 ##Bugs:
-Uploading audio sometimes goes wrong
+When changing the owner of a chicken batch, there are suddenly 2 identical chicken batches
+Deleting objects does not work
+
+
 Openvxi crash?
 
 ##Functionality:
