@@ -15,7 +15,8 @@ dataStructure = {
     'http://example.org/chickenvaccinationsapp/user' : ['http://example.org/chickenvaccinationsapp/contact_fname','http://example.org/chickenvaccinationsapp/contact_lname','http://example.org/chickenvaccinationsapp/contact_tel','http://example.org/chickenvaccinationsapp/preferred_language'],
     'http://example.org/chickenvaccinationsapp/chicken_batch' : ['http://example.org/chickenvaccinationsapp/birth_date','http://example.org/chickenvaccinationsapp/owned_by'],
     'http://example.org/chickenvaccinationsapp/disease' : ['http://example.org/chickenvaccinationsapp/occurs_in'],
-    'http://example.org/chickenvaccinationsapp/vaccination' : ['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats']
+    'http://example.org/chickenvaccinationsapp/vaccination' : ['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats'],
+    'http://example.org/chickenvaccinationsapp/outgoing_reminder' : ['http://example.org/chickenvaccinationsapp/user','http://example.org/chickenvaccinationsapp/date','http://example.org/chickenvaccinationsapp/received']
 }
 
 #TODO implement automatic insertion of prefixes

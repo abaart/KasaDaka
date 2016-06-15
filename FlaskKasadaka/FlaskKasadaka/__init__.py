@@ -110,11 +110,21 @@ def reminderVXML():
     if 'user' not in request.args: return errorVXML(error="No user defined to look up reminders")
     user = b16decode(request.args['user'])
     if 'action' in request.args and request.args['action'] == 'received':
-        return markRemindersAsReceived(user)
+        return markReminderResult(user,True)
+    if 'action' in request.args and request.args['action'] == 'failed':
+        return markReminderResult(user,False)  
     return generateReminderMessage(user)
 
-def markRemindersAsReceived(userURI):
-    return "reminder received of " + userURI
+def markReminderResult(userURI,received):
+    lang = LanguageVars(preferredLanguageLookup(userURI))
+    receivedURI = "http://example.org/chickenvaccinationsapp/reminder"
+    objectType = 'http://example.org/chickenvaccinationsapp/outgoing_reminder'
+    tuples = [['http://example.org/chickenvaccinationsapp/user',userURI],['http://example.org/chickenvaccinationsapp/date',str(datetime.now().isoformat())],['http://example.org/chickenvaccinationsapp/received',str(received)]]
+    success = sparqlHelper.insertObjectTriples(receivedURI,objectType,tuples)
+    messages = [lang.getVoiceLabel('userDidNotConfirm.wav')]
+    if received: messages = [lang.getVoiceLabel('thanks.wav')]
+    return render_template('message.vxml',
+        messages = messages)
 
 def generateReminderMessage(userURI):
     lang = LanguageVars(preferredLanguageLookup(userURI))

@@ -16,5 +16,7 @@ plays back a message, then sends the user to the redirect
 
 
 </form>
+{% if error is defined %}
 <!-- Error: {{error}} -->
+{% endif %}
 {% endblock %}
