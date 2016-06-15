@@ -58,18 +58,20 @@ def objectDelete(URI):
     success = sparqlInterface.deleteTriples(triples)
     return success
 
-def objectUpdate(URI,deleteProperties,insertTuples):
-	if len(deleteProperties) == 0 or len(insertTuples) == 0: raise ValueError("Nothing to delete/update!")
-	if len(deleteProperties) != len(insertTuples): raise ValueError('Number of fields in deleting not equal to inserting!')
+def objectUpdate(URI,deleteTuples,insertTuples):
+	"""Deletes and then inserts new triples.
+	INPUT: COMPLETE tuples to be deleted (combined with the URI form a triple)
+	Tuples to be insterted"""
+	if len(deleteTuples) == 0 or len(insertTuples) == 0: raise ValueError("Nothing to delete/update!")
+	if len(deleteTuples) != len(insertTuples): raise ValueError('Number of fields in deleting not equal to inserting!')
 	if len(URI) == 0: raise ValueError("URI not defined!")
 	triplesToBeDeleted = []
 	triplesToBeInserted = []
-	for field in deleteProperties:
-		triplesToBeDeleted.append([URI,field])
+	for deleteTuple in deleteTuples:
+		triplesToBeDeleted.append([URI,deleteTuple[0],deleteTuple[1]])
 	for insertTuple in insertTuples:
-		if insertTuple[0] not in deleteProperties: raise ValueError("Properties to be deleted not equal to properties to be inserted!")
 		triplesToBeInserted.append([URI,insertTuple[0],insertTuple[1]])
-	success = sparqlInterface.deleteTriples(triplesToBeDeleted) and sparqlInterface.insertTriples(triplesToBeInserted)
+	success = sparqlInterface.updateTriples(triplesToBeDeleted,triplesToBeInserted)
 	return success
 
 

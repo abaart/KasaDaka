@@ -388,7 +388,13 @@ def updateObject():
     properties = sparqlHelper.getDataStructure(objectType)
     insertTuples = createDataTuples(properties,request)
     deleteProperties = properties
-    success = sparqlHelper.objectUpdate(URI,deleteProperties,insertTuples)
+    objectInfo = sparqlHelper.objectInfo(URI,deleteProperties)[1]
+    deleteTuples = []
+    for index, prop in enumerate(deleteProperties):
+        deleteTuples.append([prop,objectInfo[index]])
+    print deleteTuples
+    if len(deleteProperties) != len(deleteTuples): raise ValueError('update error in retreiving triples to delete')
+    success = sparqlHelper.objectUpdate(URI,deleteTuples,insertTuples)
     if success:
         flash(objectType+' data successfully updated!')
     else:
