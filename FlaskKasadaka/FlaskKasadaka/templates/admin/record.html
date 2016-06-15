@@ -2,6 +2,13 @@
 {% import "admin/voiceLabels.html" as voiceLabelsHtml %}
 
 
+{% block head %}
+  <style type='text/css'>
+    ul { list-style: none; }
+    #recordingslist audio { display: block; margin-bottom: 10px; }
+  </style>
+{% endblock %}
+
 {% block body %}
 <h2>Record and upload missing audio voicelabels</h2>
 
