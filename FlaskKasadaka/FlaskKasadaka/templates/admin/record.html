@@ -98,7 +98,7 @@ URI's without a {{ languageLabel }}:<br/>
       click.id = 'uploadButton';
       click.type = 'button';
       click.value = 'Upload!';
-      click.onclick = function(blob) {uploadAudio(blob);};
+      click.onclick = function() {uploadAudio();};
 
       au.controls = true;
       au.src = url;
@@ -113,7 +113,7 @@ URI's without a {{ languageLabel }}:<br/>
     __log('Download link created.');
   }
 
-  function uploadAudio(blobbie) {
+  function uploadAudio() {
   
 
     if (confirm('Do you want to upload this audio file?')) {
@@ -127,7 +127,7 @@ URI's without a {{ languageLabel }}:<br/>
 	formData.append("uri", "{{uri}}");
 	formData.append("lang", "{{langURI}}");
 	formData.append("action", "upload");
-	formData.append("file", blobbie);
+	formData.append("file", blob);
 
 	var request = new XMLHttpRequest();
 	request.open("POST", "audio");
