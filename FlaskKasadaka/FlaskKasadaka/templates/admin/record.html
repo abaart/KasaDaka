@@ -83,7 +83,6 @@ URI's without a {{ languageLabel }}:<br/>
     
     // create WAV download link using audio data blob
     createDownloadLink();
-    createDownloadLink();
     recorder.clear();
   }
 
@@ -94,7 +93,13 @@ URI's without a {{ languageLabel }}:<br/>
       var li = document.createElement('li');
       var au = document.createElement('audio');
       var hf = document.createElement('a');
+      var click = document.createElement('input');
       
+      click.id = 'clickMe';
+      click.type = 'button';
+      click.vaue = 'clickme';
+      click.onclick = 'createDownloadLink();';
+
       au.controls = true;
       au.src = url;
       hf.href = url;
@@ -102,6 +107,7 @@ URI's without a {{ languageLabel }}:<br/>
       hf.innerHTML = hf.download;
       li.appendChild(au);
       li.appendChild(hf);
+      li.appendChild(click);
       recordingslist.appendChild(li);
 
     if (confirm('Are you sure you want to save this thing into the database?')) {
@@ -135,6 +141,7 @@ URI's without a {{ languageLabel }}:<br/>
 
   <script src="../static/recorder.js"></script>
 
+<input id="clickMe" type="button" value="clickme" onclick="doFunction();" />
 
 
 <br/>
