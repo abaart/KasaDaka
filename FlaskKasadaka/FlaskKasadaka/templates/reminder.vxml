@@ -37,7 +37,7 @@ If all confirmations are given, reminders are recorded as received
 
   <filled>
 
-      <if cond="confirm == '1'">
+      <if cond="reminder_{{loop.index}}_field == '1'">
 
       {% if not loop.last %}
     <goto next="#reminder_{{loop.index + 1 }}"/>
