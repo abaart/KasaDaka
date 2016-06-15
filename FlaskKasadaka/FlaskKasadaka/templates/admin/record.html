@@ -104,7 +104,11 @@ URI's without a {{ languageLabel }}:<br/>
       li.appendChild(hf);
       recordingslist.appendChild(li);
 
-      __log(blob);
+    if (confirm('Are you sure you want to save this thing into the database?')) {
+      // Save it!
+		} else {
+ 	   // Do nothing!
+		}		
     });
     __log('Download link created.');
   }
