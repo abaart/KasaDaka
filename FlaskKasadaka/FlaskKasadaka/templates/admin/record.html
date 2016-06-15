@@ -98,7 +98,7 @@ URI's without a {{ languageLabel }}:<br/>
       click.id = 'uploadButton';
       click.type = 'button';
       click.value = 'Upload!';
-      click.onclick = function() {createDownloadLink();};
+      click.onclick = function() {uploadAudio();};
 
       au.controls = true;
       au.src = url;
@@ -109,12 +109,6 @@ URI's without a {{ languageLabel }}:<br/>
       li.appendChild(hf);
       li.appendChild(click);
       recordingslist.appendChild(li);
-
-    if (confirm('Are you sure you want to save this thing into the database?')) {
-      // Save it!
-		} else {
- 	   // Do nothing!
-		}		
     });
     __log('Download link created.');
   }
