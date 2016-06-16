@@ -1,0 +1,224 @@
+@base                           <http://localhost/chickenvaccination> .
+@prefix                   rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix                    rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix                speakle: <http://purl.org/collections/w4ra/speakle/> .
+@prefix               ontology: <http://lexvo.org/ontology#> .
+@prefix               iso639-3: <http://lexvo.org/id/iso639-3/> .
+@prefix chickenvaccinationsapp: <http://example.org/chickenvaccinationsapp/> .
+
+# Named toplevel resources (40)
+
+chickenvaccinationsapp:andre_baart
+	a chickenvaccinationsapp:user ;
+	chickenvaccinationsapp:contact_fname "Andre" ;
+	chickenvaccinationsapp:contact_lname "Baart" ;
+	chickenvaccinationsapp:contact_tel "notarealnumber" ;
+	chickenvaccinationsapp:preferred_language speakle:voicelabel_en .
+
+chickenvaccinationsapp:birth_date
+	a rdf:Property ;
+	rdfs:label "Birth Date" .
+
+chickenvaccinationsapp:chicken_batch
+	a rdf:Property ;
+	rdfs:label "Chicken Batch" .
+
+chickenvaccinationsapp:chicken_batch_1
+	a chickenvaccinationsapp:chicken_batch ;
+	chickenvaccinationsapp:birth_date "2012-08-11" ;
+	chickenvaccinationsapp:owned_by chickenvaccinationsapp:andre_baart .
+
+chickenvaccinationsapp:chicken_batch_2
+	a chickenvaccinationsapp:chicken_batch ;
+	chickenvaccinationsapp:birth_date "2010-08-11" ;
+	chickenvaccinationsapp:owned_by chickenvaccinationsapp:andre_baart .
+
+chickenvaccinationsapp:chicken_batch_3
+	a chickenvaccinationsapp:chicken_batch ;
+	chickenvaccinationsapp:birth_date "2016-06-15" ;
+	chickenvaccinationsapp:owned_by chickenvaccinationsapp:user_1 ;
+	speakle:voicelabel_fr <http://127.0.0.1/audio/user_recordings/recording_19.wav> .
+
+chickenvaccinationsapp:contact_fname
+	a rdf:Property ;
+	rdfs:label "Contact First Name" .
+
+chickenvaccinationsapp:contact_lname
+	a rdf:Property ;
+	rdfs:label "Contact Last Name" .
+
+chickenvaccinationsapp:contact_tel
+	a rdf:Property ;
+	rdfs:label "Contact Telephone Number" .
+
+chickenvaccinationsapp:date
+	a rdf:Property ;
+	rdfs:label "Date" .
+
+chickenvaccinationsapp:days_after_birth
+	a rdf:Property ;
+	rdfs:label "Days after birth" .
+
+chickenvaccinationsapp:description
+	a rdf:Property ;
+	rdfs:label "Description" .
+
+chickenvaccinationsapp:disease
+	a rdf:Property ;
+	rdfs:label "Disease" .
+
+chickenvaccinationsapp:gomboro
+	a chickenvaccinationsapp:disease ;
+	chickenvaccinationsapp:occurs_in chickenvaccinationsapp:chicken_batch ;
+	speakle:voicelabel_en <http://127.0.0.1/audio/gomboro_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/audio/gomboro_voicelabel_fr.wav> ;
+	rdfs:label "Gomboro disease"@en .
+
+chickenvaccinationsapp:gomboro_vac_1
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "5" ;
+	chickenvaccinationsapp:description "Primo vaccination le 5 ème jour avec GOMBOPEST (vaccin polyvalent)" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:gomboro ;
+	speakle:voicelabel_en <http://127.0.0.1/audio/gomboro_vac_1_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/audio/gomboro_vac_1_voicelabel_fr.wav> .
+
+chickenvaccinationsapp:gomboro_vac_2
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "12" ;
+	chickenvaccinationsapp:description "1er Rappel avec Gombopest 7 jours après la primo vaccination" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:gomboro .
+
+chickenvaccinationsapp:gomboro_vac_3
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "27" ;
+	chickenvaccinationsapp:description "2nd et dernier rappel 15 jours après le 1 er rappel avec Gombopest" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:gomboro .
+
+chickenvaccinationsapp:infectious_bronchitis
+	a chickenvaccinationsapp:disease ;
+	chickenvaccinationsapp:occurs_in chickenvaccinationsapp:chicken_batch ;
+	speakle:voicelabel_en <http://127.0.0.1/audio/infectious_bronchitis_voicelabel_en.wav> ;
+	rdfs:label "Infectious Bronchitis"@en .
+
+chickenvaccinationsapp:infectious_bronchitis_vac_1
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "7" ;
+	chickenvaccinationsapp:description "Primo vaccination le 7ème jour avec H120 (vaccin vivant de 500 et 1000 doses pour boisson et trempage)" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:infectious_bronchitis .
+
+chickenvaccinationsapp:infectious_bronchitis_vac_2
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "22" ;
+	chickenvaccinationsapp:description "1er Rappel 15 jour après la primo vaccination c’est-à-dire le 22ème jour avec H120" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:infectious_bronchitis .
+
+chickenvaccinationsapp:infectious_bronchitis_vac_3
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "127" ,
+						"37" ;
+	chickenvaccinationsapp:description "2nd Rappel 15 jours après le 1er rappel avec H120" ,
+					   "Autres Rappels chaque 3 mois avec H120" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:infectious_bronchitis .
+
+chickenvaccinationsapp:newcastle
+	a chickenvaccinationsapp:disease ;
+	chickenvaccinationsapp:occurs_in chickenvaccinationsapp:chicken_batch ;
+	speakle:voicelabel_en <http://127.0.0.1/audio/newcastle_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/audio/newcastle_voicelabel_fr.wav> ;
+	rdfs:label "Newcastle's disease"@en .
+
+chickenvaccinationsapp:newcastle_vac_1
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "1" ;
+	chickenvaccinationsapp:description "Primo vaccination entre le 1er et le 4ème jour  (pas au delà du 15ème jr)  avec PESTOS (vaccin vivant simple contre Newcastle flacon de 500 et 1000 dose pour boisson et trempage). Il existe aussi un Vaccin vivant complexe qui s'appelle PESTOS + H120 contre la maladie de Newcastle et la Bronchite infectieuse (500 et 1000 doses pour boisson et trempage)" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:newcastle ;
+	speakle:voicelabel_en <http://127.0.0.1/audio/newcastle_vac_1_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/audio/newcastle_vac_1_voicelabel_fr.wav> .
+
+chickenvaccinationsapp:newcastle_vac_2
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "7" ;
+	chickenvaccinationsapp:description "1er rappel une semaine après primo avec ITANEW (flaon de 100 doses)" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:newcastle ;
+	speakle:voicelabel_fr <http://127.0.0.1/audio/newcastle_vac_2_voicelabel_fr.wav> .
+
+chickenvaccinationsapp:newcastle_vac_3
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "98" ;
+	chickenvaccinationsapp:description "2nd rappel 3 mois après 1er rappel avec ITANEW (flaon de 100 doses)" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:newcastle .
+
+chickenvaccinationsapp:newcastle_vac_4
+	a chickenvaccinationsapp:vaccination ;
+	chickenvaccinationsapp:days_after_birth "180" ;
+	chickenvaccinationsapp:description "Autres Rappel Chaque 3 mois avec ITANEW (flaon de 100 doses)" ;
+	chickenvaccinationsapp:treats chickenvaccinationsapp:newcastle .
+
+chickenvaccinationsapp:occurs_in
+	a rdf:Property ;
+	rdfs:label "Occurs in" .
+
+chickenvaccinationsapp:outgoing_reminder
+	a rdf:Property ;
+	rdfs:label "Outgoing reminder" .
+
+chickenvaccinationsapp:owned_by
+	a rdf:Property ;
+	rdfs:label "Owned By" .
+
+chickenvaccinationsapp:preferred_language
+	a rdf:Property ;
+	rdfs:label "Preferred Language" .
+
+chickenvaccinationsapp:received
+	a rdf:Property ;
+	rdfs:label "Received" .
+
+chickenvaccinationsapp:treats
+	a rdf:Property ;
+	rdfs:label "Treats" .
+
+chickenvaccinationsapp:user
+	a rdf:Property ;
+	rdfs:label "User" .
+
+chickenvaccinationsapp:user_1
+	a chickenvaccinationsapp:user ;
+	chickenvaccinationsapp:contact_fname "unknown" ;
+	chickenvaccinationsapp:contact_lname "unknown" ;
+	chickenvaccinationsapp:contact_tel "31653105713" ;
+	chickenvaccinationsapp:preferred_language speakle:voicelabel_fr ;
+	speakle:voicelabel_fr <http://127.0.0.1/audio/user_recordings/recording_18.wav> .
+
+chickenvaccinationsapp:vaccination
+	a rdf:Property ;
+	rdfs:label "Vaccination" .
+
+chickenvaccinationsapp:victor_de_boer
+	a chickenvaccinationsapp:user ;
+	chickenvaccinationsapp:contact_fname "Victor" ;
+	chickenvaccinationsapp:contact_lname "de Boer" ;
+	chickenvaccinationsapp:contact_tel "notarealnumber" ;
+	chickenvaccinationsapp:preferred_language speakle:voicelabel_nl .
+
+speakle:voicelabel
+	a rdf:Property ;
+	rdfs:label "voicelabel" .
+
+speakle:voicelabel_en
+	a rdf:Property ;
+	ontology:language iso639-3:eng ;
+	rdfs:label "English voicelabel"@en ;
+	rdfs:subPropertyOf speakle:voicelabel .
+
+speakle:voicelabel_fr
+	a rdf:Property ;
+	ontology:language iso639-3:fra ;
+	rdfs:label "French voicelabel"@en ;
+	rdfs:subPropertyOf speakle:voicelabel .
+
+speakle:voicelabel_nl
+	a rdf:Property ;
+	ontology:language iso639-3:nld ;
+	rdfs:label "Dutch voicelabel"@en ;
+	rdfs:subPropertyOf speakle:voicelabel .
