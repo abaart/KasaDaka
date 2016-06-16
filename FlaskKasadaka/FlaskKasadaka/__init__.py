@@ -674,7 +674,7 @@ def errorVXML(error="undefined error",language="en"):
     lang = LanguageVars(language)
     return render_template('message.vxml',
         messages = [lang.audioInterfaceURL + 'error.wav'],
-            redirect = 'error.vxml',
+            redirect = '',
             error=error)
 
 @app.route('/static/<path:path>')
