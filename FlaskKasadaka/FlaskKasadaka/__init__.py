@@ -200,20 +200,6 @@ def generateReminderMessage(userURI):
         userURI = b16encode(userURI))
     #return messages
 
-def concatenateWavs(messages):
-    path = config.recordingsPath + "reminder.wav"
-    path = findFreshFilePath(path)
-    wavs = []
-    for wav in messages:
-        wavs.append(wav.replace(config.audioURLbase,config.audioPath))
-    command = ['/usr/bin/sox']
-    command.extend(wavs)
-    command.append(path)
-    #command.extend(['-r','8k','-c','1','-e','signed-integer',path])
-    subprocess.call(command)
-    #flash(" ".join(command))
-    return path
-
 @app.route('/admin/reminders')
 def showReminders():
     if 'uri' in request.args: userURI = request.args['uri']
