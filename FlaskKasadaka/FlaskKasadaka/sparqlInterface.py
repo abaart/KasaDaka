@@ -9,7 +9,7 @@ def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpE
     if addGraph: query = addGraphToQuery(query)
     query = addPrefix(query)
     ET.register_namespace("","http://www.w3.org/2005/sparql-results#")
-    requestArgs = { "query":query }
+    requestArgs = { "query":query.encode('utf-8') }
     requestArgs = urllib.urlencode(requestArgs)
     resultXML = urllib2.urlopen(url,requestArgs).read()
     root = ET.fromstring(resultXML)
@@ -33,7 +33,7 @@ def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpE
 def executeSparqlUpdate(query, url = config.sparqlURL,addGraph=True):
     if addGraph: query = addGraphToQuery(query)
     query = addPrefix(query)
-    requestArgs = { "update":query }
+    requestArgs = { "update":query.encode('utf-8') }
     requestArgs = urllib.urlencode(requestArgs)
     requestURL = url + "update"
     requestReturned = urllib2.urlopen(requestURL,requestArgs).read()
