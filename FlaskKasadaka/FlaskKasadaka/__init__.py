@@ -290,7 +290,12 @@ def recordAudio(language,URI = ""):
        ?subject rdf:type   ?type .
         FILTER(NOT EXISTS {?subject <"""+language+"""> ?voicelabel_en .})
         }"""
+    getResourcesHavingVoicelabelQuery = """SELECT DISTINCT ?subject    WHERE {
+       ?subject rdf:type   ?type .
+        FILTER( EXISTS {?subject <"""+language+"""> ?voicelabel_en .})
+        }"""
     resourcesMissingVoicelabels = executeSparqlQuery(getResourcesMissingVoicelabelQuery)
+    resourcesHavingVoicelabels = executeSparqlQuery(getResourcesHavingVoicelabelQuery)
     if len(URI) == 0: URI = resourcesMissingVoicelabels[0][0]
     resourceDataQuery = """SELECT DISTINCT  ?1 ?2  WHERE {
           ?uri   ?1 ?2.
@@ -300,7 +305,7 @@ def recordAudio(language,URI = ""):
     resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
     languageLabel = sparqlHelper.retrieveLabel(language)
     voiceLabelResults = getVoiceLabels(URI,changeLocalhostIP = request.host)
-    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language,resourcesMissingVoicelabels=resourcesMissingVoicelabels, languageLabel=languageLabel,voiceLabelResults=voiceLabelResults)
+    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language,resourcesMissingVoicelabels=resourcesMissingVoicelabels, resourcesHavingVoicelabels=resourcesHavingVoicelabels,languageLabel=languageLabel,voiceLabelResults=voiceLabelResults)
 
 def processAudio(request):
     fileExists = os.path.isfile(request.form['filename'])

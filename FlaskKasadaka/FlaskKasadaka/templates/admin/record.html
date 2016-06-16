@@ -12,17 +12,31 @@
 {% block body %}
 <h2>Record and upload missing audio voicelabels</h2>
 
-URI's without a {{ languageLabel }}:<br/>
+URI's without a <b>{{ languageLabel }}</b>:<br/>
 <form enctype="multipart/form-data" method="get" action='audio'>
 <input type="hidden" name="lang" value="{{langURI}}">
 <select name="uri">
+<option>SELECT URI</option>
 {% for resource in resourcesMissingVoicelabels %}
 <option{% if uri == resource[0] %} selected="selected"{% endif %}>{{resource[0]}}</option>
 {% endfor %}
 </select>
 <input type="submit" value="Select URI">
 </form>
-<p>{{ uri }}</p>
+
+URI's WITH a <b>{{ languageLabel }}</b>:<br/>
+<form enctype="multipart/form-data" method="get" action='audio'>
+<input type="hidden" name="lang" value="{{langURI}}">
+<select name="uri">
+<option>SELECT URI</option>
+{% for resource in resourcesHavingVoicelabels %}
+<option{% if uri == resource[0] %} selected="selected"{% endif %}>{{resource[0]}}</option>
+{% endfor %}
+</select>
+<input type="submit" value="Select URI">
+</form>
+
+<h3>{{ uri }}</h3>
 
 
 <b>Some data about this Resource:</b>
