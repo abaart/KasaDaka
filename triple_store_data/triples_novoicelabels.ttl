@@ -212,3 +212,11 @@ cv:description
 cv:occurs_in
 	a rdf:Property;
 	rdfs:label "Occurs in".
+
+cv:date
+	a rdf:Property;
+	rdfs:label "Date".
+
+cv:received
+	a rdf:Property;
+	rdfs:label "Received".
