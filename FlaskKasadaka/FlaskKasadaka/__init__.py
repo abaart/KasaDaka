@@ -37,7 +37,7 @@ def index():
 def createOutgoingCalls():
     """Creates an random outgoing reminder call.
     Respects the times as set in the config"""
-    #if not insideOfOutgoingCallsHours(): return datetime.now().isoformat() + " Outside of outgoing call hours"
+    if not insideOfOutgoingCallsHours(): return datetime.now().isoformat() + " Outside of outgoing call hours"
     users = sparqlHelper.objectList("http://example.org/chickenvaccinationsapp/user")
     usersWithReminders = getUsersWithReminders(users)
     #choose a random user from the users with reminders (this is to prevent having multiple outgoing calls at once)
