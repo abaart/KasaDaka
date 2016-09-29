@@ -37,7 +37,7 @@ chickenvaccinationsapp:chicken_batch_3
 	a chickenvaccinationsapp:chicken_batch ;
 	chickenvaccinationsapp:birth_date "2016-06-15" ;
 	chickenvaccinationsapp:owned_by chickenvaccinationsapp:user_1 ;
-	speakle:voicelabel_fr <http://127.0.0.1/audio/user_recordings/recording_19.wav> .
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/user_recordings/recording_19.wav> .
 
 chickenvaccinationsapp:contact_fname
 	a rdf:Property ;
@@ -70,8 +70,8 @@ chickenvaccinationsapp:disease
 chickenvaccinationsapp:gomboro
 	a chickenvaccinationsapp:disease ;
 	chickenvaccinationsapp:occurs_in chickenvaccinationsapp:chicken_batch ;
-	speakle:voicelabel_en <http://127.0.0.1/audio/gomboro_voicelabel_en.wav> ;
-	speakle:voicelabel_fr <http://127.0.0.1/audio/gomboro_voicelabel_fr.wav> ;
+	speakle:voicelabel_en <http://127.0.0.1/static/audio/gomboro_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/gomboro_voicelabel_fr.wav> ;
 	rdfs:label "Gomboro disease"@en .
 
 chickenvaccinationsapp:gomboro_vac_1
@@ -79,8 +79,8 @@ chickenvaccinationsapp:gomboro_vac_1
 	chickenvaccinationsapp:days_after_birth "5" ;
 	chickenvaccinationsapp:description "Primo vaccination le 5 ème jour avec GOMBOPEST (vaccin polyvalent)" ;
 	chickenvaccinationsapp:treats chickenvaccinationsapp:gomboro ;
-	speakle:voicelabel_en <http://127.0.0.1/audio/gomboro_vac_1_voicelabel_en.wav> ;
-	speakle:voicelabel_fr <http://127.0.0.1/audio/gomboro_vac_1_voicelabel_fr.wav> .
+	speakle:voicelabel_en <http://127.0.0.1/static/audio/gomboro_vac_1_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/gomboro_vac_1_voicelabel_fr.wav> .
 
 chickenvaccinationsapp:gomboro_vac_2
 	a chickenvaccinationsapp:vaccination ;
@@ -97,7 +97,7 @@ chickenvaccinationsapp:gomboro_vac_3
 chickenvaccinationsapp:infectious_bronchitis
 	a chickenvaccinationsapp:disease ;
 	chickenvaccinationsapp:occurs_in chickenvaccinationsapp:chicken_batch ;
-	speakle:voicelabel_en <http://127.0.0.1/audio/infectious_bronchitis_voicelabel_en.wav> ;
+	speakle:voicelabel_en <http://127.0.0.1/static/audio/infectious_bronchitis_voicelabel_en.wav> ;
 	rdfs:label "Infectious Bronchitis"@en .
 
 chickenvaccinationsapp:infectious_bronchitis_vac_1
@@ -123,8 +123,8 @@ chickenvaccinationsapp:infectious_bronchitis_vac_3
 chickenvaccinationsapp:newcastle
 	a chickenvaccinationsapp:disease ;
 	chickenvaccinationsapp:occurs_in chickenvaccinationsapp:chicken_batch ;
-	speakle:voicelabel_en <http://127.0.0.1/audio/newcastle_voicelabel_en.wav> ;
-	speakle:voicelabel_fr <http://127.0.0.1/audio/newcastle_voicelabel_fr.wav> ;
+	speakle:voicelabel_en <http://127.0.0.1/static/audio/newcastle_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/newcastle_voicelabel_fr.wav> ;
 	rdfs:label "Newcastle's disease"@en .
 
 chickenvaccinationsapp:newcastle_vac_1
@@ -132,15 +132,15 @@ chickenvaccinationsapp:newcastle_vac_1
 	chickenvaccinationsapp:days_after_birth "1" ;
 	chickenvaccinationsapp:description "Primo vaccination entre le 1er et le 4ème jour  (pas au delà du 15ème jr)  avec PESTOS (vaccin vivant simple contre Newcastle flacon de 500 et 1000 dose pour boisson et trempage). Il existe aussi un Vaccin vivant complexe qui s'appelle PESTOS + H120 contre la maladie de Newcastle et la Bronchite infectieuse (500 et 1000 doses pour boisson et trempage)" ;
 	chickenvaccinationsapp:treats chickenvaccinationsapp:newcastle ;
-	speakle:voicelabel_en <http://127.0.0.1/audio/newcastle_vac_1_voicelabel_en.wav> ;
-	speakle:voicelabel_fr <http://127.0.0.1/audio/newcastle_vac_1_voicelabel_fr.wav> .
+	speakle:voicelabel_en <http://127.0.0.1/static/audio/newcastle_vac_1_voicelabel_en.wav> ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/newcastle_vac_1_voicelabel_fr.wav> .
 
 chickenvaccinationsapp:newcastle_vac_2
 	a chickenvaccinationsapp:vaccination ;
 	chickenvaccinationsapp:days_after_birth "7" ;
 	chickenvaccinationsapp:description "1er rappel une semaine après primo avec ITANEW (flaon de 100 doses)" ;
 	chickenvaccinationsapp:treats chickenvaccinationsapp:newcastle ;
-	speakle:voicelabel_fr <http://127.0.0.1/audio/newcastle_vac_2_voicelabel_fr.wav> .
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/newcastle_vac_2_voicelabel_fr.wav> .
 
 chickenvaccinationsapp:newcastle_vac_3
 	a chickenvaccinationsapp:vaccination ;
@@ -188,7 +188,7 @@ chickenvaccinationsapp:user_1
 	chickenvaccinationsapp:contact_lname "unknown" ;
 	chickenvaccinationsapp:contact_tel "31653105713" ;
 	chickenvaccinationsapp:preferred_language speakle:voicelabel_fr ;
-	speakle:voicelabel_fr <http://127.0.0.1/audio/user_recordings/recording_18.wav> .
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/user_recordings/recording_18.wav> .
 
 chickenvaccinationsapp:vaccination
 	a rdf:Property ;
