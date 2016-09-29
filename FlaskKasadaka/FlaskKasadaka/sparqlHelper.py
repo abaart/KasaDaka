@@ -25,41 +25,53 @@ def propertyLabels(objectType,firstColumnIsURI=False):
 	result.extend(sparqlInterface.selectTriples(fields,triples,giveColumns=False)[0])
 	return result
 
-def objectInfo(URI):
+def objectInfo(URI, properties = []):
 	objectType = determineObjectType(URI)
-	properties = dataStructure[objectType]
+	if len(properties) == 0: properties = dataStructure[objectType]
 	triples = []
 	fields = []
-	for prop in dataStructure[objectType]:
+	for prop in properties:
 		triples.append(["?uri" , prop , '?' + b16encode(prop)])
 		fields.append(b16encode(prop))
 	filter = ["uri",URI]
 	return sparqlInterface.selectTriples(fields,triples,filter,giveColumns=True)
 
-def objectList(objectType):
+def objectList(objectType, properties = []):
 	#gives a list of all objects of a certain type
-	properties = dataStructure[objectType]
+	if len(properties) == 0: properties = dataStructure[objectType]
 	triples = []
 	fields = []
 	triples.append(['?' + b16encode(objectType) , 'rdf:type' , objectType])
 	fields.append(b16encode(objectType))
-	for prop in dataStructure[objectType]:
+	for prop in properties:
 		triples.append(['?' + b16encode(objectType) , prop , '?' + b16encode(prop)])
 		fields.append(b16encode(prop))
 	return sparqlInterface.selectTriples(fields,triples)
 
-def objectUpdate(URI,deleteProperties,insertTuples):
-	if len(deleteProperties) == 0 or len(insertTuples) == 0: raise ValueError("Nothing to delete/update!")
-	if len(deleteProperties) != len(insertTuples): raise ValueError('Number of fields in deleting not equal to inserting!')
+def objectDelete(URI):
+    """Deletes all triples that have as subject the supplied URI.
+    Returns if successful.
+    """
+    #delete triples where URI is subject
+    triples =[[URI,"?one","?two"],[URI,"http://www.w3.org/1999/02/22-rdf-syntax-ns#type","?type"]
+    ]
+    success = sparqlInterface.deleteTriples(triples)
+    return success
+
+def objectUpdate(URI,deleteTuples,insertTuples):
+	"""Deletes and then inserts new triples.
+	INPUT: COMPLETE tuples to be deleted (combined with the URI form a triple)
+	Tuples to be insterted"""
+	if len(deleteTuples) == 0 or len(insertTuples) == 0: raise ValueError("Nothing to delete/update!")
+	if len(deleteTuples) != len(insertTuples): raise ValueError('Number of fields in deleting not equal to inserting!')
 	if len(URI) == 0: raise ValueError("URI not defined!")
 	triplesToBeDeleted = []
 	triplesToBeInserted = []
-	for field in deleteProperties:
-		triplesToBeDeleted.append([URI,field])
+	for deleteTuple in deleteTuples:
+		triplesToBeDeleted.append([URI,deleteTuple[0],deleteTuple[1]])
 	for insertTuple in insertTuples:
-		if insertTuple[0] not in deleteProperties: raise ValueError("Properties to be deleted not equal to properties to be inserted!")
 		triplesToBeInserted.append([URI,insertTuple[0],insertTuple[1]])
-	success = sparqlInterface.deleteTriples(triplesToBeDeleted) and sparqlInterface.insertTriples(triplesToBeInserted)
+	success = sparqlInterface.updateTriples(triplesToBeDeleted,triplesToBeInserted)
 	return success
 
 

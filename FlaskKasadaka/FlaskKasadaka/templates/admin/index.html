@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-{% block head %}
+
 <head>
 {% block title %}
-    <title>KasaDaka admin</title>
+    <title>KasaDaka FlaskKasadaka/admin</title>
+{% endblock %}
+{% block head %}
 {% endblock %}
 </head>
-{% endblock %}
+
 <body>
-<h1>KasaDaka Admin: Chicken Vaccination</h1>
-<table>
+<h1>KasaDaka Admin: Chicken Vaccination</h1
+><table>
 <tr>
 <td><a href="/FlaskKasadaka/admin">Home</a></td>
 <td><a href="/FlaskKasadaka/admin/list?uri=687474703A2F2F6578616D706C652E6F72672F636869636B656E76616363696E6174696F6E736170702F75736572">Users</td>
@@ -17,7 +19,8 @@
 <td><a href="/FlaskKasadaka/admin/list?uri=687474703A2F2F6578616D706C652E6F72672F636869636B656E76616363696E6174696F6E736170702F64697365617365">Diseases</td>
 <td><a href="/FlaskKasadaka/admin/list?uri=687474703A2F2F6578616D706C652E6F72672F636869636B656E76616363696E6174696F6E736170702F76616363696E6174696F6E">Vaccinations</td>
 <td><a href="/FlaskKasadaka/admin/audio">Audio files</td>
-<td><a href="/FlaskKasadaka/admin/reminders">Reminders</td>
+<td><a href="/FlaskKasadaka/admin/list?uri=687474703A2F2F6578616D706C652E6F72672F636869636B656E76616363696E6174696F6E736170702F6F7574676F696E675F72656D696E646572">Outgoing Reminders Log</a></td>
+<td><a href="/FlaskKasadaka/outgoing">Send outgoing reminders</td>
 </table>
 <br/>
 

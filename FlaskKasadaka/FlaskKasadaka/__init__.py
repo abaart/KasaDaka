@@ -7,6 +7,7 @@ import config
 from languageVars import LanguageVars, getVoiceLabels
 import sparqlHelper
 import languageVars
+import callhelper
 
 import subprocess
 import shutil
@@ -16,6 +17,7 @@ import urllib
 import copy
 import os.path
 import os
+import random
 from base64 import b16encode , b16decode
 
 app = Flask(__name__)
@@ -31,9 +33,191 @@ def index():
 	"""
     return 'This is the Kasadaka Vxml generator'
 
+@app.route('/outgoing')
+def createOutgoingCalls():
+    """Creates an random outgoing reminder call.
+    Respects the times as set in the config"""
+    if not insideOfOutgoingCallsHours(): return datetime.now().isoformat() + " Outside of outgoing call hours"
+    users = sparqlHelper.objectList("http://example.org/chickenvaccinationsapp/user")
+    usersWithReminders = getUsersWithReminders(users)
+    #choose a random user from the users with reminders (this is to prevent having multiple outgoing calls at once)
+    if len(usersWithReminders) >0:
+        randomChosenUser = random.choice(usersWithReminders)
+        placeResult = placeOutgoingReminderCall(randomChosenUser)
+        return placeResult + " Users with reminders left (out of total users):" + str(len(usersWithReminders)) +"/"+str(len(users))
+    else:
+        return datetime.now().isoformat() + " No users with reminders (left)"
+
+def placeOutgoingReminderCall(userURI):
+    #TODO genereer een uitgaande call naar het nummer van de user:
+    userNumber = getUserTelNumber(userURI)
+    vxmlURL = "http://127.0.0.1/FlaskKasadaka/reminder.vxml?user=" + b16encode(userURI)
+    if validTelNumber(userNumber):
+        userNumber = "+" + userNumber
+
+        callhelper.placeCall(userNumber,vxmlURL)
+        return datetime.now().isoformat() +" Placed outgoing call to: " + userURI + " (" + userNumber + ") URL: " + vxmlURL
+    #"reminder.vxml?user=" + b16encode(userURI)
+    else: return  "invalid user telephone number"
+
+def validTelNumber(number):
+    return number.isdigit()
+
+
+def getUserTelNumber(userURI):
+    """
+    Returns the telephone number of the specified user.
+    """
+    field = ['tel']
+    triples = [[userURI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
+    [userURI,'http://example.org/chickenvaccinationsapp/contact_tel','?tel']]
+    result = sparqlInterface.selectTriples(field,triples)
+    if len(result) == 0: return ""
+    else: return result[0][0]
+
+def insideOfOutgoingCallsHours():
+    currentHour = datetime.now().hour
+    return currentHour > config.reminderCallHours[0] and currentHour < config.reminderCallHours[1]
+    
+
+def getUsersWithReminders(users):
+    usersWithReminders = []
+    for user in users:
+        reminders = lookupVaccinationReminders(user[0])
+        if len(reminders) > 0: 
+            if not checkIfReminderAlreadySent(user[0]):
+                usersWithReminders.append(user[0])
+    return usersWithReminders
+
+def checkIfReminderAlreadySent(userURI):
+    """Returns whether the user already received reminders today, or has been called in the last couple of hours"""
+    pastReminders = getPastReminders(userURI)
+    for reminder in pastReminders:
+        reminderDateTime = datetime.strptime(reminder[2], "%Y-%m-%dT%H:%M:%S.%f")
+        reminderDate = reminderDateTime.date()
+        currentDateTime = datetime.now()
+        currentDate = currentDateTime.date()
+        if int((currentDate - reminderDate).days) == 0:
+            if reminder[3] == 'True':
+                return True
+            if int((currentDateTime - reminderDateTime).seconds) // 3600 < 3:
+                return True
+    return False
+
+
+
+def getPastReminders(userURI):
+    """Gets all past reminders sent to an user"""
+    reminders = sparqlHelper.objectList('http://example.org/chickenvaccinationsapp/outgoing_reminder')
+    result = []
+    for reminder in reminders:
+        if reminder[1] == userURI:
+            result.append(reminder)
+    return result
+
+
+def lookupVaccinationReminders(userURI):
+    """
+    Returns an array of triples (chicken batch URI, vaccination URI,disease URI)
+    Of the vaccination needed for an user's chicken batches
+    """
+    date_format = config.dateFormat
+    chickenBatches = lookupChickenBatches(userURI,giveBirthDates = True)
+    vaccinations = lookupVaccinations()
+    results = []
+    for chickenBatch in chickenBatches:
+        birthDate = datetime.strptime(chickenBatch[1],date_format)
+        currentDate = datetime.now()
+        for index, vaccination in enumerate(vaccinations):
+            vaccinationDays = vaccination[1]
+            if int(vaccinationDays) == int((currentDate - birthDate).days):
+                results.append([chickenBatch[0],vaccination[0],vaccination[3]])
+    return results
+
+def lookupVaccinations():
+    """
+    Returns array of vaccinations, with properties in order as in second argument of objectList call.
+    """
+    return sparqlHelper.objectList('http://example.org/chickenvaccinationsapp/vaccination',['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats'])
+
+def lookupChickenBatches(userURI,giveBirthDates = False):
+    """
+    Returns an array of chicken batches belonging to an user.
+    """
+    field = ['chicken_batch']
+    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
+    ['?chicken_batch','http://example.org/chickenvaccinationsapp/owned_by','?userURI']]
+    filter = ['userURI',userURI]
+    if giveBirthDates:
+        field.append('birth_date')
+        triples.append(['?chicken_batch','http://example.org/chickenvaccinationsapp/birth_date','?birth_date'])
+    return sparqlInterface.selectTriples(field,triples,filter)
+
+
+@app.route('/reminder.vxml',methods=['GET'])
+def reminderVXML():
+    if 'user' not in request.args: return errorVXML(error="No user defined to look up reminders")
+    user = b16decode(request.args['user'])
+    if 'action' in request.args and request.args['action'] == 'received':
+        return markReminderResult(user,True)
+    if 'action' in request.args and request.args['action'] == 'failed':
+        return markReminderResult(user,False)  
+    return generateReminderMessage(user)
+
+def markReminderResult(userURI,received):
+    lang = LanguageVars(preferredLanguageLookup(userURI))
+    receivedURI = "http://example.org/chickenvaccinationsapp/reminder"
+    objectType = 'http://example.org/chickenvaccinationsapp/outgoing_reminder'
+    tuples = [['http://example.org/chickenvaccinationsapp/user',userURI],['http://example.org/chickenvaccinationsapp/date',str(datetime.now().isoformat())],['http://example.org/chickenvaccinationsapp/received',str(received)]]
+    success = sparqlHelper.insertObjectTriples(receivedURI,objectType,tuples)
+    messages = [lang.getInterfaceAudioURL('userDidNotConfirm.wav')]
+    if received: messages = [lang.getInterfaceAudioURL('reminderMarkedReceived.wav'),lang.getInterfaceAudioURL('thanks.wav')]
+    return render_template('message.vxml',
+        messages = messages)
+
+def generateReminderMessage(userURI):
+    lang = LanguageVars(preferredLanguageLookup(userURI))
+    batchVaccinations = lookupVaccinationReminders(userURI)
+    welcomeMessage = lang.getInterfaceAudioURL('welcome_cv.wav')
+    userVoiceLabel = lang.getVoiceLabel(userURI) 
+    messages = [welcomeMessage,userVoiceLabel]
+    reminders = []
+    if len(batchVaccinations) == 0:
+        messages.append(lang.getInterfaceAudioURL('currentlyNoVaccinationsNeeded.wav'))
+    else:
+        messages.append(lang.getInterfaceAudioURL('reminderIntro.wav'))
+        for batchVaccination in batchVaccinations:
+            batchVoicelabel = lang.getVoiceLabel(batchVaccination[0])
+            vaccinationVoicelabel = lang.getVoiceLabel(batchVaccination[1])
+            diseaseVoicelabel = lang.getVoiceLabel(batchVaccination[2])
+            if len(batchVoicelabel) == 0 or len(vaccinationVoicelabel) == 0 or len(diseaseVoicelabel) == 0: 
+                return errorVXML(error="Voicelabel does not exist: " + str(batchVaccination))
+            reminder = [lang.getInterfaceAudioURL('for.wav'),batchVoicelabel,lang.getInterfaceAudioURL('toPreventDisease.wav'),diseaseVoicelabel,lang.getInterfaceAudioURL('useVaccination.wav'),vaccinationVoicelabel,lang.getInterfaceAudioURL('press1ToConfirm.wav')]
+            reminders.append(reminder)
+    return render_template('reminder.vxml',
+        messages = messages,
+        reminders=reminders,
+        userURI = b16encode(userURI))
+    #return messages
+
 @app.route('/admin/reminders')
 def showReminders():
-    return render_template('admin/reminder.html')
+    if 'uri' in request.args: userURI = request.args['uri']
+    else: userURI = ""
+    users = executeSparqlQuery("""SELECT DISTINCT ?subject    WHERE {
+       ?subject rdf:type   cv:user .
+        }""")
+    if len(userURI) != 0:
+        messages = generateReminderMessage(userURI)
+        reminder = concatenateWavs(messages)
+        reminderURL = reminder.replace(config.audioPath,config.audioURLbase)
+        reminderURL = reminderURL.replace("127.0.0.1",request.host)
+    else:
+        reminderURL = ""
+    return render_template('admin/reminder.html',
+        reminderURL = reminderURL,
+        users = users,
+        uri = userURI)
 
 @app.route('/admin/audio', methods=['GET','POST'])
 def adminAudio():
@@ -76,7 +260,7 @@ def adminAudioHome():
     pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*.vxml'))
     pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/admin/*.html'))
     waveFilesInterface = []
-    wavFilePattern = re.compile("""([^\s\\/+"']+\.wav)""",re.I)
+    wavFilePattern = re.compile("""([^\s\\/+"'\*]+\.wav)""",re.I)
     for pythonFile in pythonFiles:
         text = open(pythonFile).read()
         for match in wavFilePattern.findall(text):
@@ -106,7 +290,12 @@ def recordAudio(language,URI = ""):
        ?subject rdf:type   ?type .
         FILTER(NOT EXISTS {?subject <"""+language+"""> ?voicelabel_en .})
         }"""
+    getResourcesHavingVoicelabelQuery = """SELECT DISTINCT ?subject    WHERE {
+       ?subject rdf:type   ?type .
+        FILTER( EXISTS {?subject <"""+language+"""> ?voicelabel_en .})
+        }"""
     resourcesMissingVoicelabels = executeSparqlQuery(getResourcesMissingVoicelabelQuery)
+    resourcesHavingVoicelabels = executeSparqlQuery(getResourcesHavingVoicelabelQuery)
     if len(URI) == 0: URI = resourcesMissingVoicelabels[0][0]
     resourceDataQuery = """SELECT DISTINCT  ?1 ?2  WHERE {
           ?uri   ?1 ?2.
@@ -116,7 +305,7 @@ def recordAudio(language,URI = ""):
     resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
     languageLabel = sparqlHelper.retrieveLabel(language)
     voiceLabelResults = getVoiceLabels(URI,changeLocalhostIP = request.host)
-    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language,resourcesMissingVoicelabels=resourcesMissingVoicelabels, languageLabel=languageLabel,voiceLabelResults=voiceLabelResults)
+    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language,resourcesMissingVoicelabels=resourcesMissingVoicelabels, resourcesHavingVoicelabels=resourcesHavingVoicelabels,languageLabel=languageLabel,voiceLabelResults=voiceLabelResults)
 
 def processAudio(request):
     fileExists = os.path.isfile(request.form['filename'])
@@ -138,9 +327,11 @@ def processAudio(request):
     <"""+ request.form['uri'] + """> <"""+ request.form['lang'] +"""> <""" + URL + """>.
     }"""
     insertSuccess = executeSparqlUpdate(insertVoicelabelQuery)
-    if insertSuccess: flash("Voicelabel sucessfully inserted in to triple store!")
-    else: flash("Error in inserting triples")
-    return recordAudio(request.form['lang'],request.form['uri'])
+    if insertSuccess: return 'Upload Succesful!'+str(size)+" bytes."
+    else: return "upload failed :(" 
+    #if insertSuccess: flash("Voicelabel sucessfully inserted in to triple store!")
+    #else: flash("Error in inserting triples")
+    #return recordAudio(request.form['lang'],request.form['uri'])
 
 
 @app.route('/admin')
@@ -224,6 +415,17 @@ def insertNewObject():
         flash("Error inserting "+objectType)
     return objectList(objectType)
 
+@app.route('/admin/delete', methods=['POST'])
+def deleteObject():
+    if 'uri' not in request.form: return "Error, no uri specified"
+    URI = request.form['uri']
+    objectType = sparqlHelper.determineObjectType(URI)
+    success = sparqlInterface.deleteObject(URI)
+    if success:
+        flash("URI:" + URI +' deleted!')
+    else:
+        flash('Error in deleting '+URI)
+    return objectList(objectType)
 
 @app.route('/admin/update', methods=['POST'])
 def updateObject():
@@ -233,7 +435,12 @@ def updateObject():
     properties = sparqlHelper.getDataStructure(objectType)
     insertTuples = createDataTuples(properties,request)
     deleteProperties = properties
-    success = sparqlHelper.objectUpdate(URI,deleteProperties,insertTuples)
+    objectInfo = sparqlHelper.objectInfo(URI,deleteProperties)[1]
+    deleteTuples = []
+    for index, prop in enumerate(deleteProperties):
+        deleteTuples.append([prop,objectInfo[index]])
+    if len(deleteProperties) != len(deleteTuples): raise ValueError('update error in retreiving triples to delete')
+    success = sparqlHelper.objectUpdate(URI,deleteTuples,insertTuples)
     if success:
         flash(objectType+' data successfully updated!')
     else:
@@ -284,7 +491,7 @@ def insertNewChickenBatch(recordingLocation,user):
     voicelabelLanguage = preferredLanguageLookup(user)
     objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
     preferredURI = objectType
-    currentDate = date.today().strftime("%Y-%m-%d")
+    currentDate = date.today().strftime(config.dateFormat)
     recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
     tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
         ["http://example.org/chickenvaccinationsapp/owned_by",user],
@@ -435,7 +642,8 @@ def preferredLanguageLookup(userURI):
     field = ['preferred_language']
     triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
     ['?userURI','http://example.org/chickenvaccinationsapp/preferred_language','?preferred_language']]
-    result = sparqlInterface.selectTriples(field,triples)
+    filter = ['userURI',userURI]
+    result = sparqlInterface.selectTriples(field,triples,filter)
     if len(result) == 0: return config.defaultLanguageURI
     else: return result[0][0]
 
@@ -450,14 +658,19 @@ def callerIDLookup(callerID):
     result = sparqlInterface.selectTriples(field,triples)
     if len(result) == 0: return ""
     else: return result[0][0]
+
     
 @app.route('/error.vxml')
-def errorVXML(language="en"):
+def errorVXML(error="undefined error",language="en"):
     lang = LanguageVars(language)
     return render_template('message.vxml',
         messages = [lang.audioInterfaceURL + 'error.wav'],
-            redirect = 'error.vxml')
+            redirect = '',
+            error=error)
 
+@app.route('/static/<path:path>')
+def send_static(path):
+        return send_from_directory('static', path)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",debug=config.debug)

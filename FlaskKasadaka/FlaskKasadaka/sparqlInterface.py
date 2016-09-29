@@ -5,11 +5,11 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 import config
 
-def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpEncode = True):
-    query = addGraph(query)
+def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpEncode = True,addGraph=True):
+    if addGraph: query = addGraphToQuery(query)
     query = addPrefix(query)
     ET.register_namespace("","http://www.w3.org/2005/sparql-results#")
-    requestArgs = { "query":query }
+    requestArgs = { "query":query.encode('utf-8') }
     requestArgs = urllib.urlencode(requestArgs)
     resultXML = urllib2.urlopen(url,requestArgs).read()
     root = ET.fromstring(resultXML)
@@ -30,10 +30,10 @@ def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpE
                 results[len(results)-1].append(toAppend)
     return results
 
-def executeSparqlUpdate(query, url = config.sparqlURL):
-    query = addGraph(query)
+def executeSparqlUpdate(query, url = config.sparqlURL,addGraph=True):
+    if addGraph: query = addGraphToQuery(query)
     query = addPrefix(query)
-    requestArgs = { "update":query }
+    requestArgs = { "update":query.encode('utf-8') }
     requestArgs = urllib.urlencode(requestArgs)
     requestURL = url + "update"
     requestReturned = urllib2.urlopen(requestURL,requestArgs).read()
@@ -42,7 +42,7 @@ def executeSparqlUpdate(query, url = config.sparqlURL):
         return True
     else:
         print "ERROR: SPARQL UPDATE FAILED! Check your query!"
-        return False
+        return Falseproperties
 
 def addPrefix(query,prefix = config.sparqlPrefixes):
 	#adds a prefix to a query when they are not yet defined
@@ -52,7 +52,7 @@ def addPrefix(query,prefix = config.sparqlPrefixes):
 	else:
 		return prefix + " " + query
 
-def addGraph(query,graph = config.sparqlGraph):
+def addGraphToQuery(query,graph = config.sparqlGraph):
     #adds the graph from the config to the query, when not defined 
 
     #regex that searches for DATA or WHERE without GRAPH defined, adds it in.
@@ -91,11 +91,18 @@ def selectTriples(fields,triples,filter = "",distinct = True,giveColumns = False
     query = queryBuilder1 + queryBuilder2 + queryBuilder3 + queryBuilder4 + queryBuilder5 + queryBuilder6
     return executeSparqlQuery(query,giveColumns=giveColumns,httpEncode=httpEncode)
 
+def deleteObject(URI):
+    """Deletes all triples where the provided URI is the subject."""
+    query = """WITH <""" + config.sparqlGraph + """> DELETE { ?del ?p ?v} WHERE {?del ?p ?v FILTER( ?del = <""" + URI + """> )} ;"""
+    print query
+    return executeSparqlUpdate(query,addGraph=False)
 
 def deleteTriples(triples):
     """
     Deletes triples, or triples that match the two first elements given in the tuples.
     """
+
+    ###### PROBABLY BROKEN, incorrect use of SPARQL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     queryBuilder1 = """DELETE DATA {"""
     queryBuilder2 = """ """
     queryBuilder3 = """};"""
@@ -108,6 +115,28 @@ def deleteTriples(triples):
             queryBuilder2 = queryBuilder2 + " " + refinedTriple[0] + " " + refinedTriple[1] + " ?" + str(index) + " . "
         else: raise ValueError('Triple to delete is no triple or tuple!')
     return executeSparqlUpdate(queryBuilder1+queryBuilder2+queryBuilder3)
+
+def updateTriples(triplesToBeDeleted,triplesToBeInserted):
+    """Updates the content of the provided triples.
+    Input: triples of: [subject, property, NEW-VALUE]
+    The old value does not matter, it will be overwritten by the new value.
+    """
+    queryBuilder1 = """WITH <""" + config.sparqlGraph +"""> DELETE {"""
+    queryBuilder2 = """ """
+    queryBuilder3 = """} INSERT {"""
+    queryBuilder4 = """ """
+    queryBuilder5 = """ } WHERE { """
+    queryBuilder6 = """ """
+    queryBuilder7 = """ } """
+
+    for deleteTriple in triplesToBeDeleted:
+        refinedTriple = preProcessTriple(deleteTriple)
+        queryBuilder2 = queryBuilder2 + " " + refinedTriple[0] + " " + refinedTriple[1] + " " + refinedTriple[2] + " . "
+    for insertTriple in triplesToBeInserted:
+        refinedTriple = preProcessTriple(insertTriple)
+        queryBuilder4 = queryBuilder4 + " " + refinedTriple[0] + " " + refinedTriple[1] + " " + refinedTriple[2] + " . "
+    query = queryBuilder1 + queryBuilder2 + queryBuilder3 + queryBuilder4 + queryBuilder5 + queryBuilder6 + queryBuilder7
+    return executeSparqlUpdate(query,addGraph=False)
 
 def insertTriples(triples):
     """

@@ -1,11 +1,26 @@
-TODO:
+#Ideas:
+Make templates for SPARQL queries as well?
 
-SOX AND VORBIS-TOOLS toevoegen aan setup documentatie
+#TODO:
+permissies in asterisk spool dir in documentatie zetten
 
-libasound2-plugins libsox-fmt-all libsox-dev sox
 
-image maken van nieuwe versie
-usb-modeswitch in installatie doen
+interface audio files inspreekbaar maken
+
+##Bugs:
+
+
+Openvxi crash?
+
+##Functionality:
+Reminder generation
+Outgoing calls
+Registration of received reminders
+Add languages in admin interface
+
+##Documentation:
+Add dependency sox to set up guide
+Add usb-modeswitch to set up guide
 
 
 

@@ -1,18 +1,22 @@
-
 #Change these variables according to your installation
 
+#####CHICKENVACCINATION SETTINGS###########################################
+#Hours between which outgoing calls will be placed
+reminderCallHours = [11,19]
+
+
+####SPARQL SETTINGS########################################################
 #Sparql endpoint
 sparqlURL = "http://127.0.0.1:3020/sparql/"
-
 #URI of graph to use
 sparqlGraph = "http://localhost/chickenvaccination"
-
 #key is rdf:type, values is array of properties to use
 dataStructure = {
     'http://example.org/chickenvaccinationsapp/user' : ['http://example.org/chickenvaccinationsapp/contact_fname','http://example.org/chickenvaccinationsapp/contact_lname','http://example.org/chickenvaccinationsapp/contact_tel','http://example.org/chickenvaccinationsapp/preferred_language'],
     'http://example.org/chickenvaccinationsapp/chicken_batch' : ['http://example.org/chickenvaccinationsapp/birth_date','http://example.org/chickenvaccinationsapp/owned_by'],
     'http://example.org/chickenvaccinationsapp/disease' : ['http://example.org/chickenvaccinationsapp/occurs_in'],
-    'http://example.org/chickenvaccinationsapp/vaccination' : ['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats']
+    'http://example.org/chickenvaccinationsapp/vaccination' : ['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats'],
+    'http://example.org/chickenvaccinationsapp/outgoing_reminder' : ['http://example.org/chickenvaccinationsapp/user','http://example.org/chickenvaccinationsapp/date','http://example.org/chickenvaccinationsapp/received']
 }
 
 #TODO implement automatic insertion of prefixes
@@ -32,6 +36,8 @@ sparqlPrefixDict = {
     'http://lexvo.org/ontology#' : 'lexvo',
     'http://example.org/chickenvaccinationsapp/' : 'cv'
 }
+
+####LANGUAGE AND AUDIO SETTINGS######################################################
 #default language
 defaultLanguage = "en"
 defaultLanguageURI = "http://purl.org/collections/w4ra/speakle/voicelabel_en"
@@ -45,10 +51,12 @@ recordingsPath = audioPath + "user_recordings/"
 
 allowedUploadExtensions = set(['wav'])
 
+#date format in triple store
+dateFormat = "%Y-%m-%d"
 
 #debug mode
 debug=True
 
-#python files location
+#python files location, used for checking references to *.wav files
 pythonFilesDir = "/home/pi/KasaDaka/FlaskKasadaka/FlaskKasadaka/"
 

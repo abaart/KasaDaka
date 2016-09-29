@@ -18,7 +18,7 @@ cv:andre_baart
 	
 	cv:contact_fname "Andre" ;
 	cv:contact_lname "Baart" ;
-	cv:contact_tel "31653105713" ;
+	cv:contact_tel "notarealnumber" ;
 	cv:preferred_language speakle:voicelabel_en .
 
 cv:victor_de_boer
@@ -27,7 +27,7 @@ cv:victor_de_boer
 	
 	cv:contact_fname "Victor" ;
 	cv:contact_lname "de Boer" ;
-	cv:contact_tel "316123456" ;
+	cv:contact_tel "notarealnumber" ;
 	cv:preferred_language speakle:voicelabel_nl .
 
 
@@ -212,3 +212,15 @@ cv:description
 cv:occurs_in
 	a rdf:Property;
 	rdfs:label "Occurs in".
+
+cv:date
+	a rdf:Property;
+	rdfs:label "Date".
+
+cv:received
+	a rdf:Property;
+	rdfs:label "Received".
+
+cv:outgoing_reminder
+	a rdf:Property;
+	rdfs:label "Outgoing reminder".

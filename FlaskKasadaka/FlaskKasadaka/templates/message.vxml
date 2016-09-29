@@ -13,6 +13,10 @@ plays back a message, then sends the user to the redirect
 </prompt>
 <goto next="{{ redirect }}"/>
 </block>
-</form>
 
+
+</form>
+{% if error is defined %}
+<!-- Error: {{error}} -->
+{% endif %}
 {% endblock %}
