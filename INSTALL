@@ -1,0 +1,6 @@
+How to install:
+
+Create a venv in app/
+activate venv
+pip install -r requirements.txt
+
