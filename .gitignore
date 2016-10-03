@@ -4,6 +4,7 @@
 FlaskKasadaka/FlaskKasadakaVenv/*
 FlaskKasadaka/FlaskKasadakaVenv
 FlaskKasadaka/FlaskKasadaka/FlaskKasadakaVenv/*
+*FlaskKasadakaVenv*
 html/audio/user_recordings/*
 app/venv
 app/instance/*
