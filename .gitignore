@@ -7,3 +7,5 @@ FlaskKasadaka/FlaskKasadaka/FlaskKasadakaVenv/*
 html/audio/user_recordings/*
 app/venv
 app/instance/*
+.idea*
+.idea/*
