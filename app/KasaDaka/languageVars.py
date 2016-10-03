@@ -1,5 +1,6 @@
 from flask import current_app
 from sparqlInterface import executeSparqlQuery, validURI
+import config
 
 class LanguageVars(object):
     audioURL = config.audioURLbase + config.defaultLanguage + "/"

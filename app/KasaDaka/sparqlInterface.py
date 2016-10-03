@@ -1,12 +1,25 @@
-from flask import current_app
+from flask import Flask,current_app
 import re
 import urllib2
 import urllib
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
-SPARQLURL = current_app.config['SPARQLURL']
-SPARQLGRAPH = current_app.config['SPARQLGRAPH']
-SPARQLPREFIXES = current_app.config['SPARQLPREFIXES']
+
+# SPARQLURL = current_app.config['SPARQLURL']
+# SPARQLGRAPH = app.config['SPARQLGRAPH']
+# SPARQLPREFIXES = app.config['SPARQLPREFIXES']
+#Sparql endpoint
+SPARQLURL = "http://127.0.0.1:3020/sparql/"
+#URI of graph to use
+SPARQLGRAPH = "http://localhost/chickenvaccination"
+SPARQLPREFIXES = """
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX speakle: <http://purl.org/collections/w4ra/speakle/>
+PREFIX radiomarche: <http://purl.org/collections/w4ra/radiomarche/>
+PREFIX lexvo: <http://lexvo.org/ontology#>
+PREFIX cv: <http://example.org/chickenvaccinationsapp/>
+"""
 
 
 def executeSparqlQuery(query, url = SPARQLURL, giveColumns = False, httpEncode = True,addGraph=True):

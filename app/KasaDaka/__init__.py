@@ -1,7 +1,7 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory, current_app
 #with current_app.app_context():
-#    from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
-#import sparqlInterface
+#from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+import sparqlInterface
 from datetime import datetime,date
 from werkzeug import secure_filename
 #from languageVars import LanguageVars, getVoiceLabels
@@ -24,10 +24,11 @@ from admin import admin
 from voice import voice
 
 
-
-
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_object('config')
+app.config.from_pyfile('config.py')
+app.secret_key = 'asdfbjarbja;kfbejkfbasjkfbslhjvbhcxgxui328'
 app.config['UPLOAD_FOLDER'] = app.config['AUDIOPATH']
-
 app.register_blueprint(admin, url_prefix='/admin')
 app.register_blueprint(voice, url_prefix='/voice')
 

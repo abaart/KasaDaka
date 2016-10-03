@@ -40,7 +40,7 @@ def showReminders():
         reminderURL = reminderURL.replace("127.0.0.1",request.host)
     else:
         reminderURL = ""
-    return render_template('admin/reminder.html',
+    return render_template('reminder.html',
         reminderURL = reminderURL,
         users = users,
         uri = userURI)
@@ -107,7 +107,7 @@ def adminAudioHome():
     nonExistingInterfaceWaveFiles = sorted(set(nonExistingInterfaceWaveFiles))
 
 
-    return render_template('admin/audio.html',
+    return render_template('audio.html',
         languages = languages,
         notAvailableWaveFiles = sparqlNonExistingWaveFiles,
         waveFilesInterface=nonExistingInterfaceWaveFiles)
@@ -132,7 +132,7 @@ def recordAudio(language,URI = ""):
     resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
     languageLabel = sparqlHelper.retrieveLabel(language)
     voiceLabelResults = getVoiceLabels(URI,changeLocalhostIP = request.host)
-    return render_template('admin/record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language,resourcesMissingVoicelabels=resourcesMissingVoicelabels, resourcesHavingVoicelabels=resourcesHavingVoicelabels,languageLabel=languageLabel,voiceLabelResults=voiceLabelResults)
+    return render_template('record.html',uri=URI,data=resourceData,proposedWavURL=proposedWavURL,language=language.rsplit('/', 1)[-1],langURI=language,resourcesMissingVoicelabels=resourcesMissingVoicelabels, resourcesHavingVoicelabels=resourcesHavingVoicelabels,languageLabel=languageLabel,voiceLabelResults=voiceLabelResults)
 
 def processAudio(request):
     fileExists = os.path.isfile(request.form['filename'])
@@ -163,7 +163,7 @@ def processAudio(request):
 
 @admin.route('/')
 def adminIndex():
-    return render_template('admin/index.html')
+    return render_template('index.html')
 
 @admin.route('/object')
 def objectInfo():
@@ -178,7 +178,7 @@ def objectInfo():
     result = sparqlHelper.objectInfo(URI)
     objectTypeLabel = sparqlHelper.retrieveLabel(objectType)
     return render_template(
-        'admin/object.html',
+        'object.html',
         data = result,
         fieldNames = fieldNames,
         uri = URI,
@@ -200,7 +200,7 @@ def objectList(objectType = ""):
     fieldNames = sparqlHelper.propertyLabels(objectType,firstColumnIsURI=True)
     recordURIs = sparqlHelper.createURIarray(output)
     objectTypeLabel = sparqlHelper.retrieveLabel(objectType)
-    return render_template('admin/list.html',
+    return render_template('list.html',
         data=output,
         fieldNames = fieldNames,
         objectTypeLabel = objectTypeLabel,
@@ -219,7 +219,7 @@ def showNewObjectPage():
         properties[0].append(b16encode(prop))
     objectTypeLabel = sparqlHelper.retrieveLabel(objectType)
     return render_template(
-                    'admin/object.html',
+                    'object.html',
                     data = properties,
                     fieldNames = fieldNames,
                     uri = 'NEW ' + objectTypeLabel,

@@ -8,4 +8,6 @@ html/audio/user_recordings/*
 app/venv
 app/instance/*
 .idea*
+.idea/
+.idea
 .idea/*
