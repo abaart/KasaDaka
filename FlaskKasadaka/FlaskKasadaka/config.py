@@ -34,8 +34,8 @@ defaultLanguage = "en"
 defaultLanguageURI = "http://purl.org/collections/w4ra/speakle/voicelabel_en"
 #audio files locations: THESE PATHS MUST POINT TO THE SAME LOCATION
 # IMPORTANT: MAKE SURE TO CHMOD 777 THIS DIR
-audioURLbase = "http://127.0.0.1/audio/"
-audioPath = "/home/pi/KasaDaka/html/audio/"
+audioURLbase = "http://127.0.0.1/static/audio/"
+audioPath = "/home/pi/KasaDaka/FlaskKasadaka/FlaskKasadaka/static/audio/"
 
 #path to place user recordings
 recordingsPath = audioPath + "user_recordings/"
