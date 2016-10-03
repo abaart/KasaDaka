@@ -1,10 +1,30 @@
-from flask import render_template, abort, current_app
+from flask import request, session, g, redirect, url_for, abort, render_template, flash, current_app
 
-from admin import admin
+from . import admin
+from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+import sparqlInterface
+from datetime import datetime,date
+from werkzeug import secure_filename
+from languageVars import LanguageVars, getVoiceLabels
+import sparqlHelper
+import languageVars
+import voice
+import callhelper
+import subprocess
+import shutil
+import glob
+import re
+import urllib
+import copy
+import os.path
+import os
+import random
+from base64 import b16encode , b16decode
 
 @admin.route('/send_reminders')
 def sendRemindersPage():
     return ""
+
 
 @admin.route('/reminders')
 def showReminders():
@@ -14,9 +34,9 @@ def showReminders():
        ?subject rdf:type   cv:user .
         }""")
     if len(userURI) != 0:
-        messages = generateReminderMessage(userURI)
-        reminder = concatenateWavs(messages)
-        reminderURL = reminder.replace(config.audioPath,config.audioURLbase)
+        messages = voice.generateReminderMessage(userURI)
+        reminder = voice.concatenateWavs(messages)
+        reminderURL = reminder.replace(current_app.config['AUDIOPATH'],current_app.config['AUDIOURLBASE'])
         reminderURL = reminderURL.replace("127.0.0.1",request.host)
     else:
         reminderURL = ""
@@ -61,10 +81,11 @@ def adminAudioHome():
     sparqlNonExistingWaveFiles = sorted(set(sparqlNonExistingWaveFiles))
 
     finalResultsInterface = []
-    pythonFiles = glob.glob(config.pythonFilesDir+'*.py')
-    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*.html'))
-    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*.vxml'))
-    pythonFiles.extend(glob.glob(config.pythonFilesDir+'templates/*.html'))
+    pythonFilesDir =current_app.config['PYTHONFILESDIR']
+    pythonFiles = glob.glob(pythonFilesDir+'*.py')
+    pythonFiles.extend(glob.glob(pythonFilesDir+'templates/*.html'))
+    pythonFiles.extend(glob.glob(pythonFilesDir+'templates/*.vxml'))
+    pythonFiles.extend(glob.glob(pythonFilesDir+'templates/*.html'))
     waveFilesInterface = []
     wavFilePattern = re.compile("""([^\s\\/+"'\*]+\.wav)""",re.I)
     for pythonFile in pythonFiles:
@@ -106,7 +127,7 @@ def recordAudio(language,URI = ""):
     resourceDataQuery = """SELECT DISTINCT  ?1 ?2  WHERE {
           ?uri   ?1 ?2.
          FILTER(?uri=<"""+URI+""">)}"""
-    proposedWavURL = config.audioPath + URI.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
+    proposedWavURL = current_app.config['AUDIOPATH'] + URI.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
 
     resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
     languageLabel = sparqlHelper.retrieveLabel(language)
@@ -128,7 +149,7 @@ def processAudio(request):
         flash("Error: file "+str(size)+" bytes.")
         return recordAudio(request.form['lang'])
 
-    URL = config.audioURLbase + request.form['filename'].rsplit('/', 1)[-1]
+    URL = current_app.config['AUDIOURLBASE'] + request.form['filename'].rsplit('/', 1)[-1]
     insertVoicelabelQuery = """INSERT DATA {
     <"""+ request.form['uri'] + """> <"""+ request.form['lang'] +"""> <""" + URL + """>.
     }"""

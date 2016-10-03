@@ -1,11 +1,12 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
-import sparqlInterface
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory, current_app
+#with current_app.app_context():
+#    from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+#import sparqlInterface
 from datetime import datetime,date
 from werkzeug import secure_filename
-from languageVars import LanguageVars, getVoiceLabels
-import sparqlHelper
-import languageVars
+#from languageVars import LanguageVars, getVoiceLabels
+#import sparqlHelper
+#import languageVars
 import callhelper
 import subprocess
 import shutil
@@ -17,17 +18,19 @@ import os.path
 import os
 import random
 from base64 import b16encode , b16decode
+
+#import blueprints
 from admin import admin
+from voice import voice
 
 
-app = Flask(__name__, instance_relative_config=True)
-app.config.from_object('config')
-app.config.from_pyfile('config.py')
-app.secret_key = 'asdfbjarbja;kfbejkfbasjkfbslhjvbhcxgxui328'
+
 
 app.config['UPLOAD_FOLDER'] = app.config['AUDIOPATH']
 
 app.register_blueprint(admin, url_prefix='/admin')
+app.register_blueprint(voice, url_prefix='/voice')
+
 
 @app.route('/')
 def index():
@@ -81,7 +84,7 @@ def getUserTelNumber(userURI):
 
 def insideOfOutgoingCallsHours():
     currentHour = datetime.now().hour
-    return currentHour > config.reminderCallHours[0] and currentHour < config.reminderCallHours[1]
+    return currentHour > app.config['REMINDERCALLHOURS'][0] and currentHour < app.config['REMINDERCALLHOURS'][1]
 
 
 def getUsersWithReminders(users):
@@ -120,23 +123,6 @@ def getPastReminders(userURI):
     return result
 
 
-def lookupVaccinationReminders(userURI):
-    """
-    Returns an array of triples (chicken batch URI, vaccination URI,disease URI)
-    Of the vaccination needed for an user's chicken batches
-    """
-    date_format = config.dateFormat
-    chickenBatches = lookupChickenBatches(userURI,giveBirthDates = True)
-    vaccinations = lookupVaccinations()
-    results = []
-    for chickenBatch in chickenBatches:
-        birthDate = datetime.strptime(chickenBatch[1],date_format)
-        currentDate = datetime.now()
-        for index, vaccination in enumerate(vaccinations):
-            vaccinationDays = vaccination[1]
-            if int(vaccinationDays) == int((currentDate - birthDate).days):
-                results.append([chickenBatch[0],vaccination[0],vaccination[3]])
-    return results
 
 def lookupVaccinations():
     """

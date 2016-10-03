@@ -1,4 +1,4 @@
-import config
+from flask import current_app
 from sparqlInterface import executeSparqlQuery, validURI
 
 class LanguageVars(object):

@@ -4,7 +4,7 @@
 
 #####CHICKENVACCINATION SETTINGS###########################################
 #Hours between which outgoing calls will be placed
-reminderCallHours = [11,19]
+REMINDERCALLHOURS = [11,19]
 
 
 ####SPARQL SETTINGS########################################################

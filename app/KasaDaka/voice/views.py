@@ -1,9 +1,28 @@
-from flask import render_template, abort, current_app
+from flask import request, session, g, redirect, url_for, abort, render_template, flash, current_app
+
 
 from voice import voice
 
+from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+import sparqlInterface
+from datetime import datetime,date
+from werkzeug import secure_filename
+from languageVars import LanguageVars, getVoiceLabels
+import sparqlHelper
+import languageVars
+import callhelper
+import subprocess
+import shutil
+import glob
+import re
+import urllib
+import copy
+import os.path
+import os
+import random
+from base64 import b16encode , b16decode
 
-@app.route('/reminder.vxml',methods=['GET'])
+@voice.route('/reminder.vxml',methods=['GET'])
 def reminderVXML():
     if 'user' not in request.args: return errorVXML(error="No user defined to look up reminders")
     user = b16decode(request.args['user'])
@@ -23,6 +42,26 @@ def markReminderResult(userURI,received):
     if received: messages = [lang.getInterfaceAudioURL('reminderMarkedReceived.wav'),lang.getInterfaceAudioURL('thanks.wav')]
     return render_template('message.vxml',
         messages = messages)
+
+
+def lookupVaccinationReminders(userURI):
+    """
+    Returns an array of triples (chicken batch URI, vaccination URI,disease URI)
+    Of the vaccination needed for an user's chicken batches
+    """
+    date_format = config.dateFormat
+    chickenBatches = lookupChickenBatches(userURI,giveBirthDates = True)
+    vaccinations = lookupVaccinations()
+    results = []
+    for chickenBatch in chickenBatches:
+        birthDate = datetime.strptime(chickenBatch[1],date_format)
+        currentDate = datetime.now()
+        for index, vaccination in enumerate(vaccinations):
+            vaccinationDays = vaccination[1]
+            if int(vaccinationDays) == int((currentDate - birthDate).days):
+                results.append([chickenBatch[0],vaccination[0],vaccination[3]])
+    return results
+
 
 def generateReminderMessage(userURI):
     lang = LanguageVars(preferredLanguageLookup(userURI))
@@ -51,7 +90,7 @@ def generateReminderMessage(userURI):
 
 
 
-@app.route('/declareBornChickenBatch.vxml',methods=['GET'])
+@voice.route('/declareBornChickenBatch.vxml',methods=['GET'])
 def cvNewChickenBatchVXML():
     if 'user' not in request.args: return errorVXML()
     user = b16decode(request.args['user'])
@@ -67,7 +106,7 @@ def cvNewChickenBatchVXML():
         passOnVariables = passOnVariables,
         redirect= 'insertBornChickenBatch.vxml')
 
-@app.route('/insertBornChickenBatch.vxml',methods=['GET'])
+@voice.route('/insertBornChickenBatch.vxml',methods=['GET'])
 def cvInsertNewChickenBatchVXML():
     if 'user' not in request.args or 'recording' not in request.args: return errorVXML()
     user = b16decode(request.args['user'])
@@ -86,8 +125,8 @@ def insertNewChickenBatch(recordingLocation,user):
     voicelabelLanguage = preferredLanguageLookup(user)
     objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
     preferredURI = objectType
-    currentDate = date.today().strftime(config.dateFormat)
-    recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
+    currentDate = date.today().strftime(current_app.config['DATEFORMAT'])
+    recordingLocation = recordingLocation.replace(current_app.config['AUDIOPATH'],current_app.config['AUDIOURLBASE'])
     tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
         ["http://example.org/chickenvaccinationsapp/owned_by",user],
         [voicelabelLanguage,recordingLocation]]
@@ -99,7 +138,7 @@ def saveRecording(path):
     #a lot of %00 stuff to remove
     path =  path.replace("\00","")
     path = re.sub(r"(file:\/\/)?(.*)",r"\2",path)
-    dest = findFreshFilePath(config.recordingsPath+ "recording.wav")
+    dest = findFreshFilePath(current_app.config['RECORDINGSPATH']+ "recording.wav")
     #convert to format that is good for vxml as well as web interface
     subprocess.call(['/usr/bin/sox',path,'-r','8k','-c','1','-e','signed-integer',dest])
     #shutil.copy(path,dest)
@@ -115,7 +154,7 @@ def findFreshFilePath(preferredPath):
 
 
 
-@app.route('/chickenvaccination_main.vxml',methods=['GET'])
+@voice.route('/chickenvaccination_main.vxml',methods=['GET'])
 def cvMainMenuVXML():
     if 'user' not in request.args: return errorVXML()
     user = b16decode(request.args['user'])
@@ -132,7 +171,7 @@ def cvMainMenuVXML():
         options = options)
 
 
-@app.route('/chickenvaccination.vxml',methods=['GET'])
+@voice.route('/chickenvaccination.vxml',methods=['GET'])
 def callerID():
     if 'callerid' in request.args:
         callerID = preProcessCallerID(request.args['callerid'])
@@ -159,16 +198,17 @@ def preProcessCallerID(callerID):
 
 #TODO tidying
 def askLanguageVXML(redirect,passOnVariables):
+    audioURLbase = current_app.config['AUDIOURLBASE']
     languages = languageVars.getVoiceLabelPossibilities()
     for language in languages:
-        language.append(config.audioURLbase + language[0].rsplit('_', 1)[-1] + "/interface/" + language[0].rsplit('/', 1)[-1] + ".wav")
+        language.append(audioURLbase + language[0].rsplit('_', 1)[-1] + "/interface/" + language[0].rsplit('/', 1)[-1] + ".wav")
         language.append(language[0].rsplit('_', 1)[-1])
         language[0] = b16encode(language[0])
     return render_template(
     'language.vxml',
     options = languages,
-    audioDir = config.audioURLbase,
-    questionAudio = config.audioURLbase+config.defaultLanguage+"/interface/chooseLanguage.wav",
+    audioDir = audioURLbase,
+    questionAudio = audioURLbase+defaultLanguage+"/interface/chooseLanguage.wav",
     passOnVariables = passOnVariables,
     redirect = redirect
     )
@@ -188,7 +228,7 @@ def newUserVXML(callerID,lang=""):
         passOnVariables = passOnVariables,
         redirect= 'recordUserName.vxml')
 
-@app.route('/recordUserName.vxml',methods=['GET'])
+@voice.route('/recordUserName.vxml',methods=['GET'])
 def recordUserName():
     if 'callerid' not in request.args or 'lang' not in request.args: return errorVXML()
     lang = LanguageVars(b16decode(request.args['lang']))
@@ -204,7 +244,7 @@ def recordUserName():
         passOnVariables = passOnVariables,
         redirect= 'insertNewUser.vxml')
 
-@app.route('/insertNewUser.vxml',methods=['GET'])
+@voice.route('/insertNewUser.vxml',methods=['GET'])
 def insertNewUserVXML():
     if 'callerid' not in request.args or 'lang' not in request.args or 'recording' not in request.args: return errorVXML()
     lang = LanguageVars(b16decode(request.args['lang']))
@@ -222,7 +262,9 @@ def insertNewUserVXML():
 def insertNewUser(recordingLocation,callerID,lang):
     objectType = "http://example.org/chickenvaccinationsapp/user"
     preferredURI = objectType
-    recordingLocation = recordingLocation.replace(config.audioPath,config.audioURLbase)
+    audioPath = current_app.config['AUDIOPATH']
+    audioURLbase = current_app.config['AUDIOURLBASE']
+    recordingLocation = recordingLocation.replace(audioPath,audioURLbase)
     tuples = [["http://example.org/chickenvaccinationsapp/contact_fname","unknown"],
         ["http://example.org/chickenvaccinationsapp/contact_lname","unknown"],
         ["http://example.org/chickenvaccinationsapp/contact_tel",callerID],
@@ -239,7 +281,7 @@ def preferredLanguageLookup(userURI):
     ['?userURI','http://example.org/chickenvaccinationsapp/preferred_language','?preferred_language']]
     filter = ['userURI',userURI]
     result = sparqlInterface.selectTriples(field,triples,filter)
-    if len(result) == 0: return config.defaultLanguageURI
+    if len(result) == 0: return current_app.config['DEFAULTLANGUAGEURI']
     else: return result[0][0]
 
 def callerIDLookup(callerID):
@@ -255,7 +297,7 @@ def callerIDLookup(callerID):
     else: return result[0][0]
 
 
-@app.route('/error.vxml')
+@voice.route('/error.vxml')
 def errorVXML(error="undefined error",language="en"):
     lang = LanguageVars(language)
     return render_template('message.vxml',

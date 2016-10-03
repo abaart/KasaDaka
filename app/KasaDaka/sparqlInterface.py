@@ -1,11 +1,15 @@
+from flask import current_app
 import re
 import urllib2
 import urllib
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
-import config
+SPARQLURL = current_app.config['SPARQLURL']
+SPARQLGRAPH = current_app.config['SPARQLGRAPH']
+SPARQLPREFIXES = current_app.config['SPARQLPREFIXES']
 
-def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpEncode = True,addGraph=True):
+
+def executeSparqlQuery(query, url = SPARQLURL, giveColumns = False, httpEncode = True,addGraph=True):
     if addGraph: query = addGraphToQuery(query)
     query = addPrefix(query)
     ET.register_namespace("","http://www.w3.org/2005/sparql-results#")
@@ -30,7 +34,7 @@ def executeSparqlQuery(query, url = config.sparqlURL, giveColumns = False, httpE
                 results[len(results)-1].append(toAppend)
     return results
 
-def executeSparqlUpdate(query, url = config.sparqlURL,addGraph=True):
+def executeSparqlUpdate(query, url = SPARQLURL,addGraph=True):
     if addGraph: query = addGraphToQuery(query)
     query = addPrefix(query)
     requestArgs = { "update":query.encode('utf-8') }
@@ -42,9 +46,9 @@ def executeSparqlUpdate(query, url = config.sparqlURL,addGraph=True):
         return True
     else:
         print "ERROR: SPARQL UPDATE FAILED! Check your query!"
-        return Falseproperties
+        return False
 
-def addPrefix(query,prefix = config.sparqlPrefixes):
+def addPrefix(query,prefix = SPARQLPREFIXES):
 	#adds a prefix to a query when they are not yet defined
 	startsWithPrefix = re.search("^\s*PREFIX\s",query)
 	if startsWithPrefix:
@@ -52,7 +56,7 @@ def addPrefix(query,prefix = config.sparqlPrefixes):
 	else:
 		return prefix + " " + query
 
-def addGraphToQuery(query,graph = config.sparqlGraph):
+def addGraphToQuery(query,graph = SPARQLGRAPH):
     #adds the graph from the config to the query, when not defined 
 
     #regex that searches for DATA or WHERE without GRAPH defined, adds it in.
@@ -93,7 +97,7 @@ def selectTriples(fields,triples,filter = "",distinct = True,giveColumns = False
 
 def deleteObject(URI):
     """Deletes all triples where the provided URI is the subject."""
-    query = """WITH <""" + config.sparqlGraph + """> DELETE { ?del ?p ?v} WHERE {?del ?p ?v FILTER( ?del = <""" + URI + """> )} ;"""
+    query = """WITH <""" + SPARQLGRAPH + """> DELETE { ?del ?p ?v} WHERE {?del ?p ?v FILTER( ?del = <""" + URI + """> )} ;"""
     print query
     return executeSparqlUpdate(query,addGraph=False)
 
@@ -121,7 +125,7 @@ def updateTriples(triplesToBeDeleted,triplesToBeInserted):
     Input: triples of: [subject, property, NEW-VALUE]
     The old value does not matter, it will be overwritten by the new value.
     """
-    queryBuilder1 = """WITH <""" + config.sparqlGraph +"""> DELETE {"""
+    queryBuilder1 = """WITH <""" + SPARQLGRAPH +"""> DELETE {"""
     queryBuilder2 = """ """
     queryBuilder3 = """} INSERT {"""
     queryBuilder4 = """ """
