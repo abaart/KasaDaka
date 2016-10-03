@@ -1,6 +1,10 @@
+### TODO ###
+#Features#
+- Allow deleting of messages
+- Create install script
+- Sorting of messages by date
 
-fix helloworld not working
-fix passing on languages
-remove more un necessary code
 
-
+#Bugs/fixes#
+- fix passing on languages (hardcoded French)
+- remove more un necessary code
