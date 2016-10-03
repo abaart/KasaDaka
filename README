@@ -12,8 +12,8 @@ How to set up foroba blon:
 3. Give everybody rights to read and write in the /tmp directory:
 	sudo chmod -R 777 /tmp
 4. Create the directory to save user recordings: 
-	mkdir html/audio/user_recordings
-	sudo chmod -R 777 html/audio/user_recordings
+	mkdir FlaskKasadaka/FlaskKasadaka/static/audio/user_recordings
+	sudo chmod -R 777 FlaskKasadaka/FlaskKasadaka/static/audio/user_recordings
 5. Upload the included .ttl file to ClioPatria (port 3020), name the graph according to the config.py (http://localhost/foroba-blon)
 6. In the ClioPatria web interface, grant all rights to the anonymous user. (Admin>Users>anonymous>edit)
 7. Restart all relevant services:
