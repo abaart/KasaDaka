@@ -33,7 +33,7 @@ def index():
 
 
 
-@app.route('/admin')
+@app.route('/admin/')
 def adminIndex():
     return render_template('admin/index.html')
 
