@@ -23,6 +23,9 @@ How to set up foroba blon:
 8. Install sox
 	sudo apt-get install sox
 
+HOW TO TEST:
+- Call system using dongle or SIP softphone, leave message. You should get a confirmation that the message has been saved successfully.
+- Check if the message shows up in the admin interface, and that you can play it.
 
 NOTES:
 Currently the language is hardcoded to French.
