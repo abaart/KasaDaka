@@ -1,4 +1,4 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory
 from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
 import sparqlInterface
 from datetime import datetime,date
@@ -303,6 +303,11 @@ def errorVXML(language="en"):
         messages = [lang.audioInterfaceURL + 'error.wav'],
             redirect = 'error.vxml')
 
+
+
+@app.route('/static/<path:path>')
+def send_static(path):
+        return send_from_directory('static', path)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",debug=config.debug)
