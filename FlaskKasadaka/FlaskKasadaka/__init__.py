@@ -49,13 +49,15 @@ def objectInfo():
     fieldNames = sparqlHelper.propertyLabels(objectType)
     result = sparqlHelper.objectInfo(URI)
     objectTypeLabel = sparqlHelper.retrieveLabel(objectType)
+    editable = False
     return render_template(
         'admin/object.html',
         data = result, 
         fieldNames = fieldNames, 
         uri = URI,
         voiceLabelResults = voiceLabels,
-        objectTypeLabel=objectTypeLabel)
+        objectTypeLabel=objectTypeLabel,
+        editable = editable)
 
 @app.route('/admin/list')
 def objectList(objectType = ""):

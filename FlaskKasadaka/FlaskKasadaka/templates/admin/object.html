@@ -23,7 +23,10 @@ Preferred URI for new {{objectTypeLabel}}:<br/>
     <tr>
         <td>{{ field }}</td>
         <td>{% if not new %}{{ data[1][loop.index-1] }}{%endif%}</td>
+
+        {% if editable %}
         <td><input type="text" name="{{ data[0][loop.index-1] }}" value="{% if not new %}{{ data[1][loop.index-1] }}{%endif%}"></td>
+        {% endif %}
 
     </tr>
     {% endfor %}
@@ -36,7 +39,7 @@ Preferred URI for new {{objectTypeLabel}}:<br/>
 <input type="hidden" name="objectType" value="{{objectType}}">
 <input class="pure-button"  type="submit" value="Insert new {{objectTypeLabel}}">
 
-{% else %}
+{% elif editable %}
 <input type="hidden" name="uri" value="{{uri}}">
 <input class="pure-button" type="submit" value="Update {{objectTypeLabel}}!">
 {% endif %}
