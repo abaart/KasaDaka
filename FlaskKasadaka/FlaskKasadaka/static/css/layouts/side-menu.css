@@ -210,8 +210,8 @@ Hides the menu at `48em`, but modify this based on your app's needs.
 
     .header,
     .content {
-        padding-left: 2em;
-        padding-right: 2em;
+        padding-left: 10em;
+        padding-right: 4em;
     }
 
     #layout {

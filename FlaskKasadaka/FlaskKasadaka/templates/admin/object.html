@@ -3,7 +3,8 @@
 
 
 {% block body %}
-<h2>{{objectTypeLabel}}</h2>
+<div class="pure-u-1-1">
+<h2 class="content-subhead">{{objectTypeLabel}}</h2>
 
 
 
@@ -17,7 +18,7 @@ Preferred URI for new {{objectTypeLabel}}:<br/>
 <form method="post" action="update">
 {% endif %}
 
-<table>
+<table class="pure-table">
     {% for field in fieldNames %}    
     <tr>
         <td>{{ field }}</td>
@@ -33,11 +34,11 @@ Preferred URI for new {{objectTypeLabel}}:<br/>
 
 {% if new %}
 <input type="hidden" name="objectType" value="{{objectType}}">
-<input type="submit" value="Insert new {{objectTypeLabel}}">
+<input class="pure-button"  type="submit" value="Insert new {{objectTypeLabel}}">
 
 {% else %}
 <input type="hidden" name="uri" value="{{uri}}">
-<input type="submit" value="Update {{objectTypeLabel}}!">
+<input class="pure-button" type="submit" value="Update {{objectTypeLabel}}!">
 {% endif %}
 
 </form>
@@ -48,4 +49,5 @@ Preferred URI for new {{objectTypeLabel}}:<br/>
 	<input type="submit" value="DELETE {{objectTypeLabel}}!">	
 	</form> --!>
 {% endif %}
+</div>
 {% endblock %}

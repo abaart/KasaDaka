@@ -1,11 +1,14 @@
 {% macro voiceLabels(voiceLabelResults) %}
 <h4>Voice Labels</h4>
-<table>
+<table class="pure-table">
+<thead>
 <tr>
 <td>Voicelabel</td>
 <td>Audio url<td>
 <td></td>
 </tr>
+</thead>
+<tbody>
 {% for voicelabel in voiceLabelResults %}
 <tr>
 <td>{{voicelabel[0]}}</td>
@@ -13,6 +16,7 @@
 <td><audio controls><source src="{{voicelabel[1]}}" type="audio/wav"></audio></td>
 </tr>
 {% endfor %}
+</tbody>
 </table>
 
 {% endmacro %}
