@@ -1,6 +1,6 @@
-from flask import current_app
-from sparqlInterface import executeSparqlQuery, validURI
 import config
+from ..sparql.sparqlInterface import executeSparqlQuery, validURI
+
 
 class LanguageVars(object):
     audioURL = config.audioURLbase + config.defaultLanguage + "/"

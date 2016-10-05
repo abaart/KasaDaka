@@ -1,16 +1,13 @@
 from flask import request, session, g, redirect, url_for, abort, render_template, flash, current_app
 
 
-from voice import voice
+from app.KasaDaka.voice import voice
 
-from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
-import sparqlInterface
+from ..sparql.sparqlInterface import executeSparqlQuery, executeSparqlUpdate
 from datetime import datetime,date
-from werkzeug import secure_filename
-from languageVars import LanguageVars, getVoiceLabels
-import sparqlHelper
-import languageVars
-import callhelper
+from ..languageVars import LanguageVars, getVoiceLabels
+from ..sparql import sparqlHelper
+
 import subprocess
 import shutil
 import glob

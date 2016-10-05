@@ -1,24 +1,15 @@
 from flask import request, session, g, redirect, url_for, abort, render_template, flash, current_app
 
 from . import admin
-from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
-import sparqlInterface
-from datetime import datetime,date
-from werkzeug import secure_filename
-from languageVars import LanguageVars, getVoiceLabels
-import sparqlHelper
-import languageVars
-import voice
-import callhelper
+from ..sparql.sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+from ..languageVars import LanguageVars, getVoiceLabels
+from ..sparql import sparqlHelper
 import subprocess
-import shutil
 import glob
 import re
 import urllib
-import copy
 import os.path
 import os
-import random
 from base64 import b16encode , b16decode
 
 @admin.route('/send_reminders')

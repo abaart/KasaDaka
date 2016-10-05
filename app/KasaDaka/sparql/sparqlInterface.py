@@ -1,10 +1,7 @@
-from flask import Flask,current_app
 import re
 import urllib2
 import urllib
 import xml.etree.ElementTree as ET
-from xml.dom import minidom
-
 # SPARQLURL = current_app.config['SPARQLURL']
 # SPARQLGRAPH = app.config['SPARQLGRAPH']
 # SPARQLPREFIXES = app.config['SPARQLPREFIXES']

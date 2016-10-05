@@ -1,34 +1,19 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory, current_app
-#with current_app.app_context():
-#from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
-import sparqlInterface
-from datetime import datetime,date
-from werkzeug import secure_filename
-#from languageVars import LanguageVars, getVoiceLabels
-#import sparqlHelper
-#import languageVars
-import callhelper
-import subprocess
-import shutil
-import glob
-import re
-import urllib
-import copy
-import os.path
-import os
 import random
-from base64 import b16encode , b16decode
+from base64 import b16encode
+from datetime import datetime
 
-#import blueprints
+from flask import Flask, send_from_directory
+
+import callhelper
+from sparql import sparqlInterface
+import config
+app = Flask(__name__, instance_relative_config=True)
+#app.config.from_object('config')
+#app.config.from_pyfile('config.py')
 from admin import admin
 from voice import voice
-
-
-app = Flask(__name__, instance_relative_config=True)
-app.config.from_object('config')
-app.config.from_pyfile('config.py')
 app.secret_key = 'asdfbjarbja;kfbejkfbasjkfbslhjvbhcxgxui328'
-app.config['UPLOAD_FOLDER'] = app.config['AUDIOPATH']
+app.config['UPLOAD_FOLDER'] = config.AUDIOPATH
 app.register_blueprint(admin, url_prefix='/admin')
 app.register_blueprint(voice, url_prefix='/voice')
 
@@ -79,7 +64,7 @@ def getUserTelNumber(userURI):
     field = ['tel']
     triples = [[userURI,'http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
     [userURI,'http://example.org/chickenvaccinationsapp/contact_tel','?tel']]
-    result = sparqlInterface.selectTriples(field,triples)
+    result = sparqlInterface.selectTriples(field, triples)
     if len(result) == 0: return ""
     else: return result[0][0]
 
@@ -142,7 +127,7 @@ def lookupChickenBatches(userURI,giveBirthDates = False):
     if giveBirthDates:
         field.append('birth_date')
         triples.append(['?chicken_batch','http://example.org/chickenvaccinationsapp/birth_date','?birth_date'])
-    return sparqlInterface.selectTriples(field,triples,filter)
+    return sparqlInterface.selectTriples(field, triples, filter)
 
 
 
@@ -150,5 +135,6 @@ def lookupChickenBatches(userURI,giveBirthDates = False):
 def send_static(path):
         return send_from_directory('static', path)
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0",debug=app.config['DEBUG'])
+#if __name__ == '__main__':
+#    app.run(host="0.0.0.0",debug=app.config['DEBUG'])
+app.run(host="0.0.0.0",debug=app.config['DEBUG'])

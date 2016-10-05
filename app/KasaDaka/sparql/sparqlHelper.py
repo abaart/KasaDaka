@@ -1,7 +1,8 @@
-from flask import flash
-from config import dataStructure
-import sparqlInterface
-from base64 import b16encode , b16decode
+from base64 import b16encode
+
+from ..sparql import sparqlInterface
+from ..config import dataStructure
+
 
 def getDataStructure(URI):
 	return dataStructure[URI]
@@ -11,7 +12,7 @@ def retrieveLabel(URI):
 	fields = []
 	triples.append([URI , "rdfs:label" , '?' + b16encode(URI)])
 	fields.append(b16encode(URI))
-	return sparqlInterface.selectTriples(fields,triples,giveColumns=False)[0][0]
+	return sparqlInterface.selectTriples(fields, triples, giveColumns=False)[0][0]
 
 def propertyLabels(objectType,firstColumnIsURI=False):
 	properties = dataStructure[objectType]
@@ -22,7 +23,7 @@ def propertyLabels(objectType,firstColumnIsURI=False):
 		fields.append(b16encode(prop))
 	result = []
 	if firstColumnIsURI: result.append('URI')
-	result.extend(sparqlInterface.selectTriples(fields,triples,giveColumns=False)[0])
+	result.extend(sparqlInterface.selectTriples(fields, triples, giveColumns=False)[0])
 	return result
 
 def objectInfo(URI, properties = []):
@@ -34,7 +35,7 @@ def objectInfo(URI, properties = []):
 		triples.append(["?uri" , prop , '?' + b16encode(prop)])
 		fields.append(b16encode(prop))
 	filter = ["uri",URI]
-	return sparqlInterface.selectTriples(fields,triples,filter,giveColumns=True)
+	return sparqlInterface.selectTriples(fields, triples, filter, giveColumns=True)
 
 def objectList(objectType, properties = []):
 	#gives a list of all objects of a certain type
@@ -46,7 +47,7 @@ def objectList(objectType, properties = []):
 	for prop in properties:
 		triples.append(['?' + b16encode(objectType) , prop , '?' + b16encode(prop)])
 		fields.append(b16encode(prop))
-	return sparqlInterface.selectTriples(fields,triples)
+	return sparqlInterface.selectTriples(fields, triples)
 
 def objectDelete(URI):
     """Deletes all triples that have as subject the supplied URI.
@@ -71,7 +72,7 @@ def objectUpdate(URI,deleteTuples,insertTuples):
 		triplesToBeDeleted.append([URI,deleteTuple[0],deleteTuple[1]])
 	for insertTuple in insertTuples:
 		triplesToBeInserted.append([URI,insertTuple[0],insertTuple[1]])
-	success = sparqlInterface.updateTriples(triplesToBeDeleted,triplesToBeInserted)
+	success = sparqlInterface.updateTriples(triplesToBeDeleted, triplesToBeInserted)
 	return success
 
 
@@ -97,7 +98,7 @@ def checkIfNecessaryPropertiesAreSet(objectType,tuples):
 def determineObjectType(URI):
 	triples = [[URI,'rdf:type','?type']]
 	fields = ['type']
-	return sparqlInterface.selectTriples(fields,triples)[0][0]
+	return sparqlInterface.selectTriples(fields, triples)[0][0]
 
 def createURIarray(queryResult):
     """
