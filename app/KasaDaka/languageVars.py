@@ -1,5 +1,5 @@
 import config
-from ..sparql.sparqlInterface import executeSparqlQuery, validURI
+from .sparql.sparqlInterface import executeSparqlQuery, validURI
 
 
 class LanguageVars(object):

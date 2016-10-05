@@ -1,22 +1,17 @@
 from flask import request, session, g, redirect, url_for, abort, render_template, flash, current_app
 
 
-from app.KasaDaka.voice import voice
+from ..voice import voice
 
-from ..sparql.sparqlInterface import executeSparqlQuery, executeSparqlUpdate
 from datetime import datetime,date
+from .. import languageVars
 from ..languageVars import LanguageVars, getVoiceLabels
-from ..sparql import sparqlHelper
-
+from ..sparql import sparqlHelper, sparqlInterface
+from .. import config
 import subprocess
-import shutil
-import glob
 import re
-import urllib
-import copy
 import os.path
 import os
-import random
 from base64 import b16encode , b16decode
 
 @voice.route('/reminder.vxml',methods=['GET'])
@@ -40,6 +35,26 @@ def markReminderResult(userURI,received):
     return render_template('message.vxml',
         messages = messages)
 
+def lookupVaccinations():
+    """
+    Returns array of vaccinations, with properties in order as in second argument of objectList call.
+    """
+    return sparqlHelper.objectList('http://example.org/chickenvaccinationsapp/vaccination',['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats'])
+
+
+
+def lookupChickenBatches(userURI,giveBirthDates = False):
+    """
+    Returns an array of chicken batches belonging to an user.
+    """
+    field = ['chicken_batch']
+    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
+    ['?chicken_batch','http://example.org/chickenvaccinationsapp/owned_by','?userURI']]
+    filter = ['userURI',userURI]
+    if giveBirthDates:
+        field.append('birth_date')
+        triples.append(['?chicken_batch','http://example.org/chickenvaccinationsapp/birth_date','?birth_date'])
+    return sparqlInterface.selectTriples(field, triples, filter)
 
 def lookupVaccinationReminders(userURI):
     """
@@ -205,7 +220,7 @@ def askLanguageVXML(redirect,passOnVariables):
     'language.vxml',
     options = languages,
     audioDir = audioURLbase,
-    questionAudio = audioURLbase+defaultLanguage+"/interface/chooseLanguage.wav",
+    questionAudio = audioURLbase+LanguageVars.defaultLanguage+"/interface/chooseLanguage.wav",
     passOnVariables = passOnVariables,
     redirect = redirect
     )

@@ -1,9 +1,10 @@
 from flask import request, session, g, redirect, url_for, abort, render_template, flash, current_app
 
 from . import admin
-from ..sparql.sparqlInterface import executeSparqlQuery, executeSparqlUpdate
+from ..sparql.sparqlInterface import executeSparqlQuery, executeSparqlUpdate, deleteObject
 from ..languageVars import LanguageVars, getVoiceLabels
 from ..sparql import sparqlHelper
+from ..voice.views import generateReminderMessage
 import subprocess
 import glob
 import re
@@ -25,8 +26,10 @@ def showReminders():
        ?subject rdf:type   cv:user .
         }""")
     if len(userURI) != 0:
-        messages = voice.generateReminderMessage(userURI)
-        reminder = voice.concatenateWavs(messages)
+        messages = generateReminderMessage(userURI)
+        #TODO concatenateWavs maken
+        #reminder = concatenateWavs(messages)
+        reminder = ""
         reminderURL = reminder.replace(current_app.config['AUDIOPATH'],current_app.config['AUDIOURLBASE'])
         reminderURL = reminderURL.replace("127.0.0.1",request.host)
     else:
@@ -238,7 +241,7 @@ def deleteObject():
     if 'uri' not in request.form: return "Error, no uri specified"
     URI = request.form['uri']
     objectType = sparqlHelper.determineObjectType(URI)
-    success = sparqlInterface.deleteObject(URI)
+    success = deleteObject(URI)
     if success:
         flash("URI:" + URI +' deleted!')
     else:

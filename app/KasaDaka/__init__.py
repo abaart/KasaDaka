@@ -5,13 +5,14 @@ from datetime import datetime
 from flask import Flask, send_from_directory
 
 import callhelper
-from sparql import sparqlInterface
+from sparql import sparqlInterface, sparqlHelper
 import config
 app = Flask(__name__, instance_relative_config=True)
 #app.config.from_object('config')
 #app.config.from_pyfile('config.py')
 from admin import admin
 from voice import voice
+from voice.views import lookupVaccinationReminders
 app.secret_key = 'asdfbjarbja;kfbejkfbasjkfbslhjvbhcxgxui328'
 app.config['UPLOAD_FOLDER'] = config.AUDIOPATH
 app.register_blueprint(admin, url_prefix='/admin')
@@ -70,7 +71,7 @@ def getUserTelNumber(userURI):
 
 def insideOfOutgoingCallsHours():
     currentHour = datetime.now().hour
-    return currentHour > app.config['REMINDERCALLHOURS'][0] and currentHour < app.config['REMINDERCALLHOURS'][1]
+    return currentHour > config.REMINDERCALLHOURS[0] and currentHour < config.REMINDERCALLHOURS[1]
 
 
 def getUsersWithReminders(users):
@@ -110,24 +111,6 @@ def getPastReminders(userURI):
 
 
 
-def lookupVaccinations():
-    """
-    Returns array of vaccinations, with properties in order as in second argument of objectList call.
-    """
-    return sparqlHelper.objectList('http://example.org/chickenvaccinationsapp/vaccination',['http://example.org/chickenvaccinationsapp/days_after_birth','http://example.org/chickenvaccinationsapp/description','http://example.org/chickenvaccinationsapp/treats'])
-
-def lookupChickenBatches(userURI,giveBirthDates = False):
-    """
-    Returns an array of chicken batches belonging to an user.
-    """
-    field = ['chicken_batch']
-    triples = [['?userURI','http://www.w3.org/1999/02/22-rdf-syntax-ns#type','http://example.org/chickenvaccinationsapp/user'],
-    ['?chicken_batch','http://example.org/chickenvaccinationsapp/owned_by','?userURI']]
-    filter = ['userURI',userURI]
-    if giveBirthDates:
-        field.append('birth_date')
-        triples.append(['?chicken_batch','http://example.org/chickenvaccinationsapp/birth_date','?birth_date'])
-    return sparqlInterface.selectTriples(field, triples, filter)
 
 
 
@@ -137,4 +120,4 @@ def send_static(path):
 
 #if __name__ == '__main__':
 #    app.run(host="0.0.0.0",debug=app.config['DEBUG'])
-app.run(host="0.0.0.0",debug=app.config['DEBUG'])
+app.run(host="0.0.0.0",debug=config.DEBUG, use_reloader=config.USE_RELOADER)

@@ -58,6 +58,7 @@ dateFormat = "%Y-%m-%d"
 
 #debug mode
 DEBUG=True
+USE_RELOADER=False
 
 #python files location, used for checking references to *.wav files
 pythonFilesDir = "/home/pi/KasaDaka/FlaskKasadaka/FlaskKasadaka/"
