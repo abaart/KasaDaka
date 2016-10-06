@@ -3,6 +3,7 @@
 
 
 {% block body %}
+<div class="pure-u-1-1">
 <h2>Audio file management</h2>
 
 Languages in system, click to record missing voicelabels:
@@ -26,4 +27,5 @@ sox INPUT -r 8k -c 1 -e signed-integer OUTPUT
 <li>{{file}}</li>
 {% endfor %}
 </ul>
+</div>
 {% endblock %}

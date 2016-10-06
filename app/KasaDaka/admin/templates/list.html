@@ -1,19 +1,18 @@
 {% extends "index.html" %}
 {% block body %}
-<h2>{{objectTypeLabel}} management</h2>
-
-<p>Current {{objectTypeLabel}}'s in the system:</p>
-
+<div class="pure-u-1-1">
+<h2 class="content-subhead">{{objectTypeLabel}} management</h2>
 <a href="new?uri={{objectTypeBaseEncoded}}">Create new {{objectTypeLabel}}</a>
 </br></br>
-<table>
+<table class="pure-table-horizontal">
+    <thead>
     <tr>
     {% for label in fieldNames %}
         <td>{{label}}</td>
     {% endfor %}
     </tr>
-
-
+</thead>
+<tbody>
   {% for record in data %}    
 <tr>
     <td><a href="object?uri={{ recordURIs[loop.index-1][0] }}">{{ recordURIs[loop.index-1][1]  }}</a></td>
@@ -24,5 +23,7 @@
     {% endfor %}
 </tr>
   {% endfor %}
+</tbody>
 </table>
+</div>
 {% endblock %}
