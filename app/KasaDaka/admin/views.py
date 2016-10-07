@@ -237,7 +237,7 @@ def insertNewObject():
     return objectList(objectType)
 
 @admin.route('/delete', methods=['POST'])
-def deleteObject():
+def adminDeleteObject():
     if 'uri' not in request.form: return "Error, no uri specified"
     URI = request.form['uri']
     objectType = sparqlHelper.determineObjectType(URI)
