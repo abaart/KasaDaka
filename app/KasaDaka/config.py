@@ -43,18 +43,22 @@ sparqlPrefixDict = {
 #default language
 defaultLanguage = "en"
 defaultLanguageURI = "http://purl.org/collections/w4ra/speakle/voicelabel_en"
+DEFAULTLANGUAGEURI= defaultLanguageURI
 #audio files locations: THESE PATHS MUST POINT TO THE SAME LOCATION
 # IMPORTANT: MAKE SURE TO CHMOD 777 THIS DIR
 audioURLbase = "http://127.0.0.1/audio/"
+AUDIOURLBASE = audioURLbase
 AUDIOPATH = "/home/pi/KasaDaka/html/audio/"
 
 #path to place user recordings
 recordingsPath = AUDIOPATH + "user_recordings/"
+RECORDINGSPATH = recordingsPath
 
 allowedUploadExtensions = set(['wav'])
 
 #date format in triple store
 dateFormat = "%Y-%m-%d"
+DATEFORMAT = dateFormat
 
 #debug mode
 DEBUG=True

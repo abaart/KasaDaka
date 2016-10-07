@@ -61,7 +61,7 @@ def lookupVaccinationReminders(userURI):
     Returns an array of triples (chicken batch URI, vaccination URI,disease URI)
     Of the vaccination needed for an user's chicken batches
     """
-    date_format = config.dateFormat
+    date_format = config.DATEFORMAT
     chickenBatches = lookupChickenBatches(userURI,giveBirthDates = True)
     vaccinations = lookupVaccinations()
     results = []
@@ -137,8 +137,8 @@ def insertNewChickenBatch(recordingLocation,user):
     voicelabelLanguage = preferredLanguageLookup(user)
     objectType =  "http://example.org/chickenvaccinationsapp/chicken_batch"
     preferredURI = objectType
-    currentDate = date.today().strftime(current_app.config['DATEFORMAT'])
-    recordingLocation = recordingLocation.replace(current_app.config['AUDIOPATH'],current_app.config['AUDIOURLBASE'])
+    currentDate = date.today().strftime(config.DATEFORMAT)
+    recordingLocation = recordingLocation.replace(config.AUDIOPATH,config.AUDIOURLBASE)
     tuples = [["http://example.org/chickenvaccinationsapp/birth_date",currentDate],
         ["http://example.org/chickenvaccinationsapp/owned_by",user],
         [voicelabelLanguage,recordingLocation]]
@@ -150,7 +150,7 @@ def saveRecording(path):
     #a lot of %00 stuff to remove
     path =  path.replace("\00","")
     path = re.sub(r"(file:\/\/)?(.*)",r"\2",path)
-    dest = findFreshFilePath(current_app.config['RECORDINGSPATH']+ "recording.wav")
+    dest = findFreshFilePath(config.RECORDINGSPATH+ "recording.wav")
     #convert to format that is good for vxml as well as web interface
     subprocess.call(['/usr/bin/sox',path,'-r','8k','-c','1','-e','signed-integer',dest])
     #shutil.copy(path,dest)
@@ -210,7 +210,7 @@ def preProcessCallerID(callerID):
 
 #TODO tidying
 def askLanguageVXML(redirect,passOnVariables):
-    audioURLbase = current_app.config['AUDIOURLBASE']
+    audioURLbase = config.AUDIOURLBASE
     languages = languageVars.getVoiceLabelPossibilities()
     for language in languages:
         language.append(audioURLbase + language[0].rsplit('_', 1)[-1] + "/interface/" + language[0].rsplit('/', 1)[-1] + ".wav")
@@ -220,7 +220,7 @@ def askLanguageVXML(redirect,passOnVariables):
     'language.vxml',
     options = languages,
     audioDir = audioURLbase,
-    questionAudio = audioURLbase+LanguageVars.defaultLanguage+"/interface/chooseLanguage.wav",
+    questionAudio = audioURLbase+config.defaultLanguage+"/interface/chooseLanguage.wav",
     passOnVariables = passOnVariables,
     redirect = redirect
     )
@@ -274,8 +274,8 @@ def insertNewUserVXML():
 def insertNewUser(recordingLocation,callerID,lang):
     objectType = "http://example.org/chickenvaccinationsapp/user"
     preferredURI = objectType
-    audioPath = current_app.config['AUDIOPATH']
-    audioURLbase = current_app.config['AUDIOURLBASE']
+    audioPath = config.AUDIOPATH
+    audioURLbase = config.AUDIOURLBASE
     recordingLocation = recordingLocation.replace(audioPath,audioURLbase)
     tuples = [["http://example.org/chickenvaccinationsapp/contact_fname","unknown"],
         ["http://example.org/chickenvaccinationsapp/contact_lname","unknown"],
@@ -293,7 +293,7 @@ def preferredLanguageLookup(userURI):
     ['?userURI','http://example.org/chickenvaccinationsapp/preferred_language','?preferred_language']]
     filter = ['userURI',userURI]
     result = sparqlInterface.selectTriples(field,triples,filter)
-    if len(result) == 0: return current_app.config['DEFAULTLANGUAGEURI']
+    if len(result) == 0: return config.DEFAULTLANGUAGEURI
     else: return result[0][0]
 
 def callerIDLookup(callerID):
