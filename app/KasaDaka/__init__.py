@@ -45,7 +45,7 @@ def createOutgoingCalls():
 def placeOutgoingReminderCall(userURI):
     #TODO genereer een uitgaande call naar het nummer van de user:
     userNumber = getUserTelNumber(userURI)
-    vxmlURL = "http://127.0.0.1/audio/reminder.vxml?user=" + b16encode(userURI)
+    vxmlURL = "http://127.0.0.1/voice/reminder.vxml?user=" + b16encode(userURI)
     if validTelNumber(userNumber):
         userNumber = "+" + userNumber
 
