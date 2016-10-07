@@ -46,9 +46,9 @@ defaultLanguageURI = "http://purl.org/collections/w4ra/speakle/voicelabel_en"
 DEFAULTLANGUAGEURI= defaultLanguageURI
 #audio files locations: THESE PATHS MUST POINT TO THE SAME LOCATION
 # IMPORTANT: MAKE SURE TO CHMOD 777 THIS DIR
-audioURLbase = "http://127.0.0.1/audio/"
+audioURLbase = "http://127.0.0.1/static/audio/"
 AUDIOURLBASE = audioURLbase
-AUDIOPATH = "/home/pi/KasaDaka/html/audio/"
+AUDIOPATH = "/home/pi/KasaDaka/app/KasaDaka/static/audio/"
 
 #path to place user recordings
 recordingsPath = AUDIOPATH + "user_recordings/"
@@ -66,4 +66,4 @@ USE_RELOADER=False
 
 #python files location, used for checking references to *.wav files
 pythonFilesDir = "/home/pi/KasaDaka/FlaskKasadaka/FlaskKasadaka/"
-
+PYTHONFILESDIR = pythonFilesDir
