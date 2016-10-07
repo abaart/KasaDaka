@@ -13,3 +13,4 @@ app/instance/*
 .idea/
 .idea
 .idea/*
+app/KasaDaka/static/audio/user_recordings/*
