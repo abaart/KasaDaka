@@ -5,6 +5,7 @@ from ..sparql.sparqlInterface import executeSparqlQuery, executeSparqlUpdate, de
 from ..languageVars import LanguageVars, getVoiceLabels
 from ..sparql import sparqlHelper
 from ..voice.views import generateReminderMessage
+from .. import config
 import subprocess
 import glob
 import re
@@ -12,6 +13,7 @@ import urllib
 import os.path
 import os
 from base64 import b16encode , b16decode
+
 
 @admin.route('/send_reminders')
 def sendRemindersPage():
@@ -30,7 +32,7 @@ def showReminders():
         #TODO concatenateWavs maken
         #reminder = concatenateWavs(messages)
         reminder = ""
-        reminderURL = reminder.replace(current_app.config['AUDIOPATH'],current_app.config['AUDIOURLBASE'])
+        reminderURL = reminder.replace(config.AUDIOPATH,config.AUDIOURLBASE)
         reminderURL = reminderURL.replace("127.0.0.1",request.host)
     else:
         reminderURL = ""
@@ -75,7 +77,7 @@ def adminAudioHome():
     sparqlNonExistingWaveFiles = sorted(set(sparqlNonExistingWaveFiles))
 
     finalResultsInterface = []
-    pythonFilesDir =current_app.config['PYTHONFILESDIR']
+    pythonFilesDir =config.PYTHONFILESDIR
     pythonFiles = glob.glob(pythonFilesDir+'*.py')
     pythonFiles.extend(glob.glob(pythonFilesDir+'templates/*.html'))
     pythonFiles.extend(glob.glob(pythonFilesDir+'templates/*.vxml'))
@@ -121,7 +123,7 @@ def recordAudio(language,URI = ""):
     resourceDataQuery = """SELECT DISTINCT  ?1 ?2  WHERE {
           ?uri   ?1 ?2.
          FILTER(?uri=<"""+URI+""">)}"""
-    proposedWavURL = current_app.config['AUDIOPATH'] + URI.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
+    proposedWavURL = config.AUDIOPATH + URI.rsplit('/', 1)[-1] + "_"+language.rsplit('/', 1)[-1] +".wav"
 
     resourceData = executeSparqlQuery(resourceDataQuery,httpEncode=False)
     languageLabel = sparqlHelper.retrieveLabel(language)
@@ -143,7 +145,7 @@ def processAudio(request):
         flash("Error: file "+str(size)+" bytes.")
         return recordAudio(request.form['lang'])
 
-    URL = current_app.config['AUDIOURLBASE'] + request.form['filename'].rsplit('/', 1)[-1]
+    URL = config.AUDIOURLBASE + request.form['filename'].rsplit('/', 1)[-1]
     insertVoicelabelQuery = """INSERT DATA {
     <"""+ request.form['uri'] + """> <"""+ request.form['lang'] +"""> <""" + URL + """>.
     }"""
