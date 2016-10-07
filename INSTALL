@@ -1,5 +1,9 @@
 How to install:
 
+chmod -R 777 app/KasaDaka/static/audio/*
+chmod -R 777 /var/spool/asterisk/outgoing
+
+
 Create a venv: virtualenv venv
 activate venv: source venv/bin/activate
 pip install -r requirements.txt
