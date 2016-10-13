@@ -1,5 +1,10 @@
 #Ideas:
 Make templates for SPARQL queries as well?
+SPARQL connection as object? Maybe use a SPARQL library
+Implement different use-cases as modules, that can be enabled/disabled in the config
+
+
+
 
 #TODO:
 permissies in asterisk spool dir in documentatie zetten
