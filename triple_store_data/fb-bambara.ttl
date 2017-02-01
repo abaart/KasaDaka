@@ -1,0 +1,91 @@
+@base                <http://localhost/foroba-blon> .
+@prefix        rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix         rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix     speakle: <http://purl.org/collections/w4ra/speakle/> .
+@prefix    ontology: <http://lexvo.org/ontology#> .
+@prefix    iso639-3: <http://lexvo.org/id/iso639-3/> .
+@prefix foroba-blon: <http://example.org/foroba-blon/> .
+
+# Named toplevel resources (16)
+
+foroba-blon:contact_fname
+	a rdf:Property ;
+	rdfs:label "Contact First Name" .
+
+foroba-blon:contact_lname
+	a rdf:Property ;
+	rdfs:label "Contact Last Name" .
+
+foroba-blon:contact_tel
+	a rdf:Property ;
+	rdfs:label "dagayɔrɔ" .
+
+foroba-blon:date
+	a rdf:Property ;
+	rdfs:label "don" .
+
+foroba-blon:message
+	a rdf:Property ;
+	rdfs:label "ciden" .
+
+foroba-blon:message_1
+	a foroba-blon:message ;
+	foroba-blon:contact_tel "31653105713" ;
+	foroba-blon:date "2016-06-01 12:00:00" ;
+	speakle:voicelabel_en <audio/stupidmessage.wav> .
+
+foroba-blon:message_2
+	a foroba-blon:message ;
+	foroba-blon:contact_tel "abaart1" ;
+	foroba-blon:date "2016-10-03 17:33:47" ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/user_recordings/recording_1.wav> .
+
+foroba-blon:message_3
+	a foroba-blon:message ;
+	foroba-blon:contact_tel " 31653105713" ;
+	foroba-blon:date "2016-10-03 17:34:39" ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/user_recordings/recording_2.wav> .
+
+foroba-blon:message_4
+	a foroba-blon:message ;
+	foroba-blon:contact_tel "abaart" ;
+	foroba-blon:date "2016-10-03 17:59:32" ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/user_recordings/recording_3.wav> .
+
+foroba-blon:message_5
+	a foroba-blon:message ;
+	foroba-blon:contact_tel " 31653105713" ;
+	foroba-blon:date "2017-01-31 20:58:57" ;
+	speakle:voicelabel_fr <http://127.0.0.1/static/audio/user_recordings/recording_4.wav> .
+
+foroba-blon:preferred_language
+	a rdf:Property ;
+	rdfs:label "Preferred Language" .
+
+foroba-blon:user
+	a rdf:Property ;
+	rdfs:label "User" .
+
+speakle:voicelabel
+	a rdf:Property ;
+	rdfs:label "voicelabel" .
+
+speakle:voicelabel_en
+	a rdf:Property ;
+	ontology:language iso639-3:eng ;
+	rdfs:label "English voicelabel"@en ;
+	rdfs:subPropertyOf speakle:voicelabel .
+
+speakle:voicelabel_fr
+	a rdf:Property ;
+	ontology:language iso639-3:fra ;
+	rdfs:label "French voicelabel"@en ;
+	rdfs:subPropertyOf speakle:voicelabel .
+
+speakle:voicelabel_nl
+	a rdf:Property ;
+	ontology:language iso639-3:nld ;
+	rdfs:label "Dutch voicelabel"@en ;
+	rdfs:subPropertyOf speakle:voicelabel .
+
+
