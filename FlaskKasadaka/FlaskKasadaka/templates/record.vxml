@@ -9,7 +9,7 @@ if confirmed, submit to redirect, else re enter.
 {% block content %}
 <form id="recording_form">
 
-<record name="recording" beep="true" maxtime="60s"
+<record name="recording" beep="true" maxtime="300s"
   finalsilence="4s" dtmfterm="true"> 
 <prompt>
 {% for messageAudio in preMessages %}
