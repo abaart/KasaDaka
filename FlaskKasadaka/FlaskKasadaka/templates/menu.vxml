@@ -3,6 +3,8 @@
 Gives the user a single menu. 
 Input: a matrix of options, for each option: [redirect URL, audio file]
 Other inputs are self-explanatory
+
+NOTE: if there are more than 2 elements for an option, the > 2nd elements are assumed to be additional audio files, describing the option. These will be played back after the first audio file, before the postoption.
 #}
 
 {% block content %}
@@ -22,6 +24,13 @@ Other inputs are self-explanatory
     <audio src="{{ interfaceAudioDir ~ "preoption.wav" }}"/>
     {#option#}
     <audio src="{{ option[1] }}"/>
+	{% if option|length > 2 %}
+		{% for element in option %}
+			{% if loop.index > 2 %}
+				<audio src="{{element}}"/>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
     {#press#}
     <audio src="{{ interfaceAudioDir ~ "postoption.wav" }}"/>
     {#number#}

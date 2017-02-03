@@ -1,13 +1,14 @@
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory
 from sparqlInterface import executeSparqlQuery, executeSparqlUpdate
 import sparqlInterface
-from datetime import datetime,date
+from datetime import datetime, date, timedelta
+import calendar
 from werkzeug import secure_filename
 import config
 from languageVars import LanguageVars, getVoiceLabels
 import sparqlHelper
 import languageVars
-
+import random
 import subprocess
 import shutil
 import glob
@@ -215,6 +216,113 @@ def findFreshFilePath(preferredPath):
         path = re.sub(r"(.*\/)(\w*)(\.\w{3})",r"\1\2" + "_" + str(addition) + r"\3",preferredPath)
     return path
 
+
+@app.route('/rainfall-start.vxml',methods=['GET'])
+def rainfallStart():
+	interfaceAudioDir = 'static/audio/rainfallaudio/'
+	communes = [['rainfall-location.vxml?commune=bassi',interfaceAudioDir + 'bassi.wav'],
+			['rainfall-location.vxml?commune=tougo',interfaceAudioDir + 'tougo.wav'],
+			['rainfall-location.vxml?commune=leba',interfaceAudioDir + 'leba.wav'],
+			['rainfall-location.vxml?commune=gourcy',interfaceAudioDir + 'gourcy.wav'],
+			['rainfall-location.vxml?commune=ziniare-oubritenga',interfaceAudioDir + 'ziniare-oubritenga.wav'],
+			['rainfall-location.vxml?commune=ziniare-plateau',interfaceAudioDir + 'ziniare-plateau.wav']
+]
+	return render_template('menu.vxml',
+		menuID = 'communemenu',
+		interfaceAudioDir = interfaceAudioDir,
+		questionAudio='welcome.wav',
+		options = communes)
+
+
+@app.route('/rainfall-location.vxml',methods=['GET'])
+def rainfallSelectLocation():
+	userSelectedCommune = request.args.get('commune')
+	interfaceAudioDir = 'static/audio/rainfallaudio/'
+	locations = {
+			'bassi' :[
+					['rainfall-days.vxml?location=bassi-lintiba',interfaceAudioDir + 'bassi-lintiba.wav'],
+					['rainfall-days.vxml?location=bassi-ouetigue',interfaceAudioDir + 'bassi-ouetigue.wav'],
+					['rainfall-days.vxml?location=bassi-kera-doure',interfaceAudioDir + 'bassi-kera-doure.wav'],
+					['rainfall-days.vxml?location=bassi-saye',interfaceAudioDir + 'bassi-saye.wav'],
+					['rainfall-days.vxml?location=bassi-guiri-guiri',interfaceAudioDir + 'bassi-guiri-guiri.wav']
+				],
+			'leba' :[
+					['rainfall-days.vxml?location=leba-masbore',interfaceAudioDir + 'leba-masbore.wav'],
+					['rainfall-days.vxml?location=leba-bouloulou',interfaceAudioDir + 'leba-bouloulou.wav']
+				],
+			'gourcy':[
+					['rainfall-days.vxml?location=gourcy-secteur-4',interfaceAudioDir + 'gourcy-secteur-4.wav'],
+					['rainfall-days.vxml?location=gourcy-danaoua',interfaceAudioDir + 'gourcy-danaoua.wav']
+				],
+			'ziniare-oubritenga':[
+					['rainfall-days.vxml?location=ziniare-oubritenga-sawana',interfaceAudioDir + 'ziniare-oubritenga-sawana.wav']
+				],
+			'tougo' :[
+					['rainfall-days.vxml?location=tougo-ridimbo',interfaceAudioDir + 'tougo-ridimbo.wav']
+				],
+			'ziniare-plateau':[
+					['rainfall-days.vxml?location=ziniare-plateau-ziga',interfaceAudioDir + 'ziniare-plateau-ziga.wav']
+				]	
+			}
+	locationOptions = locations[userSelectedCommune]
+	
+	return render_template('menu.vxml',
+		menuID = 'locationmenu',
+		interfaceAudioDir = interfaceAudioDir,
+		questionAudio='select-region.wav',
+		options = locationOptions)
+
+
+@app.route('/rainfall-days.vxml',methods=['GET'])
+def rainfallSelectDays():	
+	userSelectedLocation = request.args.get('location')
+	interfaceAudioDir = 'static/audio/rainfallaudio/'
+	
+	#make array for 1 to 9 days with redirect
+	dayOptions = []
+	for x in range(1,9):
+		dayOptions.append(['rainfall.vxml?location=' + userSelectedLocation + '&amp;days=' + str(x) , 
+					interfaceAudioDir + str(x) + '.wav', 
+					interfaceAudioDir + 'days-ago.wav'])
+		
+	return render_template('menu.vxml',
+		menuID = 'daysmenu',
+		interfaceAudioDir = interfaceAudioDir,
+		questionAudio='select-days.wav',
+		options = dayOptions)
+
+
+@app.route('/rainfall.vxml',methods=['GET'])
+def rainfallPresentData():	
+	userSelectedLocation = request.args.get('location')
+	userSelectedDays = int(request.args.get('days'))
+	interfaceAudioDir = 'static/audio/rainfallaudio/'
+	
+	#make array for 1 to x days with random data
+	rainResults = []
+	for x in range(0,userSelectedDays):
+
+		#set random amount of rain, no greater than 25 (speech recording limited)
+		amountOfRain = int(abs(random.normalvariate(0,6.5)))
+		if amountOfRain > 25:
+			amountOfRain = 25
+
+		weekday = calendar.day_name[(date.today()-timedelta(x)).weekday()].lower()
+
+		rainResults.extend([	interfaceAudioDir + userSelectedLocation + '.wav',
+					interfaceAudioDir + 'it-was.wav',
+					interfaceAudioDir + weekday + '.wav',
+					interfaceAudioDir + str(x) + '.wav', 
+					interfaceAudioDir + 'days-ago.wav',
+					interfaceAudioDir + 'there-was.wav',
+					interfaceAudioDir + str(amountOfRain) + '.wav',
+					interfaceAudioDir + 'mmOfRain.wav'])
+	#add ending message
+	rainResults.extend([interfaceAudioDir + 'end.wav'])
+
+	return render_template('message.vxml',
+		interfaceAudioDir = interfaceAudioDir,
+		messages = rainResults)
 
 
 @app.route('/chickenvaccination.vxml',methods=['GET'])
