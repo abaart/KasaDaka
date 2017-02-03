@@ -280,7 +280,7 @@ def rainfallSelectDays():
 	
 	#make array for 1 to 9 days with redirect
 	dayOptions = []
-	for x in range(1,9):
+	for x in range(1,10):
 		dayOptions.append(['rainfall.vxml?location=' + userSelectedLocation + '&amp;days=' + str(x) , 
 					interfaceAudioDir + str(x) + '.wav', 
 					interfaceAudioDir + 'days-ago.wav'])
