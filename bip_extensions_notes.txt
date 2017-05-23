@@ -1,0 +1,9 @@
+[default]
+; Whoever is calling to the vxml kasadaka
+exten => +1234567890,1,System(echo "START ${EPOCH} - ${CALLERID(num)}" >> /var/log/asterisk/bip.txt)
+exten => +1234567890,n,Wait(10)
+exten => +1234567890,n,Answer
+exten => +1234567890,n,System(echo "PICKUP ${EPOCH} - ${CALLERID(num)}" >> /var/log/asterisk/bip.txt)
+exten => +1234567890,n,Vxml(http://37.59.54.75:8000/vxml/start/1?callerid=${CALLERID(num)})
+exten => +1234567890,n,Hangup
+
